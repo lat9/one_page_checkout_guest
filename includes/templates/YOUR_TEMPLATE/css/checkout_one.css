@@ -12,6 +12,8 @@ fieldset > #cartContentsDisplay div { margin-right: 0; }
   .floatingBox { width: 95%; float: none; margin: 0 auto; }
 }
 .opc-cc-submit, #opc-order-confirm, #opc-order-review { cursor: pointer; }
+.opc-base, .opc-credit { position: relative; }
+.opc-inactive { background: #FD8698; height: 100%; width: 100%; opacity: 0.5; top: 0; left: 0; position: absolute; padding: 0; z-index: 1; }
 
 #checkoutConfirmDefault { display: none; }
 #checkoutOneLoading { position: relative; height: 95vh; top: 50%; left: 50%; display: none; }

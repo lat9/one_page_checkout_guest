@@ -11,7 +11,7 @@
 //
 if ($shipping_module_available) {
 ?>
-  <div id="checkoutPaymentMethod" class="floatingBox forward clearRight">
+  <div id="checkoutPaymentMethod" class="floatingBox forward clearRight opc-base">
     <fieldset>
       <legend><?php echo TABLE_HEADING_PAYMENT_METHOD; ?></legend>
 <?php 
@@ -100,6 +100,7 @@ if ($shipping_module_available) {
     // ** END PAYPAL EXPRESS CHECKOUT **
 ?>
     </fieldset>
+    <div class="opc-overlay"></div>
   </div>
 <?php
 }  //-Shipping-method available, display payment block.

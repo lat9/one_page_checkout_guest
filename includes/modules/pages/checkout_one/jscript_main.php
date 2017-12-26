@@ -62,12 +62,13 @@ function button_timeout()
 // Local to the checkout_one page, provides a common function to log a javascript console
 // message.  The checking is required for older (pre IE-9?) versions of Internet Explorer, which
 // doesn't instantiate the window.console class unless the debug pane is open.
+//
 ?>
 function zcLog2Console(message)
 {
     if (window.console) {
         if (typeof(console.log) == 'function') {
-            console.log (message);
+            console.log(message);
         }
     }
 }
@@ -132,7 +133,7 @@ function methodSelect(theMethod)
 // Not currently used, but might be useful in the future!
 //
 ?>
-function setJavaScriptEnabled ()
+function setJavaScriptEnabled()
 {
     document.getElementById( 'javascript-enabled' ).value = '1';
 }
@@ -150,14 +151,14 @@ function setJavaScriptEnabled ()
 ?>
 function shippingIsBilling () 
 {
-    var shippingAddress = document.getElementById ('checkoutOneShipto');
+    var shippingAddress = document.getElementById('checkoutOneShipto');
     if (shippingAddress) {
-        if (document.getElementById ('shipping_billing').checked) {
+        if (document.getElementById('shipping_billing').checked) {
             shippingAddress.className = 'hiddenField';
-            shippingAddress.setAttribute ('className', 'hiddenField'); 
+            shippingAddress.setAttribute('className', 'hiddenField'); 
         } else {
             shippingAddress.className = 'visibleField';
-            shippingAddress.setAttribute ('className', 'visibleField');
+            shippingAddress.setAttribute('className', 'visibleField');
         }
     }
 }
@@ -173,7 +174,7 @@ function setOrderConfirmed (value)
 {
     orderConfirmed = value;
     jQuery('#confirm-the-order').val( value );
-    zcLog2Console ('Setting orderConfirmed ('+value+'), submitter ('+submitter+')');
+    zcLog2Console('Setting orderConfirmed ('+value+'), submitter ('+submitter+')');
 }
 
 <?php
@@ -268,10 +269,10 @@ if (!$is_virtual_order) {
     }
     setFormSubmitButton();
     
-    setOrderConfirmed (0);
+    setOrderConfirmed(0);
     jQuery( '#checkoutOneShippingFlag' ).show();
     
-    zcLog2Console ( 'jQuery version: '+jQuery().jquery );
+    zcLog2Console( 'jQuery version: '+jQuery().jquery );
     
     var timeoutUrl = '<?php echo zen_href_link (FILENAME_LOGIN, '', 'SSL'); ?>';
     var sessionTimeoutErrorMessage = '<?php echo JS_ERROR_SESSION_TIMED_OUT; ?>';
@@ -506,7 +507,7 @@ if ($flagOnSubmit) {
     //
 ?>
     jQuery( '#checkoutShippingMethod input[name=shipping]' ).on( 'click', function( event ) {
-        changeShippingSubmitForm ('shipping-only', event);
+        changeShippingSubmitForm('shipping-only', event);
     });
     
 <?php

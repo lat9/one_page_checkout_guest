@@ -9,6 +9,18 @@
  * @version $Id: Author: DrByte  Fri Feb 26 00:03:33 2016 -0500 Modified in v1.5.5 $
  */
 ?>
+<?php
+//-bof-checkout_one-lat9  *** 1 of 1 ***
+// -----
+// If the One-Page Checkout and its Guest Checkout mode are enabled, use the plugin-specific layout
+// for the login page.
+//
+if (isset($is_guest_checkout) && $is_guest_checkout === true) {
+    require $template->get_template_dir('tpl_modules_opc_login.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_login.php';
+    return;  //-Don't include the rest of the default login page template
+}
+//-eof-checkout_one-lat9  *** 1 of 1 ***
+?>
 <div class="centerColumn" id="loginDefault">
 
 <h1 id="loginDefaultHeading"><?php echo HEADING_TITLE; ?></h1>

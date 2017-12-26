@@ -10,7 +10,7 @@ $zco_notifier->notify('NOTIFY_HEADER_START_CHECKOUT_ONE');
 // -----
 // Use "normal" checkout if not enabled.
 //
-if (!(defined('CHECKOUT_ONE_ENABLED') && is_object($checkout_one) && $checkout_one->enabled)) {
+if (!(defined('CHECKOUT_ONE_ENABLED') && isset($checkout_one) && $checkout_one->isEnabled())) {
     $zco_notifier->notify('NOTIFY_CHECKOUT_ONE_NOT_ENABLED');
     zen_redirect(zen_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'));
 }
@@ -25,7 +25,7 @@ $checkout_one->debug_message(sprintf('CHECKOUT_ONE_ENTRY, version (%s), Zen Cart
 // If the plugin's debug-mode is set to "full", then enable ALL error reporting for the checkout_one page.
 //
 if (CHECKOUT_ONE_DEBUG == 'full') {
-    @ini_set('error_reporting', -1 );
+    @ini_set('error_reporting', -1);
 }
 
 // if there is nothing in the customers cart, redirect them to the shopping cart page
@@ -33,15 +33,17 @@ if ($_SESSION['cart']->count_contents() <= 0) {
     zen_redirect(zen_href_link(FILENAME_SHOPPING_CART, '', 'NONSSL'));
 }
 
-// if the customer is not logged on, redirect them to the login page
+// -----
+// Check the customer's login status.
+//
 if (!isset($_SESSION['customer_id']) || !$_SESSION['customer_id']) {
-    $_SESSION['navigation']->set_snapshot();
-    zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
-  
+    if (!$_SESSION['opcGuest']->startGuestOnePageCheckout()) {
+        $_SESSION['navigation']->set_snapshot();
+        zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
+    }
 } else {
-    // validate customer
     if (zen_get_customer_validate_session($_SESSION['customer_id']) == false) {
-        $_SESSION['navigation']->set_snapshot(array ('mode' => 'SSL', 'page' => FILENAME_CHECKOUT_ONEPAGE));
+        $_SESSION['navigation']->set_snapshot(array ('mode' => 'SSL', 'page' => FILENAME_CHECKOUT_ONE));
         zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
     }
 }
@@ -78,7 +80,7 @@ if (STOCK_CHECK == 'true') {
         zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
     }
 }
-unset ($products_array);
+unset($products_array);
 
 // get coupon code
 if (isset ($_SESSION['cc_id'])) {
@@ -218,7 +220,7 @@ if (!$is_virtual_order) {
     // price for the display.
     //
     $shipping_selection_changed = false;
-    if (isset ($_SESSION['shipping'])) {
+    if (isset($_SESSION['shipping'])) {
         $selected_shipping_cost = 0;
         $selected_shipping_elements = explode('_', $_SESSION['shipping']['id']);
         $checklist = array();
@@ -351,7 +353,7 @@ $checkout_one->debug_message("CHECKOUT_ONE_AFTER_PAYMENT_MODULES_SELECTION\n" . 
 //
 $flagDisablePaymentAddressChange = false;
 $editShippingButtonLink = zen_href_link(FILENAME_CHECKOUT_SHIPPING_ADDRESS, '', 'SSL');
-if (isset ($_SESSION['payment'])) {
+if (isset($_SESSION['payment'])) {
     // -----
     // Fix-up required for PayPal Express Checkout shortcut-button since the payment method is pre-set on entry to the checkout process.
     //

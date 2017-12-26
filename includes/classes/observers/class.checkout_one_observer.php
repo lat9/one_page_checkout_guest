@@ -9,11 +9,10 @@ if (!defined('IS_ADMIN_FLAG')) {
 
 class checkout_one_observer extends base 
 {
+    private $enabled = false;
+            
     public function __construct() 
     {
-        global $current_page_base;
-        $this->enabled = false;
-        
         // -----
         // Determine if the current session browser is an Internet Explorer version less than 9 (that don't properly support
         // jQuery).
@@ -73,20 +72,42 @@ class checkout_one_observer extends base
                 }
             }
             $this->debug_logfile = DIR_FS_LOGS . '/myDEBUG-one_page_checkout-' . $_SESSION['customer_id'] . '.log';
-            $this->current_page_base = $current_page_base;
+            $this->current_page_base = $GLOBALS['current_page_base'];
+                    
+            $this->attach(
+                $this, 
+                array(
+                    'NOTIFY_HEADER_START_CHECKOUT_SHIPPING', 
+                    'NOTIFY_HEADER_START_CHECKOUT_PAYMENT', 
+                    'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS', 
+                    'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION', 
+                    'NOTIFY_HEADER_END_CHECKOUT_SUCCESS'
+                )
+            );
             
-            $this->attach ($this, array ('NOTIFY_HEADER_START_CHECKOUT_SHIPPING', 'NOTIFY_HEADER_START_CHECKOUT_PAYMENT', 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS', 'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION', 'NOTIFY_HEADER_END_CHECKOUT_SUCCESS'));
+            // -----
+            // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
+            //
+            if ($_SESSION['opcGuest']->setGuestCheckoutEnabled()) {    
+                $this->attach(
+                    $this, 
+                    array(
+                        'NOTIFY_HEADER_START_CREATE_ACCOUNT',
+                        'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
+                    )
+                );
+            }
         }
     }
   
-    public function update (&$class, $eventID, $p1a) 
+    public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
     {
         switch ($eventID) {     
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING':
             case 'NOTIFY_HEADER_START_CHECKOUT_PAYMENT':
             case 'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION':
-                $this->debug_message ('checkout_one redirect: ', true, 'checkout_one_observer');
-                zen_redirect (zen_href_link (FILENAME_CHECKOUT_ONE, zen_get_all_get_params (), 'SSL'));
+                $this->debug_message('checkout_one redirect: ', true, 'checkout_one_observer');
+                zen_redirect(zen_href_link(FILENAME_CHECKOUT_ONE, zen_get_all_get_params(), 'SSL'));
                 break;
                 
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS':
@@ -94,7 +115,24 @@ class checkout_one_observer extends base
                 break;
       
             case 'NOTIFY_HEADER_END_CHECKOUT_SUCCESS':
-                unset ($_SESSION['shipping_billing'], $_SESSION['opc_sendto_saved']);
+                unset($_SESSION['shipping_billing'], $_SESSION['opc_sendto_saved']);
+                break;
+                
+            case 'NOTIFY_HEADER_START_CREATE_ACCOUNT':
+                zen_redirect(zen_href_link(FILENAME_REGISTER, '', 'SSL'));
+                break;
+                
+            // -----
+            // Parameters:
+            //
+            // $p1 ... Supplied email address
+            // $p2 ... Supplied password
+            // $p3 ... Boolean flag, set to true if the login is to be authorized.
+            //
+            case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
+                if ($p3 === true) {
+                    $_SESSION['opcGuest']->setAccountTypeByEmail($p1);
+                }
                 break;
  
             default:
@@ -102,43 +140,43 @@ class checkout_one_observer extends base
         }
     }
     
-    public function debug_message ($message, $include_request = false, $other_caller = '')
+    public function debug_message($message, $include_request = false, $other_caller = '')
     {
         if ($this->debug) {
             $extra_info = '';
             if ($include_request) {
                 $the_request = $_REQUEST;
                 foreach ($the_request as $name => $value) {
-                    if (strpos ($name, 'cc_number') !== false || strpos ($name, 'cc_cvv') !== false || strpos ($name, 'card-number') !== false || strpos ($name, 'cv2-number') !== false) {
-                        unset ($the_request[$name]);
+                    if (strpos($name, 'cc_number') !== false || strpos($name, 'cc_cvv') !== false || strpos($name, 'card-number') !== false || strpos($name, 'cv2-number') !== false) {
+                        unset($the_request[$name]);
                     }
                 }
-                $extra_info = print_r ($the_request, true);
+                $extra_info = print_r($the_request, true);
             }
             
             // -----
             // Change any occurrences of [code] to ["code"] in the logs so that they can be properly posted between [CODE} tags on the Zen Cart forums.
             //
-            $message = str_replace ('[code]', '["code"]', $message);
-            error_log (date ('Y-m-d H:i:s') . ' ' . (($other_caller != '') ? $other_caller : $this->current_page_base) . ": $message$extra_info" . PHP_EOL, 3, $this->debug_logfile);
-            $this->notify ($message);
+            $message = str_replace('[code]', '["code"]', $message);
+            error_log(date('Y-m-d H:i:s') . ' ' . (($other_caller != '') ? $other_caller : $this->current_page_base) . ": $message$extra_info" . PHP_EOL, 3, $this->debug_logfile);
+            $this->notify($message);
         }
     }
     
-    public function hashSession ($current_order_total)
+    public function hashSession($current_order_total)
     {
         $session_data = $_SESSION;
-        if (isset ($session_data['shipping'])) {
-           unset ($session_data['shipping']['extras']);
+        if (isset($session_data['shipping'])) {
+           unset($session_data['shipping']['extras']);
         }
-        unset ($session_data['shipping_billing'], $session_data['comments'], $session_data['navigation']);
+        unset($session_data['shipping_billing'], $session_data['comments'], $session_data['navigation']);
         
         // -----
         // The ot_gv order-total in Zen Cart 1.5.4 sets its session-variable to either 0 or '0.00', which results in
         // false change-detection by this function.  As such, if the order-total's variable is present in the session
         // and is 0, set the variable to a "known" representation of 0!
         //
-        if (isset ($session_data['cot_gv']) && $session_data['cot_gv'] == 0) {
+        if (isset($session_data['cot_gv']) && $session_data['cot_gv'] == 0) {
             $session_data['cot_gv'] = '0.00';
         }
         
@@ -171,7 +209,7 @@ class checkout_one_observer extends base
         // This is needed since the order's current total, as passed into the confirmation page, is created by
         // javascript that captures the character representation of any symbols.
         //
-        $session_data['order_current_total'] = html_entity_decode ($current_order_total, ENT_COMPAT, CHARSET);
+        $session_data['order_current_total'] = html_entity_decode($current_order_total, ENT_COMPAT, CHARSET);
         
         // -----
         // If the order's current total is 0 (which it will be after a 100% coupon), don't include the session's
@@ -181,25 +219,26 @@ class checkout_one_observer extends base
             unset($session_data['payment']);
         }
         
-        $hash_values = var_export ($session_data, true);
-        $this->debug_message ("hashSession returning an md5 of $hash_values", false, 'checkout_one_observer');
-        return md5 ($hash_values);
+        $hash_values = var_export($session_data, true);
+        $this->debug_message("hashSession returning an md5 of $hash_values", false, 'checkout_one_observer');
+        return md5($hash_values);
     }
     
-    public function isOrderFreeShipping ($country_override = false)
+    public function isOrderFreeShipping($country_override = false)
     {
         global $order, $db;
         
         $free_shipping = false;
         $pass = false;
-        if (defined ('MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING') && MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING == 'true') {
+        if (defined('MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING') && MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING == 'true') {
             if ($country_override === false) {
                 $order_country = $order->delivery['country_id'];
             } else {
-                $country_check = $db->Execute (
+                $country_check = $db->Execute(
                     "SELECT entry_country_id 
                        FROM " . TABLE_ADDRESS_BOOK . " 
-                      WHERE address_book_id = " . (int)$_SESSION['sendto'] . " LIMIT 1"
+                      WHERE address_book_id = " . (int)$_SESSION['sendto'] . " 
+                      LIMIT 1"
                 );
                 $order_country = ($country_check->EOF) ? 0 : $country_check->fields['entry_country_id'];
             }
@@ -228,5 +267,10 @@ class checkout_one_observer extends base
         }
         return $free_shipping;
     }
- 
+    
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
 }

@@ -16,18 +16,20 @@ if ($is_virtual_order) {
         echo zen_draw_checkbox_field('shipping_billing', '1', false, 'id="shipping_billing" style="display: none;"');
     } else {
 ?>
-    <div id="checkoutOneShippingFlag" style="display: none;"><?php echo  zen_draw_checkbox_field('shipping_billing', '1', $shipping_billing, 'id="shipping_billing"');?>
+    <div id="checkoutOneShippingFlag" style="display: none;" class="opc-base"><?php echo  zen_draw_checkbox_field('shipping_billing', '1', $shipping_billing, 'id="shipping_billing"');?>
       <label class="checkboxLabel" for="shipping_billing"><?php echo TEXT_USE_BILLING_FOR_SHIPPING; ?></label>
+      <div class="opc-overlay"></div>
     </div>
 <?php
     }
 ?>
-    <div id="checkoutOneShipto">
+    <div id="checkoutOneShipto" class="opc-base">
       <fieldset>
         <legend><?php echo TITLE_SHIPPING_ADDRESS; ?></legend>
         <address><?php echo zen_address_format($order->delivery['format_id'], $order->delivery, 1, ' ', '<br />'); ?></address>
         <div class="buttonRow forward"><?php echo '<a href="' . $editShippingButtonLink . '">' . zen_image_button(BUTTON_IMAGE_EDIT_SMALL, BUTTON_EDIT_SMALL_ALT) . '</a>'; ?></div>
       </fieldset>
+      <div class="opc-overlay"></div>
     </div>
 <?php
 }
