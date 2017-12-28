@@ -36,8 +36,9 @@ if ($_SESSION['cart']->count_contents() <= 0) {
 // -----
 // Check the customer's login status.
 //
+$is_guest_checkout = $_SESSION['opcHelper']->startGuestOnePageCheckout();
 if (!isset($_SESSION['customer_id']) || !$_SESSION['customer_id']) {
-    if (!$_SESSION['opcGuest']->startGuestOnePageCheckout()) {
+    if (!$is_guest_checkout) {
         $_SESSION['navigation']->set_snapshot();
         zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
     }
@@ -70,7 +71,7 @@ if ($_SESSION['valid_to_checkout'] == false) {
 $flagAnyOutOfStock = false;
 $stock_check = array ();
 if (STOCK_CHECK == 'true') {
-    for ($i = 0, $n = count ($products_array); $i < $n; $i++) {
+    for ($i = 0, $n = count($products_array); $i < $n; $i++) {
         if ($stock_check[$i] = zen_check_stock($products_array[$i]['id'], $products_array[$i]['quantity'])) {
             $flagAnyOutOfStock = true;
         }
@@ -84,7 +85,7 @@ unset($products_array);
 
 // get coupon code
 if (isset ($_SESSION['cc_id'])) {
-    $discount_coupon_query = "SELECT coupon_code FROM " . TABLE_COUPONS . " WHERE coupon_id = :couponID";
+    $discount_coupon_query = "SELECT coupon_code FROM " . TABLE_COUPONS . " WHERE coupon_id = :couponID LIMIT 1";
     $discount_coupon_query = $db->bindVars($discount_coupon_query, ':couponID', $_SESSION['cc_id'], 'integer');
     $discount_coupon = $db->Execute($discount_coupon_query);
 
@@ -94,6 +95,8 @@ if (isset ($_SESSION['cc_id'])) {
 }
 
 $shipping_billing = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping_billing'] : true;
+
+$_SESSION['opcHelper']->initializeAddressValues();
 
 // if no billing destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['billto'])) {

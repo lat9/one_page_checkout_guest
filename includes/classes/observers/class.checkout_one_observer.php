@@ -88,7 +88,7 @@ class checkout_one_observer extends base
             // -----
             // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
             //
-            if ($_SESSION['opcGuest']->setGuestCheckoutEnabled()) {    
+            if ($_SESSION['opcHelper']->setGuestCheckoutEnabled()) {    
                 $this->attach(
                     $this, 
                     array(

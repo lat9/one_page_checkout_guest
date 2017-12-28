@@ -8,6 +8,8 @@ define('NAVBAR_TITLE_1', 'Checkout');
 define('NAVBAR_TITLE_2', 'Select Shipping/Payment and Confirm Your Order');
 
 define('HEADING_TITLE', 'Checkout');
+define('BUTTON_SAVE_CHANGES_ALT', 'Save Changes');
+define('BUTTON_CANCEL_CHANGES_ALT', 'Cancel');
 
 define('TABLE_HEADING_SHIPPING_ADDRESS', 'Shipping Address');
 define('TEXT_CHOOSE_SHIPPING_DESTINATION', 'Your order will be shipped to the address above or you may change the shipping address by clicking the <em>Change Address</em> button.');  //-20130916-lat9
@@ -28,6 +30,14 @@ define('TEXT_CONTINUE_CHECKOUT_PROCEDURE', '- choose your payment method.');
 define('ERROR_PLEASE_RESELECT_SHIPPING_METHOD', 'Your available shipping options have changed. Please re-select your desired shipping method.');
 define('ERROR_UNKNOWN_SHIPPING_SELECTION', 'An unknown shipping-method was submitted.  Please contact the store owner.');
 define('ERROR_NO_SHIPPING_SELECTED', 'You must choose a shipping method for your order before the order can be confirmed.');
+define('ERROR_INVALID_REQUEST', 'An unknown request was received.  Please contact the store owner.');
+
+// -----
+// These definitions are prepended to any address-value-related error message as an indication
+// of which address-field is being referenced.
+//
+define('ERROR_IN_BILLING', '[Billing]: ');
+define('ERROR_IN_SHIPPING', '[Shipping]: ');
 
 // -----
 // NOTE: The following constants are used in the page's jscript_main.php file as javascript text literals.  If you want to include single-quotes in a value,
@@ -49,7 +59,7 @@ define('TEXT_NOSCRIPT_JS_ERROR', 'Sorry, but our expedited checkout process cann
 // ----- From checkout_payment -----
 
 define('TABLE_HEADING_BILLING_ADDRESS', 'Billing Address');
-define('TEXT_SELECTED_BILLING_DESTINATION', 'Your billing address is shown above. The billing address should match the address on your credit card statement. You can change the billing address by clicking the <em>Change Address</em> button.');  //-20130916-lat9
+define('TEXT_SELECTED_BILLING_DESTINATION', 'Your billing address is shown above. The billing address should match the address on your credit card statement. You can change the billing address by clicking the <em>Change Address</em> button.');
 define('TITLE_BILLING_ADDRESS', 'Billing Address:');
 
 define('TABLE_HEADING_PAYMENT_METHOD', 'Payment Method');

@@ -1,3 +1,11 @@
+select, fieldset select { margin-left: 0; height: 40px; }
+
+#checkoutConfirmDefault { display: none; }
+#checkoutOneLoading { position: relative; height: 95vh; top: 50%; left: 50%; display: none; }
+#checkoutPaymentNoJs { text-align: center; border: 1px solid red; width: 95%; margin: 0 auto; }
+
+#messages-bill, #messages-ship { margin-top: 10px; }
+
 th#ccProductsHeading { text-align: left; }
 th#ccTotalHeading { text-align: right; }
 .floatingBox  { width: 49%; }
@@ -7,14 +15,18 @@ label.inputLabel { width: 110px; }
 #cartOrderTotals { border-top: 1px solid #bbb; border-bottom: 1px solid #bbb; }
 fieldset#checkoutOneCartGroup { padding-bottom: 0; }
 fieldset > #cartContentsDisplay div { margin-right: 0; }
+
 .edit-button { border-bottom: 1px solid #bbb; text-align: right; }
+.opc-changed { border: 1px solid #0000ff; }
+.opc-error { border: 2px solid red; }
+.opc-right { text-align: right; }
+.opc-view { z-index: 2; }
+.opc-cc-submit, #opc-order-confirm, #opc-order-review, #opc-bill-cancel, #opc-bill-save { cursor: pointer; }
+.opc-base, .opc-credit { position: relative; }
+.opc-overlay.active { background: #dcdcdc; height: 100%; width: 100%; opacity: 0.5; top: 0; left: 0; position: absolute; padding: 0; z-index: 1; }
+.opc-edit { z-index: 2; position: absolute; bottom: 0; right: 0; margin: 10px; }
+.opc-edit:hover { cursor: pointer; }
+
 @media (max-width: 979px) {
   .floatingBox { width: 95%; float: none; margin: 0 auto; }
 }
-.opc-cc-submit, #opc-order-confirm, #opc-order-review { cursor: pointer; }
-.opc-base, .opc-credit { position: relative; }
-.opc-inactive { background: #FD8698; height: 100%; width: 100%; opacity: 0.5; top: 0; left: 0; position: absolute; padding: 0; z-index: 1; }
-
-#checkoutConfirmDefault { display: none; }
-#checkoutOneLoading { position: relative; height: 95vh; top: 50%; left: 50%; display: none; }
-#checkoutPaymentNoJs { text-align: center; border: 1px solid red; width: 95%; margin: 0 auto; }

@@ -5,7 +5,7 @@
 //
 // If the One-Page Checkout's "Guest Checkout", instruct the template-formatting to disable the right and left sideboxes.
 //
-if (isset($_SESSION['opcGuest']) && $_SESSION['opcGuest']->setGuestCheckoutEnabled()) {
+if (isset($_SESSION['opcHelper']) && $_SESSION['opcHelper']->setGuestCheckoutEnabled()) {
     $is_guest_checkout = true;
     $flag_disable_right = $flag_disable_left = true;
 }
