@@ -9,7 +9,12 @@ define('NAVBAR_TITLE_2', 'Select Shipping/Payment and Confirm Your Order');
 
 define('HEADING_TITLE', 'Checkout');
 define('BUTTON_SAVE_CHANGES_ALT', 'Save Changes');
+define('BUTTON_SAVE_CHANGES_TITLE', 'Save the changes made to this address');
 define('BUTTON_CANCEL_CHANGES_ALT', 'Cancel');
+define('BUTTON_CANCEL_CHANGES_TITLE', 'Cancel all changes made to this address');
+
+define('TEXT_ADD_TO_ADDRESS_BOOK', 'Add to Address Book');
+define('TITLE_ADD_TO_ADDRESS_BOOK', 'Tick this box to add this address to your personal address book');
 
 define('TABLE_HEADING_SHIPPING_ADDRESS', 'Shipping Address');
 define('TEXT_CHOOSE_SHIPPING_DESTINATION', 'Your order will be shipped to the address above or you may change the shipping address by clicking the <em>Change Address</em> button.');  //-20130916-lat9

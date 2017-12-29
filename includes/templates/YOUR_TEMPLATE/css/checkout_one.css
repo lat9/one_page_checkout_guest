@@ -16,16 +16,17 @@ label.inputLabel { width: 110px; }
 fieldset#checkoutOneCartGroup { padding-bottom: 0; }
 fieldset > #cartContentsDisplay div { margin-right: 0; }
 
-.edit-button { border-bottom: 1px solid #bbb; text-align: right; }
+.opc-buttons { display: none; }
+.opc-buttons > div:first-child { float: left; }
+.opc-buttons::after { clear: both; }
+
 .opc-changed { border: 1px solid #0000ff; }
 .opc-error { border: 2px solid red; }
 .opc-right { text-align: right; }
-.opc-view { z-index: 2; }
+.opc-view { position: relative; z-index: 2; box-shadow: 3px 3px 5px 6px #ccc; }
 .opc-cc-submit, #opc-order-confirm, #opc-order-review, #opc-bill-cancel, #opc-bill-save { cursor: pointer; }
 .opc-base, .opc-credit { position: relative; }
 .opc-overlay.active { background: #dcdcdc; height: 100%; width: 100%; opacity: 0.5; top: 0; left: 0; position: absolute; padding: 0; z-index: 1; }
-.opc-edit { z-index: 2; position: absolute; bottom: 0; right: 0; margin: 10px; }
-.opc-edit:hover { cursor: pointer; }
 
 @media (max-width: 979px) {
   .floatingBox { width: 95%; float: none; margin: 0 auto; }

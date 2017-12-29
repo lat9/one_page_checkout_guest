@@ -355,7 +355,7 @@ $checkout_one->debug_message("CHECKOUT_ONE_AFTER_PAYMENT_MODULES_SELECTION\n" . 
 // If the payment method has been set in the session, there are a couple more cleanup/template-setting actions that might be needed.
 //
 $flagDisablePaymentAddressChange = false;
-$editShippingButtonLink = zen_href_link(FILENAME_CHECKOUT_SHIPPING_ADDRESS, '', 'SSL');
+$editShippingButtonLink = true;
 if (isset($_SESSION['payment'])) {
     // -----
     // Fix-up required for PayPal Express Checkout shortcut-button since the payment method is pre-set on entry to the checkout process.

@@ -278,6 +278,7 @@ class zcAjaxOnePageCheckout extends base
     {
         trigger_error(var_export($_POST, true), E_USER_WARNING);
         $error_message = $address_html = '';
+        $messages = array();
         $status = 'ok';
         
         // -----
@@ -294,8 +295,7 @@ class zcAjaxOnePageCheckout extends base
                 $error_message = ERROR_INVALID_REQUEST;
                 trigger_error('$_POST[\'which\'] not set or invalid, nothing to do.', E_USER_WARNING);
             } else {
-                $messages = array();
-                $_SESSION['opcHelper']->validateAjaxPostedAddress($_POST['which'], $messages);
+                $_SESSION['opcHelper']->validateAndSaveAjaxPostedAddress($_POST['which'], $messages);
             }
         }
         

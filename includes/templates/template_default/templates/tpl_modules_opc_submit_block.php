@@ -13,11 +13,10 @@ if ($shipping_module_available && $payment_module_available) {
     //
 ?>
 <!--bof submit block -->
-  <div id="checkoutOneSubmit" class="buttonRow forward opc-base">
+  <div id="checkoutOneSubmit" class="buttonRow forward">
     <span id="opc-order-confirm"><?php echo zen_image_button(BUTTON_IMAGE_CHECKOUT_ONE_CONFIRM, BUTTON_CHECKOUT_ONE_CONFIRM_ALT); ?></span>
     <span id="opc-order-review"><?php echo zen_image_button(BUTTON_IMAGE_CHECKOUT_ONE_REVIEW, BUTTON_CHECKOUT_ONE_REVIEW_ALT); ?></span>
-    <?php echo zen_draw_hidden_field('order_confirmed', '1', 'id="confirm-the-order"') . zen_draw_hidden_field('current_order_total', '0', 'id="current-order-total"'); ?>
-    <div class="opc-overlay"></div>
+    <?php echo zen_draw_hidden_field('order_confirmed', '1', 'id="confirm-the-order"') . zen_draw_hidden_field ('current_order_total', '0', 'id="current-order-total"'); ?>
   </div>
   <div id="checkoutOneEmail" class="forward clearRight"><?php echo sprintf(TEXT_CONFIRMATION_EMAILS_SENT_TO, $order->customer['email_address']); ?></div>
   <div class="clearBoth"></div>

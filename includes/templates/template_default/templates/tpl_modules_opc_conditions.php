@@ -6,13 +6,12 @@
 if (DISPLAY_CONDITIONS_ON_CHECKOUT == 'true') {
 ?>
 <!--bof conditions block -->
-  <div id="conditions-div" class="opc-base">
+  <div id="conditions-div">
     <fieldset>
       <legend><?php echo TABLE_HEADING_CONDITIONS; ?></legend>
       <div><?php echo TEXT_CONDITIONS_DESCRIPTION;?></div>
       <?php echo zen_draw_checkbox_field('conditions', '1', false, 'id="conditions"'); ?><label class="checkboxLabel" for="conditions"><?php echo TEXT_CONDITIONS_CONFIRM; ?></label>
     </fieldset>
-    <div class="opc-overlay"></div>
   </div>
 <!--eof conditions block -->
 <?php

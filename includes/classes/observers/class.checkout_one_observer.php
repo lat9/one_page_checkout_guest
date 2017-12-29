@@ -131,7 +131,7 @@ class checkout_one_observer extends base
             //
             case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
                 if ($p3 === true) {
-                    $_SESSION['opcGuest']->setAccountTypeByEmail($p1);
+                    $_SESSION['opcHelper']->setAccountTypeByEmail($p1);
                 }
                 break;
  

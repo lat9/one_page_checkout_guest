@@ -5,7 +5,7 @@
 //
 ?>
 <!--bof shipping-method choices -->
-  <div id="checkoutShippingMethod" class="floatingBox forward opc-base">   
+  <div id="checkoutShippingMethod" class="floatingBox forward">   
 <?php
 // -----
 // If the order contains only virtual products, the shipping block contains only a hidden field that
@@ -68,9 +68,6 @@ if ($is_virtual_order) {
     <div id="checkoutShippingContentChoose" class="important"><?php echo TEXT_NO_SHIPPING_AVAILABLE; ?></div>
 <?php
     }
-?>
-    <div class="opc-overlay"></div>
-<?php
 }  //-Order is not "virtual", display full shipping-method block
 ?>
   </div>

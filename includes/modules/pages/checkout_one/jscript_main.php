@@ -25,6 +25,33 @@ var noShippingSelectedError = '<?php echo ERROR_NO_SHIPPING_SELECTED; ?>';
 var flagOnSubmit = <?php echo ($flagOnSubmit) ? 'true' : 'false'; ?>;
 
 var shippingTimeout = <?php echo (int)((defined ('CHECKOUT_ONE_SHIPPING_TIMEOUT')) ? CHECKOUT_ONE_SHIPPING_TIMEOUT : 5000); ?>;
+
+var additionalShippingInputs = {
+<?php
+// -----
+// If the current order has generated shipping quotes (i.e. it's got at least one physical product), check to see if a 
+// shipping-module has required inputs that should accompany the post, format the necessary jQuery to gather those inputs.
+//
+$input_array = 'var shippingInputs = {';
+if (isset($quotes) && is_array($quotes)) {
+    $additional_shipping_inputs = array();
+    foreach ($quotes as $current_quote) {
+        if (isset($current_quote['required_input_names']) && is_array($current_quote['required_input_names'])) {
+            foreach ($current_quote['required_input_names'] as $current_input_name => $selection_required) {
+                $variable_name = base::camelize($current_input_name);
+                $input_array .= "$variable_name: '', ";
+?>
+    <?php echo $variable_name; ?>: { input_name: '<?php echo $current_input_name; ?>', parms: '<?php echo ($selection_required) ? ':checked' : ''; ?>' },
+<?php
+            }
+        }
+    }
+}
+?>
+}
+<?php
+echo $input_array . '}';
+?>
 //--></script>
 
 <script type="text/javascript"><!--
@@ -139,7 +166,10 @@ function methodSelect(theMethod)
 //
 function setJavaScriptEnabled()
 {
-    document.getElementById( 'javascript-enabled' ).value = '1';
+    var jsEnabled = document.getElementById( 'javascript-enabled' );
+    if (jsEnabled) {
+        jsEnabled.value = '1';
+    }
 }
 
 // -----
@@ -151,7 +181,7 @@ function setJavaScriptEnabled()
 // - checkbox, id="shipping_billing"
 // - CSS classes "hiddenField" and "visibleField".
 //
-function shippingIsBilling () 
+function shippingIsBilling() 
 {
     var shippingAddress = document.getElementById('checkoutOneShipto');
     if (shippingAddress) {
@@ -218,6 +248,13 @@ jQuery(document).ready(function(){
     if (elementsMissing) {
         alert( 'Please contact the store owner; some required elements of this page are missing.' );
     }
+
+    // -----
+    // Perform some page-load type operations, initializing the "environment".  These functions
+    // were performed by the on_load_main.js file from prior versions.
+    //
+    shippingIsBilling();
+    setJavaScriptEnabled();
   
     // -----
     // Disallow the Enter key (so that all form-submittal actions occur via "click"), except when that
@@ -361,7 +398,7 @@ jQuery(document).ready(function(){
         });
     }
 
-    function changeShippingSubmitForm (type)
+    function changeShippingSubmitForm(type)
     {
         var shippingSelected = jQuery( 'input[name=shipping]' );
         if (shippingSelected.is( ':radio' )) {
@@ -373,43 +410,24 @@ jQuery(document).ready(function(){
         } else {
             shippingSelected = shippingSelected.val();
             var shippingIsBilling = jQuery( '#shipping_billing' ).is( ':checked' );
-<?php
-    // -----
-    // If the current order has generated shipping quotes (i.e. it's got at least one physical product), check to see if a 
-    // shipping-module has required inputs that should accompany the post, format the necessary jQuery to gather those inputs.
-    //
-    if (isset ($quotes) && is_array ($quotes)) {
-        $additional_shipping_inputs = array ();
-        foreach ($quotes as $current_quote) {
-            if (isset ($current_quote['required_input_names']) && is_array ($current_quote['required_input_names'])) {
-                foreach ($current_quote['required_input_names'] as $current_input_name => $selection_required) {
-                    $variable_name = base::camelize ($current_input_name);
-?>
-            var <?php echo $variable_name; ?> = jQuery( "input[name=<?php echo $current_input_name; ?>]<?php echo ($selection_required) ? ':checked' : ''; ?>" ).val();
-<?php
-                    $additional_shipping_inputs[$current_input_name] = $variable_name;
-                }
+            
+            var shippingData = {
+                shipping: shippingSelected,
+                shipping_is_billing: shippingIsBilling,
+                shipping_request: type
+            };
+            
+            if (additionalShippingInputs.length != 0) {
+                jQuery.each(additionalShippingInputs, function(field_name, values) {
+                    shippingInputs[field_name] = jQuery('input[name="'+values['input_name']+'"]'+values['parms']).val();
+                });
+                shippingData = jQuery.extend(shippingData, shippingInputs);
             }
-        }
-    }
-?>
+
             zcLog2Console( 'Updating shipping method to '+shippingSelected+', processing type: '+type );
             zcJS.ajax({
                 url: "ajax.php?act=ajaxOnePageCheckout&method=updateShipping",
-                data: {
-                    shipping: shippingSelected,
-                    shipping_is_billing: shippingIsBilling,
-                    shipping_request: type,
-<?php
-    if (count ($additional_shipping_inputs) != 0) {
-        foreach ($additional_shipping_inputs as $current_input_name => $current_input_value) {
-?>
-                <?php echo $current_input_name;?>: <?php echo $current_input_value; ?>,
-<?php
-        }
-    }
-?>
-                },
+                data: shippingData,
                 timeout: shippingTimeout,
                 error: function (jqXHR, textStatus, errorThrown) {
                     zcLog2Console('error: status='+textStatus+', errorThrown = '+errorThrown+', override: '+jqXHR);
@@ -539,17 +557,35 @@ jQuery(document).ready(function(){
     // Monitor the billing- and shipping-address blocks for changes.
     //
     jQuery(document).on('change', '#checkoutOneBillto input, #checkoutOneBillto select', function(event) {
-        jQuery(this).addClass( 'opc-changed' );
-        jQuery( '#opc-bill-cancel, #opc-bill-save' ).show();
+        jQuery(this).addClass('opc-changed');
+        jQuery('#checkoutOneBillto .opc-buttons').show();
+        jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+        jQuery('#checkoutOneBillto').addClass('opc-view');
     });
     jQuery(document).on('click', '#opc-bill-cancel', function(event) {
         restoreAddressValues('bill', '#checkoutOneBillto');
-        jQuery('#opc-bill-cancel, #opc-bill-save').hide();
+        jQuery('#checkoutPayment > .opc-overlay').removeClass('active');
+        jQuery('#checkoutOneBillto').removeClass('opc-view');
+        jQuery('#checkoutOneBillto .opc-buttons').hide();
     });
     jQuery(document).on('click', '#opc-bill-save', function(event) {
         saveAddressValues('bill', '#checkoutOneBillto');
     });
-    
+    jQuery(document).on('change', '#checkoutOneShipto input, #checkoutOneShipto select', function(event) {
+        jQuery(this).addClass('opc-changed');
+        jQuery('#checkoutOneShipto .opc-buttons').show();
+        jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+        jQuery('#checkoutOneShipto').addClass('opc-view');
+    });
+    jQuery(document).on('click', '#opc-ship-cancel', function(event) {
+        restoreAddressValues('ship', '#checkoutOneShipto');
+        jQuery('#checkoutPayment > .opc-overlay').removeClass('active');
+        jQuery('#checkoutOneShipto').removeClass('opc-view');
+        jQuery('#checkoutOneShipto .opc-buttons').hide();
+    });
+    jQuery(document).on('click', '#opc-ship-save', function(event) {
+        saveAddressValues('ship', '#checkoutOneShipto');
+    });    
     function restoreAddressValues(which, address_block)
     {
         zcLog2Console('restoreAddressValues('+which+', '+address_block+')');
@@ -583,7 +619,8 @@ jQuery(document).ready(function(){
             state = jQuery('input[name="state['+which+']"]').val(),
             zone_id = jQuery('input[name="zone_id['+which+']"]').val(),
             postcode = jQuery('input[name="postcode['+which+']"]').val(),
-            zone_country_id = jQuery('select[name="zone_country_id['+which+']"] option:selected').val();
+            zone_country_id = jQuery('select[name="zone_country_id['+which+']"] option:selected').val(),
+            add_address = jQuery('#opc-add-'+which).prop('checked');
 
         zcJS.ajax({
             url: "ajax.php?act=ajaxOnePageCheckout&method=validateAddressValues",
@@ -599,7 +636,8 @@ jQuery(document).ready(function(){
                 state: state,
                 zone_id: zone_id,
                 postcode: postcode,
-                zone_country_id: zone_country_id
+                zone_country_id: zone_country_id,
+                add_address: add_address
             },
             timeout: shippingTimeout,
             error: function (jqXHR, textStatus, errorThrown) {
@@ -610,6 +648,11 @@ jQuery(document).ready(function(){
             },
         }).done(function( response ) {
             var messageBlock = '#messages-'+which;
+            // -----
+            // If the response returns a non-empty array of messages, there were one or more
+            // "issues" with the submitted information.  Highlight the errant fields and display
+            // the messages at the bottom of the active address-block.
+            //
             if (response.messages.length != 0) {
                 var focusSet = false;
                 jQuery(messageBlock).html('<ul></ul>').addClass('opc-error');
@@ -630,8 +673,13 @@ jQuery(document).ready(function(){
                         }
                     }
                 });
+            // -----
+            // Otherwise, the address-update was successful.  Since the shipping, payment and order-total
+            // modules might have address-related dependencies, simply hard-refresh (i.e. from the
+            // server) the page's display to allow that processing to do its thing.
+            //
             } else {
-                restoreAddressValues(which, address_block);
+                window.location.reload(true);
             }
         });
     }

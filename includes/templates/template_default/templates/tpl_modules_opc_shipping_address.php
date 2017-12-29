@@ -16,20 +16,39 @@ if ($is_virtual_order) {
         echo zen_draw_checkbox_field('shipping_billing', '1', false, 'id="shipping_billing" style="display: none;"');
     } else {
 ?>
-    <div id="checkoutOneShippingFlag" style="display: none;" class="opc-base"><?php echo  zen_draw_checkbox_field('shipping_billing', '1', $shipping_billing, 'id="shipping_billing"');?>
+    <div id="checkoutOneShippingFlag" style="display: none;"><?php echo  zen_draw_checkbox_field('shipping_billing', '1', $shipping_billing, 'id="shipping_billing"');?>
       <label class="checkboxLabel" for="shipping_billing"><?php echo TEXT_USE_BILLING_FOR_SHIPPING; ?></label>
-      <div class="opc-overlay"></div>
     </div>
 <?php
     }
 ?>
-    <div id="checkoutOneShipto" class="opc-base">
+    <div id="checkoutOneShipto">
       <fieldset>
         <legend><?php echo TITLE_SHIPPING_ADDRESS; ?></legend>
-        <address><?php echo zen_address_format($order->delivery['format_id'], $order->delivery, 1, ' ', '<br />'); ?></address>
-        <div class="buttonRow forward"><?php echo '<a href="' . $editShippingButtonLink . '">' . zen_image_button(BUTTON_IMAGE_EDIT_SMALL, BUTTON_EDIT_SMALL_ALT) . '</a>'; ?></div>
+<?php
+$opc_address_type = 'ship';
+$opc_disable_address_change = $editShippingButtonLink;
+require $template->get_template_dir('tpl_modules_opc_address_block.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_address_block.php';
+
+if ($editShippingButtonLink) {
+    $cancel_title = 'title="' . BUTTON_CANCEL_CHANGES_TITLE . '"';
+    $save_title = 'title="' . BUTTON_SAVE_CHANGES_TITLE . '"';
+?>
+        <br class="clearBoth" />
+        <div class="buttonRow opc-buttons">
+            <div>
+                <?php echo zen_draw_checkbox_field("add_address['ship']", '1', false, 'id="opc-add-ship"'); ?>
+                <label class="checkboxLabel" for="add_address['ship']" title="<?php echo TITLE_ADD_TO_ADDRESS_BOOK; ?>"><?php echo TEXT_ADD_TO_ADDRESS_BOOK; ?></label>
+            </div>
+            <div class="opc-right">
+                <span id="opc-ship-cancel"><?php echo zen_image_button(BUTTON_IMAGE_CANCEL, BUTTON_CANCEL_CHANGES_ALT, $cancel_title); ?></span>
+                <span id="opc-ship-save"><?php echo zen_image_button(BUTTON_IMAGE_UPDATE, BUTTON_SAVE_CHANGES_ALT, $save_title); ?></span>
+            </div>
+        </div>
+<?php 
+} 
+?>
       </fieldset>
-      <div class="opc-overlay"></div>
     </div>
 <?php
 }
