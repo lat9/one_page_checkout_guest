@@ -81,14 +81,15 @@ class checkout_one_observer extends base
                     'NOTIFY_HEADER_START_CHECKOUT_PAYMENT', 
                     'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS', 
                     'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION', 
-                    'NOTIFY_HEADER_END_CHECKOUT_SUCCESS'
+                    'NOTIFY_HEADER_END_CHECKOUT_SUCCESS',
+                    'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS',
                 )
             );
             
             // -----
             // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
             //
-            if ($_SESSION['opcHelper']->setGuestCheckoutEnabled()) {    
+            if ($_SESSION['opc']->setGuestCheckoutEnabled()) {    
                 $this->attach(
                     $this, 
                     array(
@@ -123,6 +124,27 @@ class checkout_one_observer extends base
                 break;
                 
             // -----
+            // If the customer has just added an address, force that address to be the
+            // primary if the customer currently has no permanent addresses.
+            //
+            case 'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS':
+                if (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] != 0) {
+                    if (isset($_POST['action']) && $_POST['action'] == 'process') {
+                        $check = $GLOBALS['db']->Execute(
+                            "SELECT address_book_id
+                               FROM " . TABLE_ADDRESS_BOOK . "
+                              WHERE customers_id = " . (int)$_SESSION['customer_id'] . "
+                                AND address_type = " . OnePageCheckout::ADDRESS_TYPE_REGULAR . "
+                              LIMIT 1"
+                        );
+                        if ($check->EOF) {
+                            $_POST['primary'] = 'on';
+                        }
+                    }
+                }
+                break;
+                
+            // -----
             // Parameters:
             //
             // $p1 ... Supplied email address
@@ -131,7 +153,7 @@ class checkout_one_observer extends base
             //
             case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
                 if ($p3 === true) {
-                    $_SESSION['opcHelper']->setAccountTypeByEmail($p1);
+                    $_SESSION['opc']->setAccountTypeByEmail($p1);
                 }
                 break;
  

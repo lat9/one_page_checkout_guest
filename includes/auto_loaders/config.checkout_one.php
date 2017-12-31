@@ -5,12 +5,12 @@
 //
 $autoLoadConfig[0][] = array(
     'autoType' => 'class',
-    'loadFile' => 'OnePageCheckoutHelper.php'
+    'loadFile' => 'OnePageCheckout.php'
 );
 $autoLoadConfig[75][] = array(
     'autoType' => 'classInstantiate',
-    'className' => 'OnePageCheckoutHelper',
-    'objectName' => 'opcHelper',
+    'className' => 'OnePageCheckout',
+    'objectName' => 'opc',
     'checkInstantiated' => true,
     'classSession' => true
 );

@@ -17,9 +17,20 @@ if (!isset($opc_address_type) || !in_array($opc_address_type, array('bill', 'shi
 }
 
 // -----
-// Start formatting ...
+// If the account-bearing customer has previously-defined addresses, create a dropdown list
+// from which they can select.
 //
-$address_values = $_SESSION['opcHelper']->getAddressValues($opc_address_type);
+$address_selections = $_SESSION['opc']->formatAddressBookDropdown();
+if (count($address_selections) != 0) {
+?>
+    <div id="choices-<?php echo $opc_address_type; ?>"><?php echo zen_draw_pull_down_menu("address-$opc_address_type", $address_selections, 0); ?></div>
+<?php
+}
+
+// -----
+// Start address formatting ...
+//
+$address_values = $_SESSION['opc']->getAddressValues($opc_address_type);
 if (ACCOUNT_GENDER == 'true') {
     $field_name = "gender[$opc_address_type]";
     $male_id = "gender-male-$opc_address_type";

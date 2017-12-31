@@ -6,7 +6,7 @@
 // This class, instantiated in the current customer session, keeps track of a customer's login and checkout
 // progression with the aid of the OPC's observer-class.
 //
-class OnePageCheckoutHelper extends base
+class OnePageCheckout extends base
 {
     // -----
     // These constants are used for the setting of the account_type field of the customers database table.
@@ -49,6 +49,11 @@ class OnePageCheckoutHelper extends base
         return $this->isEnabled;
     }
     
+    public function isGuestCheckout()
+    {
+        return (isset($_SESSION['is_guest_checkout']));
+    }
+    
     public function startGuestOnePageCheckout()
     {
         if ($this->setGuestCheckoutEnabled()) {
@@ -78,10 +83,41 @@ class OnePageCheckoutHelper extends base
     
     public function getAddressValues($which)
     {
-        if ($which != 'bill' && $which != 'ship') {
-            trigger_error("Unknown address selection ($which) received.", E_USER_ERROR);
-        }
+        $this->inputPreCheck($which);
+
         return $this->addressValues[$which];
+    }
+    
+    public function formatAddressBookDropdown()
+    {
+        $select_array = array();
+        if (isset($_SESSION['customer_id']) && !$this->isGuestCheckout()) {
+            // -----
+            // Build up address list input to create a customer-specific selection list of 
+            // pre-existing addresses from which to choose.
+            //
+            $addresses = $GLOBALS['db']->Execute(
+                "SELECT address_book_id 
+                   FROM " . TABLE_ADDRESS_BOOK . " 
+                  WHERE customers_id = " . (int)$_SESSION['customer_id'] . "
+                    AND address_type = " . self::ADDRESS_TYPE_REGULAR . "
+               ORDER BY address_book_id"
+            );
+            if (!$addresses->EOF) {
+                $select_array[] = array(
+                    'id' => 0,
+                    'text' => TEXT_SELECT_FROM_SAVED_ADDRESSES
+                );
+            }
+            while (!$addresses->EOF) {
+                $select_array[] = array( 
+                    'id' => $addresses->fields['address_book_id'],
+                    'text' => str_replace("\n", ', ', zen_address_label($_SESSION['customer_id'], $addresses->fields['address_book_id']))
+                );
+                $addresses->MoveNext();
+            }
+        }
+        return $select_array;
     }
     
     public function initializeAddressValues()
@@ -200,12 +236,7 @@ class OnePageCheckoutHelper extends base
     
     public function validatePostedAddress($which)
     {
-        if ($which != 'bill' && $which != 'ship') {
-            trigger_error("Unknown address selection ($which) received.", E_USER_ERROR);
-        }
-        if (!isset($this->addressValues)) {
-            trigger_error("Invalid request, addressValues not set.", E_USER_ERROR);
-        }
+        $this->inputPreCheck($which);
         
         $messages = $this->validateUpdatedAddress($_POST[$which], $which);
         $error = false;
@@ -220,12 +251,7 @@ class OnePageCheckoutHelper extends base
     
     public function validateAndSaveAjaxPostedAddress($which, &$messages)
     {
-        if ($which != 'bill' && $which != 'ship') {
-            trigger_error("Unknown address selection ($which) received.", E_USER_ERROR);
-        }
-        if (!isset($this->addressValues)) {
-            trigger_error("Invalid request, addressValues not set.", E_USER_ERROR);
-        }
+        $this->inputPreCheck($which);
 
         $messages = $this->validateUpdatedAddress($_POST, $which, false);
         $address_validated = (count($messages) == 0);
@@ -234,6 +260,25 @@ class OnePageCheckoutHelper extends base
         }
         
         return $address_validated;
+    }
+    
+    // -----
+    // Called by various functions with public interfaces to validate the "environment"
+    // for the caller's processing.  If either the 'which' (address-value) input is not
+    // valid or the class' addressValues element is not yet initialized, there's a
+    // sequencing error somewhere.
+    //
+    // If either condition is found, log an ERROR ... which results in the page's processing
+    // to cease.
+    //
+    protected function inputPreCheck($which)
+    {
+        if ($which != 'bill' && $which != 'ship') {
+            trigger_error("Unknown address selection ($which) received.", E_USER_ERROR);
+        }
+        if (!isset($this->addressValues)) {
+            trigger_error("Invalid request, addressValues not set.", E_USER_ERROR);
+        }
     }
     
     protected function validateUpdatedAddress($address_values, $which, $prepend_which = true)
@@ -474,15 +519,16 @@ class OnePageCheckoutHelper extends base
                     entry_postcode AS postcode, entry_firstname AS firstname, entry_lastname AS lastname
                FROM " . TABLE_ADDRESS_BOOK . "
               WHERE customers_id = :customerId
-                AND entry_country_id = $country_id";
+                AND entry_country_id = $country_id
+                AND address_type = " . self::ADDRESS_TYPE_REGULAR;
         if ($country_has_zones->EOF) {
             $sql .= " AND entry_state = :stateValue LIMIT 1";
         } else {
             $sql .= " AND entry_zone_id = :zoneId LIMIT 1";
         }
-        $sql = $GLOBALS['db']->bindVars ($sql, ':zoneId', $this->addressValues[$which]['zone_id'], 'integer');
-        $sql = $GLOBALS['db']->bindVars ($sql, ':stateValue', $this->addressValues[$which]['state'], 'string');
-        $sql = $GLOBALS['db']->bindVars ($sql, ':customerId', $_SESSION['customer_id'], 'integer');
+        $sql = $GLOBALS['db']->bindVars($sql, ':zoneId', $this->addressValues[$which]['zone_id'], 'integer');
+        $sql = $GLOBALS['db']->bindVars($sql, ':stateValue', $this->addressValues[$which]['state'], 'string');
+        $sql = $GLOBALS['db']->bindVars($sql, ':customerId', $_SESSION['customer_id'], 'integer');
         $possible_addresses = $GLOBALS['db']->Execute($sql);
         
         $address_book_id = false;  //-Identifies that no match was found

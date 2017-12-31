@@ -36,7 +36,7 @@ if ($_SESSION['cart']->count_contents() <= 0) {
 // -----
 // Check the customer's login status.
 //
-$is_guest_checkout = $_SESSION['opcHelper']->startGuestOnePageCheckout();
+$is_guest_checkout = $_SESSION['opc']->startGuestOnePageCheckout();
 if (!isset($_SESSION['customer_id']) || !$_SESSION['customer_id']) {
     if (!$is_guest_checkout) {
         $_SESSION['navigation']->set_snapshot();
@@ -96,7 +96,7 @@ if (isset ($_SESSION['cc_id'])) {
 
 $shipping_billing = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping_billing'] : true;
 
-$_SESSION['opcHelper']->initializeAddressValues();
+$_SESSION['opc']->initializeAddressValues();
 
 // if no billing destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['billto'])) {

@@ -331,7 +331,7 @@ if (isset($_POST['action']) && ($_POST['action'] == 'process')) {
         $_SESSION['customer_default_address_id'] = $address_id;
         $_SESSION['customers_authorization'] = $customers_authorization;
         
-        $_SESSION['opcHelper']->setAccountTypeNoAddress();
+        $_SESSION['opc']->setAccountTypeNoAddress();
 
         // restore cart contents
         $_SESSION['cart']->restore_contents();

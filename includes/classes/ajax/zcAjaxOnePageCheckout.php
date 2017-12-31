@@ -295,7 +295,7 @@ class zcAjaxOnePageCheckout extends base
                 $error_message = ERROR_INVALID_REQUEST;
                 trigger_error('$_POST[\'which\'] not set or invalid, nothing to do.', E_USER_WARNING);
             } else {
-                $_SESSION['opcHelper']->validateAndSaveAjaxPostedAddress($_POST['which'], $messages);
+                $_SESSION['opc']->validateAndSaveAjaxPostedAddress($_POST['which'], $messages);
             }
         }
         
