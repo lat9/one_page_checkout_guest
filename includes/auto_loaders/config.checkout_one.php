@@ -5,6 +5,10 @@
 //
 $autoLoadConfig[0][] = array(
     'autoType' => 'class',
+    'loadFile' => 'OnePageCheckoutBase.php'
+);
+$autoLoadConfig[0][] = array(
+    'autoType' => 'class',
     'loadFile' => 'OnePageCheckout.php'
 );
 $autoLoadConfig[75][] = array(

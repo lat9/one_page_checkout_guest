@@ -6,22 +6,8 @@
 // This class, instantiated in the current customer session, keeps track of a customer's login and checkout
 // progression with the aid of the OPC's observer-class.
 //
-class OnePageCheckout extends base
+class OnePageCheckout extends OnePageCheckoutBase
 {
-    // -----
-    // These constants are used for the setting of the account_type field of the customers database table.
-    //
-    const ACCOUNT_TYPE_REGULAR = 0,      //-Regular account, address recorded
-          ACCOUNT_TYPE_GUEST = 1,        //-Guest account, no addresses
-          ACCOUNT_TYPE_NO_ADDRESS = 2;   //-Basic account, address is present but contains default values
-          
-    // -----
-    // These constants are used for the setting of the address_type field of the address_book database table.
-    //
-    const ADDRESS_TYPE_REGULAR = 0,     //-Permanent, associated with a fully-created customer account
-          ADDRESS_TYPE_BILL_TEMP = 1,   //-Temporary, used for guest-checkout
-          ADDRESS_TYPE_SHIP_TEMP = 2;   //-Temporary, used for guest-checkout
-          
     public $customerAccountType,
               $isGuestEnabled,
               $guestIsActive,
