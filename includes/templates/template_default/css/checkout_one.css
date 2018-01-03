@@ -16,6 +16,9 @@ label.inputLabel { width: 110px; }
 fieldset#checkoutOneCartGroup { padding-bottom: 0; }
 fieldset > #cartContentsDisplay div { margin-right: 0; }
 
+#choices-bill, #choices-ship { text-align: right; }
+
+.edit-button { text-align: right; }
 .opc-buttons { display: none; }
 .opc-buttons > div:first-child { float: left; }
 .opc-buttons::after { clear: both; }
