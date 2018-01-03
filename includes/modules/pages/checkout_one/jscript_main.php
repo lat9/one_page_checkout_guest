@@ -506,7 +506,7 @@ jQuery(document).ready(function(){
     // When a shipping-choice is clicked, make the AJAX call to recalculate the order-totals based
     // on that shipping selection.
     //
-    jQuery( '#checkoutShippingMethod input[name=shipping]' ).on( 'click', function( event ) {
+    jQuery('#checkoutShippingMethod input[name=shipping]').on('click', function( event ) {
         changeShippingSubmitForm('shipping-only', event);
     });
     
@@ -514,9 +514,9 @@ jQuery(document).ready(function(){
     // When the billing=shipping box is clicked, record the current selection and make the AJAX call to
     // recalculate the order-totals, now that the shipping address might be different.
     //
-    jQuery( '#shipping_billing' ).on( 'click', function( event ) {
+    jQuery( '#shipping_billing' ).on('click', function( event ) {
         shippingIsBilling();
-        changeShippingSubmitForm( 'shipping-billing' );
+        changeShippingSubmitForm('shipping-billing');
     });
 
     // -----
@@ -526,17 +526,17 @@ jQuery(document).ready(function(){
     // causing the transition to (and back from) the checkout_one_confirmation page where that credit-class
     // processing has recorded its changes.
     //
-    jQuery( '.opc-cc-submit' ).on( 'click', function( event ) {
-        zcLog2Console( 'Submitting credit-class request' );
+    jQuery('.opc-cc-submit').on('click', function( event ) {
+        zcLog2Console('Submitting credit-class request');
         setOrderConfirmed(0);
-        changeShippingSubmitForm( 'submit-cc' );
+        changeShippingSubmitForm('submit-cc');
     });
     
     // -----
     // When a different payment method is chosen, determine whether the payment will require a confirmation-
     // page display, change the form's pseudo-submit button to reflect either "Review" or "Confirm".
     //
-    jQuery( 'input[name=payment]' ).on('change', function() {
+    jQuery('input[name=payment]').on('change', function() {
         setFormSubmitButton();
     });
     
@@ -545,18 +545,45 @@ jQuery(document).ready(function(){
     // to submit their order.  Set up the various "hidden" fields to reflect the order's current state,
     // note that this is an order-confirmation request, and cause the order to be submitted.
     //
-    jQuery( '#opc-order-review, #opc-order-confirm' ).on('click', function( event ) {
+    jQuery('#opc-order-review, #opc-order-confirm').on('click', function( event ) {
         submitFunction(0,0); 
         setOrderConfirmed(1);
 
-        zcLog2Console( 'Submitting order-creating form' );
+        zcLog2Console('Submitting order-creating form');
         changeShippingSubmitForm( 'submit' );
     });
     
     // -----
     // Monitor the billing- and shipping-address blocks for changes.
     //
-    jQuery(document).on('change', '#checkoutOneBillto input, #checkoutOneBillto select', function(event) {
+    jQuery(document).on('change', '#select-address-bill', function(event) {
+        useSelectedAddress('bill', this.value);
+    });
+    jQuery(document).on('change', '#select-address-ship', function(event) {
+        useSelectedAddress('ship', this.value);
+    });
+    function useSelectedAddress(which, address_id)
+    {
+        zcLog2Console('useSelectedAddress('+which+', '+address_id+')');
+        zcJS.ajax({
+            url: "ajax.php?act=ajaxOnePageCheckout&method=setAddressFromSavedSelections",
+            data: {
+                which: which,
+                address_id: address_id
+            },
+            timeout: shippingTimeout,
+            error: function (jqXHR, textStatus, errorThrown) {
+                zcLog2Console('error: status='+textStatus+', errorThrown = '+errorThrown+', override: '+jqXHR);
+                if (textStatus == 'timeout') {
+                    alert(ajaxTimeoutErrorMessage);
+                }
+            },
+        }).done(function( response ) {
+            location.reload();
+        });
+    }
+    
+    jQuery(document).on('change', '#checkoutOneBillto input, #checkoutOneBillto select:not(#select-address-bill)', function(event) {
         jQuery(this).addClass('opc-changed');
         jQuery('#checkoutOneBillto .opc-buttons').show();
         jQuery('#checkoutPayment > .opc-overlay').addClass('active');
@@ -571,7 +598,7 @@ jQuery(document).ready(function(){
     jQuery(document).on('click', '#opc-bill-save', function(event) {
         saveAddressValues('bill', '#checkoutOneBillto');
     });
-    jQuery(document).on('change', '#checkoutOneShipto input, #checkoutOneShipto select', function(event) {
+    jQuery(document).on('change', '#checkoutOneShipto input, #checkoutOneShipto select:not(#select-address-ship)', function(event) {
         jQuery(this).addClass('opc-changed');
         jQuery('#checkoutOneShipto .opc-buttons').show();
         jQuery('#checkoutPayment > .opc-overlay').addClass('active');

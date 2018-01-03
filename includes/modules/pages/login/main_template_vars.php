@@ -6,7 +6,7 @@
 // If the One-Page Checkout's "Guest Checkout" is enabled, instruct the template-formatting to
 // load the OPC's modified login template.
 //
-if (isset($_SESSION['opc']) && $_SESSION['opc']->setGuestCheckoutEnabled()) {
+if (isset($_SESSION['opc']) && $_SESSION['opc']->initializeGuestCheckout()) {
     $login_template = 'tpl_login_opc.php';
 } else {
     $login_template = 'tpl_login_default.php';

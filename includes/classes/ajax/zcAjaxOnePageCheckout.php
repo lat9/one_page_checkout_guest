@@ -250,12 +250,7 @@ class zcAjaxOnePageCheckout extends base
                 $error_message = ERROR_INVALID_REQUEST;
                 trigger_error('$_POST[\'which\'] not set or invalid, nothing to do.', E_USER_WARNING);
             } else {
-                global $current_page_base, $template;
-                $flagDisablePaymentAddressChange = false;
-                ob_start();
-                require $template->get_template_dir('tpl_modules_opc_billing_address.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_billing_address.php';
-                $address_html = ob_get_clean();
-                ob_flush();
+                $address_html = $this->renderAddressBlock($_POST['which']);
             }
         }
         
@@ -276,7 +271,6 @@ class zcAjaxOnePageCheckout extends base
     //
     public function validateAddressValues()
     {
-        trigger_error(var_export($_POST, true), E_USER_WARNING);
         $error_message = $address_html = '';
         $messages = array();
         $status = 'ok';
@@ -308,6 +302,56 @@ class zcAjaxOnePageCheckout extends base
         
         return $return_array;
     }
+    
+    // -----
+    // Public function to update the requested address based on a change in the saved-addresses'
+    // dropdown menu.
+    //
+    public function setAddressFromSavedSelections()
+    {
+        $error_message = $address_html = '';
+        $messages = array();
+        $status = 'ok';
+        
+        // -----
+        // Check for a session timeout (i.e. no more customer_id in the session), returning a specific
+        // status and message for that case.
+        //
+        if (!isset($_SESSION['customer_id'])) {
+            $status = 'timeout';
+            $GLOBALS['checkout_one']->debug_message("Session time-out detected.", 'zcAjaxOnePageCheckout::restoreAddressValues');
+        } else {
+            $this->loadLanguageFiles();
+            if (!isset($_POST['which']) || ($_POST['which'] != 'bill' && $_POST['which'] != 'ship')) {
+                $status = 'error';
+                $error_message = ERROR_INVALID_REQUEST;
+                trigger_error('$_POST[\'which\'] not set or invalid, nothing to do.', E_USER_WARNING);
+            } else {
+                $_SESSION['opc']->setAddressFromSavedSelections($_POST['which'], $_POST['address_id']);
+            }
+        }
+        
+        $return_array = array(
+            'status' => $status,
+            'errorMessage' => $error_message,
+        );
+        $GLOBALS['checkout_one']->debug_message('setAddressFromSavedSelections, returning:' . var_export($return_array, true), true);
+        
+        return $return_array;
+    }
+    
+    protected function renderAddressBlock($which)
+    {
+        global $current_page_base, $template;
+        $template_file = ($which == 'bill') ? 'tpl_modules_opc_billing_address.php' : 'tpl_modules_opc_shipping_address.php';
+        $flagDisablePaymentAddressChange = false;
+        ob_start();
+        require $template->get_template_dir($template_file, DIR_WS_TEMPLATE, $current_page_base, 'templates'). "/$template_file";
+        $address_html = ob_get_clean();
+        ob_flush();
+        
+        return $address_html;
+    }        
     
     // -----
     // Load the One-Page Checkout page's language files.

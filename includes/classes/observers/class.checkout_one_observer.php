@@ -67,11 +67,11 @@ class checkout_one_observer extends base
             $this->debug = (CHECKOUT_ONE_DEBUG == 'true' || CHECKOUT_ONE_DEBUG == 'full');
             if ($this->debug && CHECKOUT_ONE_DEBUG_EXTRA != '' && CHECKOUT_ONE_DEBUG_EXTRA != '*') {
                 $debug_customers = explode (',', CHECKOUT_ONE_DEBUG_EXTRA);
-                if (!in_array ($_SESSION['customer_id'], $debug_customers)) {
+                if (!in_array($_SESSION['customer_id'], $debug_customers)) {
                     $this->debug = false;
                 }
             }
-            $this->debug_logfile = DIR_FS_LOGS . '/myDEBUG-one_page_checkout-' . $_SESSION['customer_id'] . '.log';
+            $this->debug_logfile = $_SESSION['opc']->getDebugLogFileName();
             $this->current_page_base = $GLOBALS['current_page_base'];
                     
             $this->attach(
@@ -85,19 +85,19 @@ class checkout_one_observer extends base
                     'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS',
                 )
             );
+        }
             
-            // -----
-            // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
-            //
-            if ($_SESSION['opc']->setGuestCheckoutEnabled()) {    
-                $this->attach(
-                    $this, 
-                    array(
-                        'NOTIFY_HEADER_START_CREATE_ACCOUNT',
-                        'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
-                    )
-                );
-            }
+        // -----
+        // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
+        //
+        if ($_SESSION['opc']->initializeGuestCheckout()) {    
+            $this->attach(
+                $this, 
+                array(
+                    'NOTIFY_HEADER_START_CREATE_ACCOUNT',
+                    'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
+                )
+            );
         }
     }
   
@@ -128,13 +128,12 @@ class checkout_one_observer extends base
             // primary if the customer currently has no permanent addresses.
             //
             case 'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS':
-                if (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] != 0) {
+                if (zen_is_logged_in()) {
                     if (isset($_POST['action']) && $_POST['action'] == 'process') {
                         $check = $GLOBALS['db']->Execute(
                             "SELECT address_book_id
                                FROM " . TABLE_ADDRESS_BOOK . "
                               WHERE customers_id = " . (int)$_SESSION['customer_id'] . "
-                                AND address_type = " . OnePageCheckout::ADDRESS_TYPE_REGULAR . "
                               LIMIT 1"
                         );
                         if ($check->EOF) {
@@ -153,7 +152,7 @@ class checkout_one_observer extends base
             //
             case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
                 if ($p3 === true) {
-                    $_SESSION['opc']->setAccountTypeByEmail($p1);
+                    //-Handle registered accounts here
                 }
                 break;
  
