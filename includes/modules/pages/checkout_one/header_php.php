@@ -99,42 +99,17 @@ $shipping_billing = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping
 // if no billing destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['billto'])) {
     $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
-} else {
-    // verify the selected billing address
-    $check_address_query = "SELECT count(*) AS total FROM " . TABLE_ADDRESS_BOOK . "
-                            WHERE customers_id = :customersID
-                            AND address_book_id = :addressBookID LIMIT 1";
-
-    $check_address_query = $db->bindVars($check_address_query, ':customersID', $_SESSION['customer_id'], 'integer');
-    $check_address_query = $db->bindVars($check_address_query, ':addressBookID', $_SESSION['billto'], 'integer');
-    $check_address = $db->Execute($check_address_query);
-
-    if ($check_address->fields['total'] != '1') {
-        $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
-        $_SESSION['payment'] = '';
-    }
+} elseif (!$_SESSION['opc']->validateBilltoSendto('bill')) {
+    $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
+    $_SESSION['payment'] = '';
 }
 
 // if no shipping destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['sendto'])) {
+    $_SESSION['sendto'] = (($shipping_billing) ? $_SESSION['billto'] : $_SESSION['customer_default_address_id']);
+} elseif (!$_SESSION['opc']->validateBilltoSendto('ship')) {
     $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
-} elseif ($shipping_billing) {
-    $_SESSION['sendto'] = $_SESSION['billto'];
-} else {
-// verify the selected shipping address
-    $check_address_query = "SELECT count(*) AS total
-                            FROM   " . TABLE_ADDRESS_BOOK . "
-                            WHERE  customers_id = :customersID
-                            AND    address_book_id = :addressBookID LIMIT 1";
-
-    $check_address_query = $db->bindVars($check_address_query, ':customersID', $_SESSION['customer_id'], 'integer');
-    $check_address_query = $db->bindVars($check_address_query, ':addressBookID', $_SESSION['sendto'], 'integer');
-    $check_address = $db->Execute($check_address_query);
-
-    if ($check_address->fields['total'] != '1') {
-        $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
-        unset($_SESSION['shipping']);
-    }
+    unset($_SESSION['shipping']);
 }
 
 // register a random ID in the session to check throughout the checkout procedure
@@ -237,7 +212,7 @@ if (!$is_virtual_order) {
         }
 
         $checkval = $_SESSION['shipping']['id'];
-        $checkout_one->debug_message("CHECKOUT_ONE_SHIPPING_CHECK ($checkval)\n" . print_r($quotes, true) . "\n" . print_r($checklist, true));
+        $checkout_one->debug_message("CHECKOUT_ONE_SHIPPING_CHECK ($checkval)\n" . var_export($quotes, true) . "\n" . var_export($checklist, true));
         if (!in_array($checkval, $checklist) && !($_SESSION['shipping']['id'] == 'free_free' && ($is_virtual_order || $free_shipping))) {
             // -----
             // Since the available shipping methods have changed, need to kill the current shipping method and display a
@@ -275,7 +250,7 @@ if (isset($_SESSION['shipping']) && is_array($_SESSION['shipping'])) {
     $order->info['shipping_cost'] = $_SESSION['shipping']['cost'];
 }
 
-$checkout_one->debug_message("CHECKOUT_ONE_AFTER_SHIPPING_QUOTES\n" . var_export($_SESSION['shipping'], true) . print_r($order, true) . print_r($messageStack, true) . print_r($quotes, true));
+$checkout_one->debug_message("CHECKOUT_ONE_AFTER_SHIPPING_QUOTES\n" . var_export($_SESSION['shipping'], true) . var_export($order, true) . var_export($messageStack, true) . var_export($quotes, true));
 
 // -----
 // Capture the current value of the sendto-address, for possible use by the plugin's AJAX component.
@@ -309,7 +284,7 @@ $order_total_modules = new order_total;
 $order_total_modules->collect_posts();
 $order_total_modules->pre_confirmation_check();
 
-$checkout_one->debug_message("CHECKOUT_ONE_AFTER_ORDER_TOTAL_PROCESSING\n" . print_r($order_total_modules, true) . print_r($order, true) . print_r($messageStack, true));
+$checkout_one->debug_message("CHECKOUT_ONE_AFTER_ORDER_TOTAL_PROCESSING\n" . var_export($order_total_modules, true) . var_export($order, true) . var_export($messageStack, true));
 
 // load all enabled payment modules
 require DIR_WS_CLASSES . 'payment.php';
@@ -347,7 +322,7 @@ if (isset($_GET['payment_error']) && is_object(${$_GET['payment_error']}) && ($e
 }
 
 $extra_message = (isset($_SESSION['shipping'])) ? var_export($_SESSION['shipping'], true) : ' (not set)';
-$checkout_one->debug_message("CHECKOUT_ONE_AFTER_PAYMENT_MODULES_SELECTION\n" . print_r($payment_modules, true) . $extra_message);
+$checkout_one->debug_message("CHECKOUT_ONE_AFTER_PAYMENT_MODULES_SELECTION\n" . var_export($payment_modules, true) . $extra_message);
 
 // -----
 // If the payment method has been set in the session, there are a couple more cleanup/template-setting actions that might be needed.

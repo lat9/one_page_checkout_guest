@@ -298,7 +298,7 @@ class zcAjaxOnePageCheckout extends base
             'errorMessage' => $error_message,
             'messages' => $messages
         );
-        $GLOBALS['checkout_one']->debug_message('validateAddressValues, returning:' . var_export($return_array, true), true);
+        $GLOBALS['checkout_one']->debug_message('validateAddressValues, returning:' . var_export($return_array, true) . var_export($_SESSION['opc'], true));
         
         return $return_array;
     }

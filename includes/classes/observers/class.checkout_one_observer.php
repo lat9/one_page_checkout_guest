@@ -1,7 +1,7 @@
 <?php
 // -----
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
-// Copyright (C) 2013-2017, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2013-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 if (!defined('IS_ADMIN_FLAG')) {
   die('Illegal Access');
@@ -90,12 +90,14 @@ class checkout_one_observer extends base
         // -----
         // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
         //
-        if ($_SESSION['opc']->initializeGuestCheckout()) {    
+        if ($this->enabled && $_SESSION['opc']->initTemporaryAddresses()) {    
             $this->attach(
                 $this, 
                 array(
                     'NOTIFY_HEADER_START_CREATE_ACCOUNT',
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
+                    'NOTIFY_ORDER_CART_AFTER_ADDRESSES_SET',
+                    'NOTIFY_ORDER_DURING_CREATE_ADDED_ORDER_HEADER',
                 )
             );
         }
@@ -155,7 +157,46 @@ class checkout_one_observer extends base
                     //-Handle registered accounts here
                 }
                 break;
- 
+
+            // -----
+            // Issued by the order-class at the beginning of the order-creation process (i.e.
+            // the cart contents are "converted" to an order.  Gives us the chance to see
+            // if this is a guest-checkout and/or an order using a temporary address.
+            //
+            // If so, the address section(s) of the base order could be modified and the
+            // order's tax-basis is re-determined.
+            //
+            // On entry:
+            //
+            // $p1 ... n/a
+            // $p2 ... (r/w) A reference to the order's $taxCountryId value
+            // $p3 ... (r/w) A reference to the order's $taxZoneId value
+            //
+            case 'NOTIFY_ORDER_CART_AFTER_ADDRESSES_SET':
+                $_SESSION['opc']->updateOrderAddresses($class, $p2, $p3);
+                break;
+                
+            // -----
+            // Issued by the order-class just after creating a new order's "header",
+            // i.e. the information in the orders table.  This gives us the opportunity
+            // to note that the order was created via guest-checkout, if needed.
+            //
+            // On entry:
+            //
+            // $p1 ... (r/o) A copy of the SQL data-array used to create the header.
+            // $p2 ... (r/w) A reference to the newly-created order's ID value.
+            //
+            case 'NOTIFY_ORDER_DURING_CREATE_ADDED_ORDER_HEADER':
+                if (zen_in_guest_checkout()) {
+                    $GLOBALS['db']->Execute(
+                        "UPDATE " . TABLE_ORDERS . "
+                            SET is_guest_order = 1
+                          WHERE orders_id = " . (int)$p2 . "
+                          LIMIT 1"
+                    );
+                }
+                break;
+                
             default:
                 break;
         }

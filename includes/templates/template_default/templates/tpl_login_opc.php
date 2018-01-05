@@ -46,7 +46,7 @@ if ($ec_button_enabled) {
 }
 // ** END PAYPAL EXPRESS CHECKOUT **
 
-if ($_SESSION['cart']->count_contents() > 0 && $checkout_one->guestCheckoutEnabled()) {
+if ($_SESSION['cart']->count_contents() > 0 && $_SESSION['opc']->guestCheckoutEnabled()) {
 ?>
         <h2><?php echo HEADING_GUEST_OPC; ?></h2>
         <div class="information"><?php echo TEXT_GUEST_OPC; ?></div>
@@ -62,7 +62,7 @@ if ($_SESSION['cart']->count_contents() > 0 && $checkout_one->guestCheckoutEnabl
 
         <div class="information"><?php echo TEXT_NEW_CUSTOMER_OPC; ?></div>
 <?php 
-    echo zen_draw_form('create', zen_href_link(FILENAME_REGISTER, (isset($_GET['gv_no']) ? '&gv_no=' . preg_replace('/[^0-9.,%]/', '', $_GET['gv_no']) : ''), 'SSL'), 'post');
+    echo zen_draw_form('create', zen_href_link(FILENAME_CREATE_ACCOUNT, (isset($_GET['gv_no']) ? '&gv_no=' . preg_replace('/[^0-9.,%]/', '', $_GET['gv_no']) : ''), 'SSL'), 'post');
 ?>
         <div class="buttonRow"><?php echo zen_image_submit(BUTTON_IMAGE_CREATE_ACCOUNT, BUTTON_CREATE_ACCOUNT_ALT); ?></div>
 <?php

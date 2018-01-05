@@ -647,6 +647,7 @@ jQuery(document).ready(function(){
             zone_id = jQuery('input[name="zone_id['+which+']"]').val(),
             postcode = jQuery('input[name="postcode['+which+']"]').val(),
             zone_country_id = jQuery('select[name="zone_country_id['+which+']"] option:selected').val(),
+            shipping_billing = jQuery('#shipping_billing').is(':checked'),
             add_address = jQuery('#opc-add-'+which).prop('checked');
 
         zcJS.ajax({
@@ -664,6 +665,7 @@ jQuery(document).ready(function(){
                 zone_id: zone_id,
                 postcode: postcode,
                 zone_country_id: zone_country_id,
+                shipping_billing: shipping_billing,
                 add_address: add_address
             },
             timeout: shippingTimeout,
