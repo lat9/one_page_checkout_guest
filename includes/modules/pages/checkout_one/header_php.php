@@ -94,22 +94,20 @@ if (isset ($_SESSION['cc_id'])) {
     }
 }
 
-$shipping_billing = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping_billing'] : true;
+$shipping_billing = $_SESSION['opc']->getShippingBilling();
 
 // if no billing destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['billto'])) {
     $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
-} elseif (!$_SESSION['opc']->validateBilltoSendto('bill')) {
-    $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
-    $_SESSION['payment'] = '';
+} else {
+    $_SESSION['opc']->validateBilltoSendto('bill');
 }
 
 // if no shipping destination address was selected, use the customers own address as default
 if (!isset ($_SESSION['sendto'])) {
     $_SESSION['sendto'] = (($shipping_billing) ? $_SESSION['billto'] : $_SESSION['customer_default_address_id']);
-} elseif (!$_SESSION['opc']->validateBilltoSendto('ship')) {
-    $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
-    unset($_SESSION['shipping']);
+} else {
+    $_SESSION['opc']->validateBilltoSendto('ship');
 }
 
 // register a random ID in the session to check throughout the checkout procedure

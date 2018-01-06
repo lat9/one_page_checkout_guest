@@ -19,7 +19,7 @@ class OnePageCheckout extends base
     // guestCustomerInfo ........ Array, if set, contains the customer-specific (i.e. email, phone, etc.) information for a guest customer.
     // guestCustomerId .......... Contains a sanitized/int version of the configured "guest" customer ID.
     // tempBilltoAddressBookId .. Contains a sanitized/int version of the configured "temporary" bill-to address-book ID.
-    // tempShiptoAddressBookId .. Contains a sanitized/int version of the configured "temporary" ship-to address-book ID.
+    // tempSendtoAddressBookId .. Contains a sanitized/int version of the configured "temporary" ship-to address-book ID.
     //
     public $isGuestCheckoutEnabled,
               $registeredAccounts,
@@ -51,6 +51,12 @@ class OnePageCheckout extends base
     {
         $this->initializeGuestCheckout();
         return ($this->isEnabled && $this->isGuestCheckoutEnabled);
+    }
+    
+    public function getShippingBilling()
+    {
+        $_SESSION['shipping_billing'] = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping_billing'] : true;
+        return $_SESSION['shipping_billing'];
     }
     
     // -----
@@ -245,7 +251,7 @@ class OnePageCheckout extends base
             $is_temp_address = ($address_book_id == $this->tempBilltoAddressBookId);
         } else {
             $address_book_id = $_SESSION['sendto'];
-            $is_temp_address = ($address_book_id == $this->tempShiptoAddressBookId);
+            $is_temp_address = ($address_book_id == $this->tempSendtoAddressBookId);
             if (isset($_SESSION['shipping_billing'])) {
                 $is_temp_address = $is_temp_address || ($address_book_id == $this->tempBilltoAddressBookId);
             }
@@ -270,6 +276,15 @@ class OnePageCheckout extends base
                 $is_valid = !$check->EOF;
             }
         }
+        if (!$is_valid) {
+            if ($which == 'bill') {
+                $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
+                $_SESSION['payment'] = '';
+            } else {
+                $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
+                unset($_SESSION['shipping']);
+            }
+        }
         return $is_valid;
     }
     
@@ -290,7 +305,7 @@ class OnePageCheckout extends base
         
         $address_book_id = (int)($which == 'bill') ? $_SESSION['billto'] : $_SESSION['sendto'];
         
-        if ($address_book_id == $this->tempBilltoAddressBookId || $address_book_id == $this->tempShiptoAddressBookId) {
+        if ($address_book_id == $this->tempBilltoAddressBookId || $address_book_id == $this->tempSendtoAddressBookId) {
             $address_values = $this->tempAddressValues[$which];
         } else {
             $address_values = $this->getAddressValuesFromDb($address_book_id);
@@ -440,12 +455,13 @@ class OnePageCheckout extends base
     public function validateAndSaveAjaxPostedAddress($which, &$messages)
     {
         $this->inputPreCheck($which);
+        $this->debugMessage("validateAndSaveAJaxPostedAddress($which, ..), POST: " . var_export($_POST, true));
 
         $address_info = $_POST;
         if ($address_info['shipping_billing'] == 'true') {
             $_SESSION['shipping_billing'] = true;
         } else {
-            unset($_SESSION['shipping_billing']);
+            $_SESSION['shipping_billing'] = false;
         }
         unset($address_info['securityToken'], $address_info['add_address'], $address_info['shipping_billing']);
         $messages = $this->validateUpdatedAddress($address_info, $which, false);
@@ -613,19 +629,19 @@ class OnePageCheckout extends base
     
     protected function saveCustomerAddress($address, $which, $add_address = false)
     {
-        $this->debugMessage("saveCustomerAddress($which, $add_address), " . (isset($_SESSION['shipping_billing']) ? 'shipping=billing' : 'shipping!=billing') . ' ' . var_export($address, true));
+        $this->debugMessage("saveCustomerAddress($which, $add_address), " . ((isset($_SESSION['shipping_billing']) && $_SESSION['shipping_billing']) ? 'shipping=billing' : 'shipping!=billing') . ' ' . var_export($address, true));
         if (!$add_address || $this->isGuestCheckout()) {
             $this->tempAddressValues[$which] = $address;
             if ($which == 'ship') {
-                $_SESSION['sendto'] = $this->tempShiptoAddressBookId;
+                $_SESSION['sendto'] = $this->tempSendtoAddressBookId;
             } else {
                 $_SESSION['billto'] = $this->tempBilltoAddressBookId;
                 if (isset($_SESSION['shipping_billing']) && $_SESSION['shipping_billing']) {
-                    $_SESSION['sendto'] = $this->tempShiptoAddressBookId;
+                    $_SESSION['sendto'] = $this->tempSendtoAddressBookId;
                     $this->tempAddressValues['ship'] = $this->tempAddressValues['bill'];
                 }
             }
-            $this->debugMessage("Updated tempAddressValues[$which]:" . var_export($this->tempAddressValues, true));
+            $this->debugMessage("Updated tempAddressValues[$which], billing=shipping(" . $_SESSION['shipping_billing'] . "), sendto(" . $_SESSION['sendto'] . "), billto(" . $_SESSION['billto'] . "):" . var_export($this->tempAddressValues, true));
         } else {
             $sql_data_array = array(
                 array('fieldName' => 'entry_firstname', 'value' => $address['firstname'], 'type' => 'stringIgnoreNull'),

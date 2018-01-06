@@ -602,6 +602,7 @@ jQuery(document).ready(function(){
         jQuery(this).addClass('opc-changed');
         jQuery('#checkoutOneShipto .opc-buttons').show();
         jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+        jQuery('#checkoutOneShipto').removeClass('visibleField');
         jQuery('#checkoutOneShipto').addClass('opc-view');
     });
     jQuery(document).on('click', '#opc-ship-cancel', function(event) {

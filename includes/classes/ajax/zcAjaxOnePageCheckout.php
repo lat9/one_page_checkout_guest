@@ -55,6 +55,7 @@ class zcAjaxOnePageCheckout extends base
             // -----
             // Manage the shipping-address, based on the "Shipping Address, Same as Billing?" checkbox value submitted.
             //
+            $checkout_one->debug_message("Billing/shipping, entry (" . var_export($_POST['shipping_is_billing'], true) . "), " . $_SESSION['sendto'] . ", " . $_SESSION['billto'] . ", " . $_SESSION['opc_sendto_saved'] . ", (" . $_SESSION['shipping_billing'] . ")", 'zcAjaxOnePageCheckout::updateShipping');
             if ($_POST['shipping_is_billing'] == 'true') {
                 $_SESSION['sendto'] = $_SESSION['billto'];
                 $_SESSION['shipping_billing'] = true;
@@ -204,6 +205,7 @@ class zcAjaxOnePageCheckout extends base
 
                 $checkout_one->debug_message("Shipping method changed: " . var_export($quote, true) . var_export($_SESSION['shipping'], true), false, 'zcAjaxOnePageCheckout');
             }
+            $checkout_one->debug_message("Billing/shipping, exit (" . var_export($_POST['shipping_is_billing'], true) . "), " . $_SESSION['sendto'] . ", " . $_SESSION['billto'] . ", " . $_SESSION['opc_sendto_saved'] . ", (" . $_SESSION['shipping_billing'] . ")", 'zcAjaxOnePageCheckout::updateShipping');
 
             require DIR_WS_CLASSES . 'order_total.php';
             $order_total_modules = new order_total();
