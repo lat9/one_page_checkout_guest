@@ -44,7 +44,8 @@ class OnePageCheckout extends base
     //
     public function getDebugLogFileName()
     {
-        return DIR_FS_LOGS . '/myDEBUG-one_page_checkout-' . $_SESSION['customer_id'] . '.log';
+        $customer_id = (isset($_SESSION['customer_id'])) ? $_SESSION['customer_id'] : 'na';
+        return DIR_FS_LOGS . "/myDEBUG-one_page_checkout-$customer_id.log";
     }
     
     public function guestCheckoutEnabled()
@@ -90,6 +91,11 @@ class OnePageCheckout extends base
         return (isset($_SESSION['is_guest_checkout']));
     }
     
+    public function isLoggedIn()
+    {
+        return (!empty($_SESSION['customer_id']));
+    }
+    
     public function startGuestOnePageCheckout()
     {
         $this->guestIsActive = false;
@@ -107,6 +113,18 @@ class OnePageCheckout extends base
         }
         $this->initializeTempAddressValues();
         $this->debugMessage('startGuestOnePageCheckout, exit: sendto: ' . ((isset($_SESSION['sendto'])) ? $_SESSION['sendto'] : 'not set') . ', billto: ' . ((isset($_SESSION['billto'])) ? $_SESSION['billto'] : 'not set') . var_export($this, true));
+    }
+    
+    /* -----
+    ** This function, called by the billing/shipping address blocks' formatting, instructs
+    ** the module whether (true) or not (false) to include the checkbox to add the updated
+    ** address.
+    **
+    ** The field is displayed unless the checkout is being performed in guest-mode.
+    */
+    public function showAddAddressField()
+    {
+        return !zen_in_guest_checkout();
     }
     
     // -----
@@ -189,7 +207,7 @@ class OnePageCheckout extends base
     }
     protected function recalculateTaxBasis($order, $use_temp_billing, $use_temp_shipping)
     {
-        $this->debugMessage("recalculateTaxBasis(order, $use_temp_billing, $useTempShipping): " . var_export($order, true) . var_export($this->tempAddressValues, true));
+        $this->debugMessage("recalculateTaxBasis(order, $use_temp_billing, $use_temp_shipping): " . var_export($order, true) . var_export($this->tempAddressValues, true));
         switch (STORE_PRODUCT_TAX_BASIS) {
             case 'Shipping':
                 if ($order->content_type == 'virtual') {

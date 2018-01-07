@@ -112,7 +112,7 @@ if (ACCOUNT_STATE == 'true') {
     $state_label_id = "stateLabel-$opc_address_type";
     $state_text_id = "stText-$opc_address_type";
     
-    if ($flag_show_pulldown_states) {
+    if ($opc_flag_show_pulldown_states) {
 ?>
       <label class="inputLabel" for="<?php echo $state_zone_id; ?>" id="<?php echo $zone_label_id; ?>"><?php echo ENTRY_STATE; ?></label>
 <?php

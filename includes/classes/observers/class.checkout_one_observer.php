@@ -18,9 +18,9 @@ class checkout_one_observer extends base
         // jQuery).
         //
         require DIR_WS_CLASSES . 'Vinos_Browser.php';
-        $browser = new Vinos_Browser ();
-        $unsupported_browser = ($browser->getBrowser () == Vinos_Browser::BROWSER_IE && $browser->getVersion () < 9);
-        $this->browser = $browser->getBrowser() . '::' . $browser->getVersion ();
+        $browser = new Vinos_Browser();
+        $unsupported_browser = ($browser->getBrowser() == Vinos_Browser::BROWSER_IE && $browser->getVersion() < 9);
+        $this->browser = $browser->getBrowser() . '::' . $browser->getVersion();
         
         // -----
         // The 'opctype' variable is applied to the checkout_shipping page's link by the checkout_one page's alternate link
@@ -83,6 +83,8 @@ class checkout_one_observer extends base
                     'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION', 
                     'NOTIFY_HEADER_END_CHECKOUT_SUCCESS',
                     'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS',
+                    'NOTIFY_ZEN_IN_GUEST_CHECKOUT',
+                    'NOTIFY_ZEN_IS_LOGGED_IN',
                 )
             );
         }
@@ -126,6 +128,32 @@ class checkout_one_observer extends base
                 
             case 'NOTIFY_HEADER_START_CREATE_ACCOUNT':
                 zen_redirect(zen_href_link(FILENAME_REGISTER, '', 'SSL'));
+                break;
+                
+            // -----
+            // Issued by the zen_in_guest_checkout function, allowing an observer to note that
+            // the store is "in-guest-checkout".
+            //
+            // On entry:
+            //
+            // $p1 ... n/a
+            // $p2 ... (r/w) Value is set to boolean true/false to indicate the condition.
+            //
+            case 'NOTIFY_ZEN_IN_GUEST_CHECKOUT':
+                $p2 = $_SESSION['opc']->isGuestCheckout();
+                break;
+                
+            // -----
+            // Issued by the zen_is_logged_in function, allowing an observer to note that
+            // a customer is currently logged into the store.
+            //
+            // On entry:
+            //
+            // $p1 ... n/a
+            // $p2 ... (r/w) Value is set to boolean true/false to indicate the condition.
+            //
+            case 'NOTIFY_ZEN_IS_LOGGED_IN':
+                $p2 = $_SESSION['opc']->isLoggedIn();
                 break;
                 
             // -----

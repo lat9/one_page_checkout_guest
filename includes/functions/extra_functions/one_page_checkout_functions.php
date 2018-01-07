@@ -1,7 +1,7 @@
 <?php
 // -----
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
-// Copyright (C) 2013-2017, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2013-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 
 // -----
@@ -11,7 +11,9 @@
 if (!function_exists('zen_in_guest_checkout')) {
     function zen_in_guest_checkout()
     {
-        return $_SESSION['opc']->isGuestCheckout();
+        $in_guest_checkout = false;
+        $GLOBALS['zco_notifier']->notify('NOTIFY_ZEN_IN_GUEST_CHECKOUT', '', $in_guest_checkout);
+        return (boolean)$in_guest_checkout;
     }
 }
 
@@ -21,6 +23,8 @@ if (!function_exists('zen_in_guest_checkout')) {
 if (!function_exists('zen_is_logged_in')) {
     function zen_is_logged_in()
     {
-        return (!empty($_SESSION['customer_id']));
+        $is_logged_in = (!empty($_SESSION['customer_id']));
+        $GLOBALS['zco_notifier']->notify('NOTIFY_ZEN_IS_LOGGED_IN', '', $is_logged_in);
+        return (boolean)$is_logged_in;
     }
 }

@@ -182,7 +182,7 @@ if (!$is_virtual_order) {
 //-eof-product_delivery_by_postcode (PDP) integration
   
     $extra_message = (isset($_SESSION['shipping'])) ? var_export($_SESSION['shipping'], true) : ' (not set)';
-    $checkout_one->debug_message("CHECKOUT_ONE_AFTER_SHIPPING_CALCULATIONS, pass ($pass), free_shipping ($free_shipping), $extra_message");
+    $checkout_one->debug_message("CHECKOUT_ONE_AFTER_SHIPPING_CALCULATIONS, free_shipping ($free_shipping), $extra_message");
 
     // get all available shipping quotes
     $quotes = $shipping_modules->quote();
