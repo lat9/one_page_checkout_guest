@@ -16,6 +16,12 @@ define('BUTTON_CANCEL_CHANGES_TITLE', 'Cancel all changes made to this address')
 define('TEXT_ADD_TO_ADDRESS_BOOK', 'Add to Address Book');
 define('TITLE_ADD_TO_ADDRESS_BOOK', 'Tick this box to add this address to your personal address book');
 
+define('TITLE_CONTACT_INFORMATION', 'Contact Information');
+define('ENTRY_EMAIL_ADDRESS_CONF', 'Confirm Email:');
+define('ENTRY_EMAIL_ADDRESS_CONF_TEXT', '*');
+define('ERROR_EMAIL_MUST_MATCH_CONFIRMATION', 'The <em>Email Address</em> must match the <em>Confirm Email</em> value.');
+define('TEXT_CONTACT_INFORMATION', 'We will use this information <em>only</em> to contact you regarding this order.');
+
 define('TEXT_SELECT_FROM_SAVED_ADDRESSES', 'Select from saved addresses');
 
 define('TABLE_HEADING_SHIPPING_ADDRESS', 'Shipping Address');

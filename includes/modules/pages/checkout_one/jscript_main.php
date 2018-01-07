@@ -720,5 +720,106 @@ jQuery(document).ready(function(){
     //
     jQuery( '#checkoutPaymentNoJs' ).hide();
     jQuery( '#checkoutPayment' ).show();
+    
+    // -----
+    // If the checkout process is currently being performed in "guest" mode, make sure that any
+    // required fields in the guest-login block are currently filled-in and, if not, give focus
+    // to that block and require those inputs to be supplied.
+    //
+    $('#checkoutOneGuestInfo').find('input').each(function(){
+        if ($(this).prop('required')) {
+            if ($(this).val() == '') {
+                jQuery('#checkoutOneGuestInfo .opc-buttons').show();
+                jQuery('#opc-guest-cancel').hide();
+                jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+                jQuery('#checkoutOneGuestInfo').addClass('opc-view');
+                return false;
+            }
+        }
+    });
+    jQuery(document).on('change', '#checkoutOneGuestInfo input', function(event) {
+        jQuery(this).addClass('opc-changed');
+        jQuery('#checkoutOneGuestInfo .opc-buttons').show();
+        jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+        jQuery('#checkoutOneGuestInfo').addClass('opc-view');
+    });
+    jQuery(document).on('click', '#opc-guest-cancel', function(event) {
+        restoreCustomerInfo();
+        jQuery('#checkoutPayment > .opc-overlay').removeClass('active');
+        jQuery('#checkoutOneGuestInfo').removeClass('opc-view');
+        jQuery('#checkoutOneGuestInfo .opc-buttons').hide();
+    });
+    jQuery(document).on('click', '#opc-guest-save', function(event) {
+        saveCustomerInfo();
+    });
+    function restoreCustomerInfo()
+    {
+        zcLog2Console('restoreCustomerInfo, starts ...');
+        zcJS.ajax({
+            url: "ajax.php?act=ajaxOnePageCheckout&method=restoreCustomerInfo",
+            timeout: shippingTimeout,
+            error: function (jqXHR, textStatus, errorThrown) {
+                zcLog2Console('error: status='+textStatus+', errorThrown = '+errorThrown+', override: '+jqXHR);
+                if (textStatus == 'timeout') {
+                    alert(ajaxTimeoutErrorMessage);
+                }
+            },
+        }).done(function( response ) {
+            jQuery('#checkoutOneGuestInfo').html(response.infoHtml);
+        });
+    }
+    
+    function saveCustomerInfo()
+    {
+        zcLog2Console('saveCustomerInfo, starts ...');
+        var email = jQuery('input[name="email_address"]').val(),
+            email_conf = jQuery('input[name="email_address_conf"]').val(),
+            telephone = jQuery('input[name="telephone"]').val();
+
+        zcJS.ajax({
+            url: "ajax.php?act=ajaxOnePageCheckout&method=validateCustomerInfo",
+            data: {
+                email: email,
+                email_conf: email_conf,
+                telephone: telephone
+            },
+            timeout: shippingTimeout,
+            error: function (jqXHR, textStatus, errorThrown) {
+                zcLog2Console('error: status='+textStatus+', errorThrown = '+errorThrown+', override: '+jqXHR);
+                if (textStatus == 'timeout') {
+                    alert(ajaxTimeoutErrorMessage);
+                }
+            },
+        }).done(function( response ) {
+            var messageBlock = '#messages-guest';
+            // -----
+            // If the response returns a non-empty array of messages, there were one or more
+            // "issues" with the submitted information.  Highlight the errant fields and display
+            // the messages at the bottom of the guest-information block.
+            //
+            if (response.messages.length != 0) {
+                var focusSet = false;
+                jQuery(messageBlock).html('<ul></ul>').addClass('opc-error');
+                jQuery('#checkoutOneGuestInfo input').removeClass('opc-error');
+                jQuery.each(response.messages, function(field_name, message) {
+                    jQuery(messageBlock+' ul').append('<li>'+message+'</li>');
+                    if (jQuery('input[name="'+field_name+'"]').length) {
+                        jQuery('input[name="'+field_name+'"]').addClass('opc-error').removeClass('opc-changed');
+                        if (!focusSet) {
+                            focusSet = true;
+                            jQuery('input[name="'+field_name+'"]').focus();
+                        }
+                    }
+                });
+            // -----
+            // Otherwise, the information-update was successful.  Since the shipping, payment and order-total
+            // modules might have address-related dependencies, simply hard-refresh (i.e. from the
+            // server) the page's display to allow that processing to do its thing.
+            //
+            } else {
+                window.location.reload(true);
+            }
+        });
+    }
 });
 //--></script>

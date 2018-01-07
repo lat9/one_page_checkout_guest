@@ -96,12 +96,31 @@ class OnePageCheckout extends base
         return (!empty($_SESSION['customer_id']));
     }
     
+    public function resetSessionValues()
+    {
+        $this->isEnabled = false;
+        $this->guestIsActive = false;
+        $this->isGuestCheckoutEnabled = false;
+        $this->registeredAccounts = false;
+        unset($this->tempAddressValues, $this->guestCustomerInfo); 
+        
+        $this->initializeGuestCheckout();
+    }
+    
     public function startGuestOnePageCheckout()
     {
         $this->guestIsActive = false;
         if ($this->guestCheckoutEnabled()) {
             if ($this->isGuestCheckout() || ($GLOBALS['current_page_base'] == FILENAME_CHECKOUT_ONE && isset($_POST['guest_checkout']))) {
                 $this->guestIsActive = true;
+                if (!isset($this->guestCustomerInfo)) {
+                    $this->guestCustomerInfo = array(
+                        'firstname' => '',
+                        'lastname' => '',
+                        'email_address' => '',
+                        'telephone' => '',
+                    );
+                }
             }
         }
         if ($this->guestIsActive) {
@@ -113,6 +132,54 @@ class OnePageCheckout extends base
         }
         $this->initializeTempAddressValues();
         $this->debugMessage('startGuestOnePageCheckout, exit: sendto: ' . ((isset($_SESSION['sendto'])) ? $_SESSION['sendto'] : 'not set') . ', billto: ' . ((isset($_SESSION['billto'])) ? $_SESSION['billto'] : 'not set') . var_export($this, true));
+    }
+   
+    /* -----
+    ** This function, called by the guest customer-information block's formatting, returns the
+    ** guest's currently-set firstname.
+    */
+    public function getGuestFirstname()
+    {
+        if (!isset($this->guestCustomerInfo)) {
+            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
+        }
+        return $this->guestCustomerInfo['firstname'];
+    }
+    
+    /* -----
+    ** This function, called by the guest customer-information block's formatting, returns the
+    ** guest's currently-set lastname.
+    */
+    public function getGuestLastname()
+    {
+        if (!isset($this->guestCustomerInfo)) {
+            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
+        }
+        return $this->guestCustomerInfo['lastname'];
+    }
+    
+    /* -----
+    ** This function, called by the guest customer-information block's formatting, returns the
+    ** guest's currently-set email address.
+    */
+    public function getGuestEmailAddress()
+    {
+        if (!isset($this->guestCustomerInfo)) {
+            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
+        }
+        return $this->guestCustomerInfo['email_address'];
+    }
+   
+    /* -----
+    ** This function, called by the guest customer-information block's formatting, returns the
+    ** guest's currently-set telephone number.
+    */
+    public function getGuestTelephone()
+    {
+        if (!isset($this->guestCustomerInfo)) {
+            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
+        }
+        return $this->guestCustomerInfo['telephone'];
     }
     
     /* -----
@@ -136,7 +203,7 @@ class OnePageCheckout extends base
     {
         if (zen_in_guest_checkout()) {
             $address = (array)$order->customer;
-            $order->customer = array_merge($address, $this->createOrderAddressFromTemporary['bill'], $this->getGuestCustomerInfo());
+            $order->customer = array_merge($address, $this->createOrderAddressFromTemporary('bill'), $this->getGuestCustomerInfo());
         }
         
         $temp_billing_address = $temp_shipping_address = false;
@@ -164,6 +231,8 @@ class OnePageCheckout extends base
             trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
         }
         $customer = array(
+            'firstname' => $this->guestCustomerInfo['firstname'],
+            'lastname' => $this->guestCustomerInfo['lastname'],
             'email_address' => $this->guestCustomerInfo['email_address'],
             'telephone' => $this->guestCustomerInfo['telephone']
         );
@@ -489,6 +558,39 @@ class OnePageCheckout extends base
         }
         
         return $address_validated;
+    }
+    
+    public function validateAndSaveAjaxCustomerInfo()
+    {
+        if (!isset($_POST['email'])) {
+            trigger_error('validateAndSaveAjaxCustomerInfo, invalid POST: ' . var_export($_POST, true), E_USER_ERROR);
+        }
+        
+        $messages = array();
+        
+        $email_address = zen_db_prepare_input(zen_sanitize_string($_POST['email']));
+        if (strlen($email_address) < ENTRY_EMAIL_ADDRESS_MIN_LENGTH) {
+            $messages['email_address'] = ENTRY_EMAIL_ADDRESS_ERROR;
+        } elseif (zen_validate_email($email_address) == false) {
+            $messages['email_address'] = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
+        } elseif (CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION == 'true') {
+            $email_confirm = zen_db_prepare_input(zen_sanitize_string($_POST['email_conf']));
+            if ($email_confirm != $email_address) {
+                $messages['email_address_conf'] = ERROR_EMAIL_MUST_MATCH_CONFIRMATION;
+            }
+        }
+        
+        $telephone = zen_db_prepare_input(zen_sanitize_string($_POST['telephone']));
+        if (strlen($telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
+            $messages['telephone'] = ENTRY_TELEPHONE_NUMBER_ERROR;
+        }
+        
+        if (count($messages) == 0) {
+            $this->guestCustomerInfo['email_address'] = $email_address;
+            $this->guestCustomerInfo['telephone'] = $telephone;
+        }
+        
+        return $messages;
     }
     
     // -----

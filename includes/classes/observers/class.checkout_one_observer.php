@@ -7,6 +7,10 @@ if (!defined('IS_ADMIN_FLAG')) {
   die('Illegal Access');
 }
 
+if (!defined('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION')) {
+    define('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION', 'true');
+}
+
 class checkout_one_observer extends base 
 {
     private $enabled = false;

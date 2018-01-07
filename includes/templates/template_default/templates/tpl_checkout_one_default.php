@@ -1,7 +1,7 @@
 <?php
 // -----
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
-// Copyright (C) 2013-2017, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2013-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 ?>
 <?php 
@@ -49,24 +49,29 @@ foreach ($messages_to_check as $page_check) {
   <div id="checkoutOneLeft" class="floatingBox back">
 <?php
 // -----
+// Insert the (conditional) guest-login block.  That block's formatting will determine whether/not to render.
+//
+require $template->get_template_dir('tpl_modules_opc_customer_info.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_customer_info.php';
+
+// -----
 // Insert the billing-address block.
 //
-require $template->get_template_dir('tpl_modules_opc_billing_address.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_billing_address.php';
+require $template->get_template_dir('tpl_modules_opc_billing_address.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_billing_address.php';
 
 // -----
 // Insert the shipping-address block.
 //
-require $template->get_template_dir('tpl_modules_opc_shipping_address.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_shipping_address.php';
+require $template->get_template_dir('tpl_modules_opc_shipping_address.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_shipping_address.php';
 
 // -----
 // Insert the customer-comments block.
 //
-require $template->get_template_dir('tpl_modules_opc_comments.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_comments.php';
+require $template->get_template_dir('tpl_modules_opc_comments.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_comments.php';
 
 // -----
 // Insert the credit-selection block (for coupons, gift certificates, etc.)
 //
-require $template->get_template_dir('tpl_modules_opc_credit_selections.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_credit_selections.php';
+require $template->get_template_dir('tpl_modules_opc_credit_selections.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_credit_selections.php';
 ?>
 
   </div>
@@ -76,24 +81,24 @@ require $template->get_template_dir('tpl_modules_opc_credit_selections.php', DIR
 // -----
 // Insert the shipping-method choices block.
 //
-require $template->get_template_dir('tpl_modules_opc_shipping_choices.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_shipping_choices.php';
+require $template->get_template_dir('tpl_modules_opc_shipping_choices.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_shipping_choices.php';
 
 // -----
 // Insert the payment-method choices block.
 //
-require $template->get_template_dir('tpl_modules_opc_payment_choices.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_payment_choices.php';
+require $template->get_template_dir('tpl_modules_opc_payment_choices.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_payment_choices.php';
 
 // -----
 // Insert the shopping-cart/totals block.
 //
-require $template->get_template_dir('tpl_modules_opc_shopping_cart.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_shopping_cart.php';
+require $template->get_template_dir('tpl_modules_opc_shopping_cart.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_shopping_cart.php';
 
 // -----
 // Insert the instructions, conditions and submit-button block.
 //
-require $template->get_template_dir('tpl_modules_opc_instructions.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_instructions.php';
-require $template->get_template_dir('tpl_modules_opc_conditions.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_conditions.php';
-require $template->get_template_dir('tpl_modules_opc_submit_block.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_submit_block.php';
+require $template->get_template_dir('tpl_modules_opc_instructions.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_instructions.php';
+require $template->get_template_dir('tpl_modules_opc_conditions.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_conditions.php';
+require $template->get_template_dir('tpl_modules_opc_submit_block.php', DIR_WS_TEMPLATE, $current_page_base, 'templates') . '/tpl_modules_opc_submit_block.php';
 
 echo '</form>';
 ?>

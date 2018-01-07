@@ -306,6 +306,72 @@ class zcAjaxOnePageCheckout extends base
     }
     
     // -----
+    // This function validates and updates any guest-customer's contact information.
+    //
+    public function validateCustomerInfo()
+    {
+        $error_message = $address_html = '';
+        $messages = array();
+        $status = 'ok';
+        
+        // -----
+        // Check for a session timeout (i.e. no more customer_id in the session), returning a specific
+        // status and message for that case.
+        //
+        if (!isset($_SESSION['customer_id'])) {
+            $status = 'timeout';
+            $GLOBALS['checkout_one']->debug_message("Session time-out detected.", 'zcAjaxOnePageCheckout::restoreAddressValues');
+        } else {
+            $this->loadLanguageFiles();
+            $messages = $_SESSION['opc']->validateAndSaveAjaxCustomerInfo();
+        }
+        
+        $return_array = array(
+            'status' => $status,
+            'errorMessage' => $error_message,
+            'messages' => $messages
+        );
+        $GLOBALS['checkout_one']->debug_message('validateAddressValues, returning:' . var_export($return_array, true) . var_export($_SESSION['opc'], true));
+        
+        return $return_array;
+    }
+    
+    // -----
+    // This function restores the guest-customer's previously-entered contact information.
+    //
+    public function restoreCustomerInfo()
+    {
+        $error_message = $info_html = '';
+        $status = 'ok';
+        
+        // -----
+        // Check for a session timeout (i.e. no more customer_id in the session), returning a specific
+        // status and message for that case.
+        //
+        if (!isset($_SESSION['customer_id'])) {
+            $status = 'timeout';
+            $GLOBALS['checkout_one']->debug_message("Session time-out detected.", 'zcAjaxOnePageCheckout::restoreAddressValues');
+        } else {
+            $this->loadLanguageFiles();
+            global $current_page_base, $template;
+            $template_file = 'tpl_modules_opc_customer_info.php';
+            ob_start();
+            require $template->get_template_dir($template_file, DIR_WS_TEMPLATE, $current_page_base, 'templates'). "/$template_file";
+            $info_html = ob_get_clean();
+            ob_flush();
+        }
+        
+        $return_array = array(
+            'status' => $status,
+            'errorMessage' => $error_message,
+            'infoHtml' => $info_html,
+        );
+        $GLOBALS['checkout_one']->debug_message('restoreContactInfo, returning:' . var_export($return_array, true), true);
+        
+        return $return_array;
+    }
+        
+    // -----
     // Public function to update the requested address based on a change in the saved-addresses'
     // dropdown menu.
     //
