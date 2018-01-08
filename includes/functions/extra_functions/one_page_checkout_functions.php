@@ -13,7 +13,7 @@ if (!function_exists('zen_in_guest_checkout')) {
     {
         $in_guest_checkout = false;
         $GLOBALS['zco_notifier']->notify('NOTIFY_ZEN_IN_GUEST_CHECKOUT', '', $in_guest_checkout);
-        return (boolean)$in_guest_checkout;
+        return (bool)$in_guest_checkout;
     }
 }
 
@@ -25,6 +25,6 @@ if (!function_exists('zen_is_logged_in')) {
     {
         $is_logged_in = (!empty($_SESSION['customer_id']));
         $GLOBALS['zco_notifier']->notify('NOTIFY_ZEN_IS_LOGGED_IN', '', $is_logged_in);
-        return (boolean)$is_logged_in;
+        return (bool)$is_logged_in;
     }
 }

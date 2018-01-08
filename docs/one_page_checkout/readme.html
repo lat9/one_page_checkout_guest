@@ -485,12 +485,16 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
               <ol>
                 <li>/includes/auto_loaders/config.checkout_one.php</li>
                 <li><span class="corefile">/includes/classes/message_stack.php</span></li>
+                <li><span class="corefile">/includes/classes/order.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/classes/Vinos_Browser.php <span class="smaller">(Added in v1.0.4)</span></li>
                 <li>/includes/classes/ajax/zcAjaxOnePageCheckout.php</li>
                 <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                 <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                 <li>/includes/languages/english/checkout_one.php</li>
                 <li>/includes/languages/english/checkout_one_confirmation.php</li>
+                <li>/includes/languages/english/order_status.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/languages/english/register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/languages/english/register_success.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_coupon.php</span></li>
                 <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_gv.php</span></li>
                 <li><span class="template">/includes/languages/english/YOUR_TEMPLATE/checkout_confirmation.php</span></li>
@@ -507,16 +511,21 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/templates/template_default/templates/tpl_checkout_one_confirmation_default.php</li>
                 <li>/includes/templates/template_default/templates/tpl_checkout_one_default.php</li>
                 <li>/includes/templates/template_default/templates/tpl_modules_checkout_one_shipping.php <span class="smaller">(Added in v1.0.2)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_modules_opc_address_block.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_comments.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_conditions.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_credit_selections.php <span class="smaller">(Added in v1.5.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_modules_opc_customer_info.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_instructions.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_payment_choices.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_shipping_address.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_shipping_choices.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_shopping_cart.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_submit_block.php <span class="smaller">(Added in v1.5.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_order_status_default.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_register_default.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_register_success_default.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one_confirmation.css</li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span> <span class="smaller">(Added in v1.0.3, the ZC1.5.5a version of the file, with modifications to produce valid HTML)</span></li>
@@ -542,13 +551,14 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                     <li>The following files were affected:<ol>
                         <li>/includes/auto_loaders/config.checkout_one.php</li>
                         <li><span class="added">/includes/classes/OnePageCheckout.php</span></li>
-                        <li><span class="corefile">/includes/classes/order.php</span> <span class="smaller">(Added)</span></li>
+                        <li><span class="corefile">/includes/classes/order.php</span> <span class="smaller">(Added one notifier)</span></li>
                         <li>/includes/classes/ajax/zcAjaxOnePageCheckout.php</li>
                         <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                         <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                         <li><span class="added">/includes/functions/extra_functions/one_page_checkout_functions.php</span></li>
                         <li>/includes/languages/english/checkout_one.php</li>
                         <li><span class="added">/includes/languages/english/login_opc.php</span></li>
+                        <li><span class="added">/includes/languages/english/order_status.php</span></li>
                         <li><span class="added">/includes/languages/english/register.php</span></li>
                         <li><span class="added">/includes/languages/english/register_success.php</span></li>
                         <li>/includes/modules/pages/checkout_one/header_php.php</li>
@@ -557,6 +567,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li>/includes/modules/pages/checkout_one_confirmation/header_php.php</li>
                         <li><span class="added">/includes/modules/pages/login/header_php_opc.php</li>
                         <li><span class="added">/includes/modules/pages/login/main_template_vars.php</span></li>
+                        <li><span class="added">/includes/modules/pages/order_status/header_php.php</span></li>
                         <li><span class="added">/includes/modules/pages/register/header_php.php</span></li>
                         <li><span class="added">/includes/modules/pages/register/jscript_form_check.php</span></li>
                         <li><span class="added">/includes/modules/pages/register_success/header_php.php</span></li>
@@ -567,6 +578,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="added">/includes/templates/template_default/templates/tpl_modules_opc_address_block.php</span></li>
                         <li>/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php</li>
                         <li>/includes/templates/template_default/templates/tpl_modules_opc_shipping_address.php</li>
+                        <li><span class="added">/includes/templates/template_default/templates/tpl_order_status.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_register_default.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_register_success_default.php</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</span></li>
