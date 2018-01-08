@@ -120,11 +120,23 @@ class OnePageCheckout extends base
         $this->initializeGuestCheckout();
     }
     
+    // -----
+    // Issued (currently) by the checkout_one page's header processing to initialize any guest-checkout
+    // processing.  Since the process starts by the login page's form-submittal with the 'guest_checkout'
+    // input set, we need to recognize that condition and perform a POST-less redirect back to the
+    // page after recording the guest-related settings into the session.
+    //
+    // Without this redirect, the checkout-one page's form is interpreted by the browser as having an
+    // unprocessed POST value and results in an unwanted browser message when the guest updates his/her
+    // contact information and/or addresses.
+    //
     public function startGuestOnePageCheckout()
     {
         $this->guestIsActive = false;
+        $redirect_required = false;
         if ($this->guestCheckoutEnabled()) {
-            if ($this->isGuestCheckout() || ($GLOBALS['current_page_base'] == FILENAME_CHECKOUT_ONE && isset($_POST['guest_checkout']))) {
+            $redirect_required = ($GLOBALS['current_page_base'] == FILENAME_CHECKOUT_ONE && isset($_POST['guest_checkout']));
+            if ($this->isGuestCheckout() || $redirect_required) {
                 $this->guestIsActive = true;
                 if (!isset($this->guestCustomerInfo)) {
                     $this->guestCustomerInfo = array(
@@ -145,6 +157,10 @@ class OnePageCheckout extends base
         }
         $this->initializeTempAddressValues();
         $this->debugMessage('startGuestOnePageCheckout, exit: sendto: ' . ((isset($_SESSION['sendto'])) ? $_SESSION['sendto'] : 'not set') . ', billto: ' . ((isset($_SESSION['billto'])) ? $_SESSION['billto'] : 'not set') . var_export($this, true));
+        
+        if ($redirect_required) {
+            zen_redirect(zen_href_link(FILENAME_CHECKOUT_ONE, '', 'SSL'));
+        }
     }
     
     /* -----
