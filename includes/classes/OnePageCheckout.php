@@ -98,6 +98,19 @@ class OnePageCheckout extends base
     
     public function resetSessionValues()
     {
+        if (zen_in_guest_checkout()) {
+            unset(
+                $_SESSION['customer_id'], 
+                $_SESSION['customers_email_address'],
+                $_SESSION['customers_authorization'],
+                $_SESSION['sendto'], 
+                $_SESSION['billto'],
+                $_SESSION['is_guest_checkout'],
+                $_SESSION['customer_default_address_id'], 
+                $_SESSION['shipping_billing'], 
+                $_SESSION['opc_sendto_saved']
+            );
+        }
         $this->isEnabled = false;
         $this->guestIsActive = false;
         $this->isGuestCheckoutEnabled = false;
@@ -132,30 +145,6 @@ class OnePageCheckout extends base
         }
         $this->initializeTempAddressValues();
         $this->debugMessage('startGuestOnePageCheckout, exit: sendto: ' . ((isset($_SESSION['sendto'])) ? $_SESSION['sendto'] : 'not set') . ', billto: ' . ((isset($_SESSION['billto'])) ? $_SESSION['billto'] : 'not set') . var_export($this, true));
-    }
-   
-    /* -----
-    ** This function, called by the guest customer-information block's formatting, returns the
-    ** guest's currently-set firstname.
-    */
-    public function getGuestFirstname()
-    {
-        if (!isset($this->guestCustomerInfo)) {
-            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
-        }
-        return $this->guestCustomerInfo['firstname'];
-    }
-    
-    /* -----
-    ** This function, called by the guest customer-information block's formatting, returns the
-    ** guest's currently-set lastname.
-    */
-    public function getGuestLastname()
-    {
-        if (!isset($this->guestCustomerInfo)) {
-            trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
-        }
-        return $this->guestCustomerInfo['lastname'];
     }
     
     /* -----
@@ -571,7 +560,7 @@ class OnePageCheckout extends base
         $email_address = zen_db_prepare_input(zen_sanitize_string($_POST['email']));
         if (strlen($email_address) < ENTRY_EMAIL_ADDRESS_MIN_LENGTH) {
             $messages['email_address'] = ENTRY_EMAIL_ADDRESS_ERROR;
-        } elseif (zen_validate_email($email_address) == false) {
+        } elseif (!zen_validate_email($email_address) || $this->isEmailBanned($email_address)) {
             $messages['email_address'] = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
         } elseif (CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION == 'true') {
             $email_confirm = zen_db_prepare_input(zen_sanitize_string($_POST['email_conf']));
@@ -591,6 +580,22 @@ class OnePageCheckout extends base
         }
         
         return $messages;
+    }
+    // -----
+    // See if the supplied email-address is present (and banned) within the store's
+    // database.  Returns true if present and banned; false otherwise.
+    //
+    protected function isEmailBanned($email_address)
+    {
+        $email_address = $GLOBALS['db']->prepare_input($email_address);
+        $check = $GLOBALS['db']->Execute(
+            "SELECT customers_id
+               FROM " . TABLE_CUSTOMERS . "
+              WHERE customers_email_address = '$email_address'
+                AND customers_authorization = 4
+              LIMIT 1"
+        );
+        return !$check->EOF;
     }
     
     // -----

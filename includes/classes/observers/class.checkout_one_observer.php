@@ -7,8 +7,14 @@ if (!defined('IS_ADMIN_FLAG')) {
   die('Illegal Access');
 }
 
+// -----
+// Placeholders for settings to be moved to database configuration.
+//
 if (!defined('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION')) {
     define('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION', 'true');
+}
+if (!defined('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED')) {
+    define('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED', 'account, account_edit, account_history, account_history_info, account_newsletters, account_notifications, account_password, address_book, address_book_process, create_account_success, password_forgotten, product_reviews_write, unsubscribe');
 }
 
 class checkout_one_observer extends base 
@@ -77,6 +83,14 @@ class checkout_one_observer extends base
             }
             $this->debug_logfile = $_SESSION['opc']->getDebugLogFileName();
             $this->current_page_base = $GLOBALS['current_page_base'];
+            
+            if ($_SESSION['opc']->isGuestCheckout()) {
+                $disallowed_pages = explode(',', str_replace(' ', '', CHECKOUT_ONE_GUEST_PAGES_DISALLOWED));
+                if (in_array($this->current_page_base, $disallowed_pages)) {
+                    $GLOBALS['messageStack']->add_session('header', ERROR_GUEST_CHECKOUT_PAGE_DISALLOWED, 'error');
+                    zen_redirect(zen_href_link(FILENAME_DEFAULT));
+                }
+            }
                     
             $this->attach(
                 $this, 
@@ -84,8 +98,7 @@ class checkout_one_observer extends base
                     'NOTIFY_HEADER_START_CHECKOUT_SHIPPING', 
                     'NOTIFY_HEADER_START_CHECKOUT_PAYMENT', 
                     'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS', 
-                    'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION', 
-                    'NOTIFY_HEADER_END_CHECKOUT_SUCCESS',
+                    'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION',
                     'NOTIFY_HEADER_START_ADDRESS_BOOK_PROCESS',
                     'NOTIFY_ZEN_IN_GUEST_CHECKOUT',
                     'NOTIFY_ZEN_IS_LOGGED_IN',
@@ -121,13 +134,6 @@ class checkout_one_observer extends base
                 
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS':
                 $_SESSION['shipping_billing'] = false;
-                break;
-      
-            case 'NOTIFY_HEADER_END_CHECKOUT_SUCCESS':
-                // -----
-                // Needs to be moved to the class
-                //
-                unset($_SESSION['shipping_billing'], $_SESSION['opc_sendto_saved']);
                 break;
                 
             case 'NOTIFY_HEADER_START_CREATE_ACCOUNT':

@@ -11,3 +11,4 @@ define('FILENAME_CHECKOUT_ONE', 'checkout_one');
 define('FILENAME_CHECKOUT_ONE_CONFIRMATION', 'checkout_one_confirmation');
 define('FILENAME_REGISTER', 'register');
 define('FILENAME_ORDER_STATUS', 'order_status');
+define('FILENAME_DEFINE_CHECKOUT_SUCCESS_GUEST', 'define_checkout_success_guest');
