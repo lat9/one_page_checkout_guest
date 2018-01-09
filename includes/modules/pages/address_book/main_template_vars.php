@@ -26,18 +26,6 @@ if (!defined('CHECKOUT_ONE_ENABLED')) {
     $page_template = 'tpl_address_book_opc.php';
     if (!isset($addressArray)) {
         $addressArray = array();
-    } else {
-        foreach ($addressArray as $index => $current_address) {
-            $check = $db->Execute(
-                "SELECT address_type
-                   FROM " . TABLE_ADDRESS_BOOK . "
-                  WHERE address_book_id = " . $current_address['address_book_id'] . "
-                  LIMIT 1"
-            );
-            if ($check->fields['address_type'] != OnePageCheckout::ADDRESS_TYPE_REGULAR) {
-                unset($addressArray[$index]);
-            }
-        }
     }
     $enable_add_address = (count($addressArray) < MAX_ADDRESS_BOOK_ENTRIES);
     $no_registered_addresses = (count($addressArray) == 0);

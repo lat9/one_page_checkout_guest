@@ -520,7 +520,7 @@ jQuery(document).ready(function(){
     });
 
     // -----
-    // The tpl_checkout_one_default.php processing has appled 'class="opc-cc-submit"' to each credit-class
+    // The tpl_checkout_one_default.php processing has applied 'class="opc-cc-submit"' to each credit-class
     // order-total's "Apply" button.  When one of those "Apply" buttons is clicked, note that the order has
     // **not** been confirmed, make the AJAX call to recalculate the order-totals and submit the form,
     // causing the transition to (and back from) the checkout_one_confirmation page where that credit-class

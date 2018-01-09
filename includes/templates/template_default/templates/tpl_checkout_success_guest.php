@@ -17,9 +17,42 @@
 //
 ?>
 <div class="centerColumn" id="checkoutSuccess">
+<?php 
+if ($messageStack->size('checkout_success') > 0) {
+    echo $messageStack->output('checkout_success');
+}
+?>
     <h1 id="checkoutSuccessHeading"><?php echo HEADING_TITLE; ?></h1>
     <div id="checkoutSuccessOrderNumber"><?php echo TEXT_YOUR_ORDER_NUMBER . $zv_orders_id; ?></div>
+<?php
+if ($offer_account_creation) {
+?>
+    <div id="checkoutSuccessGuestPassword">
+        <hr />
+        <p><?php echo TEXT_GUEST_ADD_PWD_TO_CREATE_ACCT; ?></p>
+        
+        <?php echo zen_draw_form('guest-pwd', zen_href_link(FILENAME_CHECKOUT_SUCCESS, 'action=create_account', 'SSL'), 'post'); ?>
+            <label class="inputLabel" for="password-new"><?php echo ENTRY_PASSWORD; ?></label>
+            <?php echo zen_draw_password_field('password', '', 'id="password-new" autocomplete="off" placeholder="' . ENTRY_PASSWORD_TEXT . '"'); ?>
+
+            <label class="inputLabel" for="password-confirm"><?php echo ENTRY_PASSWORD_CONFIRMATION; ?></label>
+            <?php echo zen_draw_password_field('confirmation', '', 'id="password-confirm" autocomplete="off" placeholder="' . ENTRY_PASSWORD_CONFIRMATION_TEXT . '"'); ?>
+<?php
+    if (ACCOUNT_NEWSLETTER_STATUS != 0) {
+?>
+            <?php echo zen_draw_checkbox_field('newsletter', '1', $newsletter, 'id="newsletter-checkbox"'); ?>
+            <label class="checkboxLabel" for="newsletter-checkbox"> <?php echo ENTRY_NEWSLETTER; ?></label><?php echo(zen_not_null(ENTRY_NEWSLETTER_TEXT) ? '<span class="alert">' . ENTRY_NEWSLETTER_TEXT . '</span>': ''); ?>
 <?php 
+    } 
+?>       
+            <div class="buttonRow"><?php echo zen_image_submit(BUTTON_IMAGE_CREATE_ACCOUNT, BUTTON_CREATE_ACCOUNT_ALT); ?></div>
+        <?php echo '</form>'; ?>
+        
+        <hr />
+  </div>
+<?php
+}
+
 if (DEFINE_CHECKOUT_SUCCESS_STATUS >= 1 and DEFINE_CHECKOUT_SUCCESS_STATUS <= 2) { 
 ?>
     <div id="checkoutSuccessMainContent" class="content"><?php require $define_page; ?></div>

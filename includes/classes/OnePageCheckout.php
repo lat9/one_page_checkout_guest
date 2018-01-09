@@ -98,19 +98,25 @@ class OnePageCheckout extends base
     
     public function resetSessionValues()
     {
-        if (zen_in_guest_checkout()) {
+        if (zen_in_guest_checkout() || $_SESSION['customer_id'] == $this->guestCustomerId) {
             unset(
                 $_SESSION['customer_id'], 
                 $_SESSION['customers_email_address'],
                 $_SESSION['customers_authorization'],
                 $_SESSION['sendto'], 
                 $_SESSION['billto'],
-                $_SESSION['is_guest_checkout'],
-                $_SESSION['customer_default_address_id'], 
-                $_SESSION['shipping_billing'], 
-                $_SESSION['opc_sendto_saved']
+                $_SESSION['customer_default_address_id']
             );
         }
+        unset(
+            $_SESSION['is_guest_checkout'],
+            $_SESSION['shipping_billing'], 
+            $_SESSION['opc_sendto_saved']
+        );
+        $this->reset();
+    }
+    protected function reset()
+    {
         $this->isEnabled = false;
         $this->guestIsActive = false;
         $this->isGuestCheckoutEnabled = false;
@@ -206,6 +212,7 @@ class OnePageCheckout extends base
     //
     public function updateOrderAddresses($order, &$taxCountryId, &$taxZoneId)
     {
+        $this->debugMessage("updateOrderAddresses, on entry:" . var_export($order, true) . var_export($this, true));
         if (zen_in_guest_checkout()) {
             $address = (array)$order->customer;
             $order->customer = array_merge($address, $this->createOrderAddressFromTemporary('bill'), $this->getGuestCustomerInfo());
@@ -227,7 +234,7 @@ class OnePageCheckout extends base
             $taxCountryId = $tax_info['tax_country_id'];
             $taxZoneId = $tax_info['tax_zone_id'];
         }
-        $this->debugMessage("UpdateOrderAddresses, $temp_billing_address, $temp_shipping_address, $taxCountryId, $taxZoneId" . var_export($order->billing, true) . var_export($order->delivery, true));
+        $this->debugMessage("updateOrderAddresses, $temp_billing_address, $temp_shipping_address, $taxCountryId, $taxZoneId" . var_export($order->customer, true) . var_export($order->billing, true) . var_export($order->delivery, true));
     }
     
     protected function getGuestCustomerInfo()
@@ -332,6 +339,15 @@ class OnePageCheckout extends base
             'tax_country_id' => $tax_country_id,
             'tax_zone_id' => $tax_zone_id
         );
+    }
+    
+    public function formatAddress($which)
+    {
+        $this->inputPreCheck($which);
+        
+        $address = $this->createOrderAddressFromTemporary($which);
+        
+        return zen_address_format($address['format_id'], $address, 0, '', "\n");
     }
     
     public function validateBilltoSendto($which)
@@ -776,6 +792,10 @@ class OnePageCheckout extends base
             if ($which == 'ship') {
                 $_SESSION['sendto'] = $this->tempSendtoAddressBookId;
             } else {
+                if ($this->isGuestCheckout()) {
+                    $this->guestCustomerInfo['firstname'] = $address['firstname'];
+                    $this->guestCustomerInfo['lastname'] = $address['lastname'];
+                }
                 $_SESSION['billto'] = $this->tempBilltoAddressBookId;
                 if (isset($_SESSION['shipping_billing']) && $_SESSION['shipping_billing']) {
                     $_SESSION['sendto'] = $this->tempSendtoAddressBookId;
@@ -832,6 +852,125 @@ class OnePageCheckout extends base
                 $_SESSION['sendto'] = $address_book_id;
             }
         }
+    }
+    
+    public function createAccountFromGuestInfo($order_id, $password, $newsletter)
+    {
+        if (!$this->guestIsActive || !isset($this->guestCustomerInfo) || !isset($this->tempAddressValues)) {
+            trigger_error('Invalid access' . var_export($this, true), E_USER_ERROR);
+        }
+        
+        $customer_id = $this->createCustomerRecordFromGuestInfo($password, $newsletter);
+        $_SESSION['customer_id'] = $customer_id;
+        $GLOBALS['db']->Execute(
+            "UPDATE " . TABLE_ORDERS . "
+                SET customers_id = $customer_id
+              WHERE orders_id = " . (int)$order_id . "
+              LIMIT 1"
+        );
+        
+        $default_address_id = $this->createAddressBookRecord($customer_id, 'bill');
+        $GLOBALS['db']->Execute(
+            "UPDATE " . TABLE_CUSTOMERS . "
+                SET customers_default_address_id = $default_address_id
+              WHERE customers_id = $customer_id
+              LIMIT 1"
+        );
+        
+        if ($this->tempAddressValues['ship']['firstname'] != '') {
+            if ($this->addressArrayToString($this->tempAddressValues['ship']) != $this->addressArrayToString($this->tempAddressValues['bill'])) {
+                $this->createAddressBookRecord($customer_id, 'ship');
+            }
+        }
+        
+        unset(
+            $_SESSION['sendto'], 
+            $_SESSION['billto'],
+            $_SESSION['is_guest_checkout'],
+            $_SESSION['shipping_billing'], 
+            $_SESSION['opc_sendto_saved'],
+            $_SESSION['order_placed_by_guest']
+        );
+        
+        $_SESSION['customer_first_name'] = $this->guestCustomerInfo['firstname'];
+        $_SESSION['customer_last_name'] = $this->guestCustomerInfo['lastname'];
+        $_SESSION['customer_default_address_id'] = $default_address_id;
+        $_SESSION['customer_country_id'] = $this->tempAddressValues['bill']['country'];
+        $_SESSION['customer_zone_id'] = $this->tempAddressValues['bill']['zone_id'];
+        $_SESSION['customers_authorization'] = 0;
+        
+        $this->reset();
+    }
+    protected function createCustomerRecordFromGuestInfo($password, $newsletter)
+    {
+        $dob = '';
+        
+        $sql_data_array = array(
+            array('fieldName' => 'customers_firstname', 'value' => $this->guestCustomerInfo['firstname'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_lastname', 'value' => $this->guestCustomerInfo['lastname'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_email_address', 'value' => $this->guestCustomerInfo['email_address'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_telephone', 'value' => $this->guestCustomerInfo['telephone'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_newsletter', 'value' => $newsletter, 'type' => 'integer'),
+            array('fieldName' => 'customers_email_format', 'value' => 'TEXT', 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_default_address_id', 'value' => 0, 'type' => 'integer'),
+            array('fieldName' => 'customers_password', 'value' => zen_encrypt_password($password), 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_authorization', 'value' => 0, 'type' => 'integer'),
+        );
+
+        if (ACCOUNT_GENDER == 'true') {
+            $sql_data_array[] = array('fieldName' => 'customers_gender', 'value' => $gender, 'type' => 'stringIgnoreNull');
+        }
+        if (ACCOUNT_DOB == 'true') {
+            $dob = (empty($dob) || $dob == '0001-01-01 00:00:00') ? zen_db_prepare_input('0001-01-01 00:00:00') : zen_date_raw($dob);
+            $sql_data_array[] = array('fieldName' => 'customers_dob', 'value' => $dob, 'type' => 'date');
+        }
+
+        $GLOBALS['db']->perform(TABLE_CUSTOMERS, $sql_data_array);
+        $customer_id = $GLOBALS['db']->Insert_ID();
+        
+        $GLOBALS['db']->Execute(
+            "INSERT INTO " . TABLE_CUSTOMERS_INFO . "
+                    (customers_info_id, customers_info_number_of_logons, customers_info_date_account_created, customers_info_date_of_last_logon)
+                VALUES 
+                    ($customer_id, 1, now(), now())"
+        );
+
+        return $customer_id;
+    }
+    protected function createAddressBookRecord($customer_id, $which)
+    {
+        $sql_data_array = array(
+            array('fieldName' => 'customers_id', 'value' => $customer_id, 'type' => 'integer'),
+            array('fieldName' => 'entry_firstname', 'value' => $this->tempAddressValues[$which]['firstname'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_lastname', 'value' => $this->tempAddressValues[$which]['lastname'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_street_address', 'value' => $this->tempAddressValues[$which]['street_address'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_postcode', 'value' => $this->tempAddressValues[$which]['postcode'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_city', 'value' => $this->tempAddressValues[$which]['city'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_country_id', 'value' => $this->tempAddressValues[$which]['country'], 'type' => 'integer'),
+        );
+
+        if (ACCOUNT_GENDER == 'true') {
+            $sql_data_array[] = array('fieldName' => 'entry_gender', 'value' => $this->tempAddressValues[$which]['gender'], 'type' => 'stringIgnoreNull');
+        }
+        if (ACCOUNT_COMPANY == 'true') {
+            $sql_data_array[] = array('fieldName' => 'entry_company', 'value' => $this->tempAddressValues[$which]['company'], 'type' => 'stringIgnoreNull');
+        }
+        if (ACCOUNT_SUBURB == 'true') {
+            $sql_data_array[] = array('fieldName' => 'entry_suburb', 'value' => $this->tempAddressValues[$which]['suburb'], 'type' => 'stringIgnoreNull');
+        }
+
+        if (ACCOUNT_STATE == 'true') {
+            if ($this->tempAddressValues[$which]['zone_id'] > 0) {
+                $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => $this->tempAddressValues[$which]['zone_id'], 'type' => 'integer');
+                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => '', 'type' => 'stringIgnoreNull');
+            } else {
+                $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => 0, 'type' => 'integer');
+                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => $this->tempAddressValues[$which]['state'], 'type' => 'stringIgnoreNull');
+            }
+        }
+        $GLOBALS['db']->perform(TABLE_ADDRESS_BOOK, $sql_data_array);
+
+        return $GLOBALS['db']->Insert_ID();
     }
     
     protected function findAddressBookEntry($address)

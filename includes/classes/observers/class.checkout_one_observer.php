@@ -49,6 +49,16 @@ class checkout_one_observer extends base
         }
         
         // -----
+        // Perform a little "session-cleanup".  If a guest just placed an order and has navigated off
+        // the checkout_success page, need to remove all session-variables associated with that
+        // guest checkout.
+        //
+        if (isset($_SESSION['order_placed_by_guest']) && $GLOBALS['current_page_base'] != FILENAME_CHECKOUT_SUCCESS) {
+            unset($_SESSION['order_placed_by_guest'], $_SESSION['order_number_created']);
+            $_SESSION['opc']->resetSessionValues();
+        }
+        
+        // -----
         // Determine whether the OPC should be enabled.  It's enabled if:
         //
         // - No previous jQuery error on the checkout_one page has been detected.
@@ -117,6 +127,9 @@ class checkout_one_observer extends base
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
                     'NOTIFY_ORDER_CART_AFTER_ADDRESSES_SET',
                     'NOTIFY_ORDER_DURING_CREATE_ADDED_ORDER_HEADER',
+                    'NOTIFY_ORDER_INVOICE_CONTENT_READY_TO_SEND',
+                    'NOTIFY_CHECKOUT_PROCESS_BEFORE_CART_RESET',
+                    'NOTIFY_HEADER_START_CHECKOUT_SUCCESS'
                 )
             );
         }
@@ -235,6 +248,109 @@ class checkout_one_observer extends base
                           WHERE orders_id = " . (int)$p2 . "
                           LIMIT 1"
                     );
+                }
+                break;
+                
+            // -----
+            // Issued at the very end of the checkout_process page's handling.  If the
+            // order was placed by a guest, capture the order-number created to allow
+            // the OPC's guest checkout_success processing to offer the guest the
+            // opportunity to create an account using the information in the just-placed
+            // order.
+            //
+            // These values remain in the session ... so long as the guest-customer
+            // doesn't navigate off of the checkout_success page.  This class'
+            // constructor will remove this (and other guest-related values) from
+            // the session if the variable is set and the current page is other
+            // than the checkout_success one.
+            //
+            // On entry:
+            //
+            // $p1 ... (r/o) The just-created order's order_id.
+            //
+            case 'NOTIFY_CHECKOUT_PROCESS_BEFORE_CART_RESET':
+                if (zen_in_guest_checkout()) {
+                    $_SESSION['order_placed_by_guest'] = (int)$p1;
+                }
+                break;
+                
+            // -----
+            // At the start of the checkout_success page, check to see if we're
+            // at the tail-end of a guest-checkout.  If so, it's possible that the
+            // customer is attempting to create an account from the information in
+            // the just-placed order.
+            //
+            // If so, check to see if the page's processing has previously removed
+            // the "normal" order-id from the session and restore that value so that
+            // the base page-header processing will continue to properly gather the
+            // information from that order.
+            //
+            case 'NOTIFY_HEADER_START_CHECKOUT_SUCCESS':
+                if (zen_in_guest_checkout() && !isset($_SESSION['order_number_created'])) {
+                    $_SESSION['order_number_created'] = $_SESSION['order_placed_by_guest'];
+                }
+                break;
+                
+            // -----
+            // Issued by the order-class just prior to sending the order-confirmation email.
+            //
+            // If we're in "guest checkout", we'll do some reconstruction.
+            //
+            // On entry:
+            //
+            // $p1 ... (r/o) An associative array; the order's order_id is in the zf_insert_id element.
+            // $p2 ... (r/w) The current text email string.
+            // $p3 ... (r/w) The current HTML email array.
+            //
+            case 'NOTIFY_ORDER_INVOICE_CONTENT_READY_TO_SEND':
+                if (zen_in_guest_checkout()) {
+                    $order_id = (int)$p1['zf_insert_id'];
+                    $email_text = $p2;
+                    $html_msg = $p3;
+                    
+                    $account_history_link = zen_href_link(FILENAME_ACCOUNT_HISTORY_INFO, "order_id=$order_id", 'SSL', false);
+                    $account_history_link_text = EMAIL_TEXT_INVOICE_URL . ' ' . $account_history_link;
+                    
+                    $order_status_link = zen_href_link(FILENAME_ORDER_STATUS, '', 'SSL');
+                    $order_status_link_text = EMAIL_TEXT_INVOICE_URL_GUEST . ' ' . $order_status_link;
+
+                    $email_text = str_replace($account_history_link_text, $order_status_link_text, $email_text);
+                    
+                    $html_msg['INTRO_URL_TEXT'] = EMAIL_TEXT_INVOICE_URL_CLICK_GUEST;
+                    $html_msg['INTRO_URL_VALUE'] = $order_status_link;
+                    
+                    if ($class->content_type != 'virtual') {
+                        $shipping_address = $_SESSION['opc']->formatAddress('ship');
+                        
+                        $new_shipping_address = 
+                            EMAIL_TEXT_DELIVERY_ADDRESS . "\n" . 
+                            EMAIL_SEPARATOR . "\n" . 
+                            $shipping_address;
+                        $old_shipping_address = 
+                            EMAIL_TEXT_DELIVERY_ADDRESS . "\n" . 
+                            EMAIL_SEPARATOR . "\n" . 
+                            zen_address_label($_SESSION['customer_id'], $_SESSION['sendto'], 0, '', "\n");
+                        $email_text = str_replace($old_shipping_address, $new_shipping_address, $email_text);
+                        
+                        $html_msg['ADDRESS_DELIVERY_DETAIL'] = nl2br($shipping_address);
+                    }
+                    
+                    $billing_address = $_SESSION['opc']->formatAddress('bill');
+                    
+                    $new_billing_address =
+                        EMAIL_TEXT_BILLING_ADDRESS . "\n" .
+                        EMAIL_SEPARATOR . "\n" .
+                        $billing_address;
+                    $old_billing_address =
+                        EMAIL_TEXT_BILLING_ADDRESS . "\n" .
+                        EMAIL_SEPARATOR . "\n" .
+                        zen_address_label($_SESSION['customer_id'], $_SESSION['billto'], 0, '', "\n");
+                    $email_text = str_replace($old_billing_address, $new_billing_address, $email_text);
+                    
+                    $html_msg['ADDRESS_BILLING_DETAIL'] = nl2br($billing_address);
+                    
+                    $p2 = $email_text;
+                    $p3 = $html_msg;
                 }
                 break;
                 
