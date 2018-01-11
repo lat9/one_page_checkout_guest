@@ -370,7 +370,7 @@ class checkout_one_observer extends base
                         unset($the_request[$name]);
                     }
                 }
-                $extra_info = print_r($the_request, true);
+                $extra_info = var_export($the_request, true);
             }
             
             // -----

@@ -11,8 +11,8 @@ class OnePageCheckout extends base
     // -----
     // Various protected data elements:
     //
-    // isGuestCheckoutEnabled ... Indicates whether (true) or not (false) the overall guest-checkout is enabled.
-    // registeredAccounts ....... Indicates whether (true) or not (false) "registered" accounts are enabled.
+    // isGuestCheckoutEnabled ... Indicates whether (true) or not (false) the overall guest-checkout is enabled via configuration.
+    // registeredAccounts ....... Indicates whether (true) or not (false) "registered" accounts are enabled via configuration.
     // isEnabled ................ Essentially follows the enable-value of the OPC observer.
     // guestIsActive ............ Indicates whether (true) or not (false) we're currently handling a guest-checkout
     // tempAddressValues ........ Array, if set, contains any temporary addresses used within the checkout process.
@@ -39,43 +39,59 @@ class OnePageCheckout extends base
         $this->registeredAccounts = false;
     }
     
-    // -----
-    // This function, called by the OPC's observer-class, provides the common-use debug filename.
-    //
+    /* -----
+    ** This function, called by the OPC's observer-class, provides the common-use debug filename.
+    */
     public function getDebugLogFileName()
     {
         $customer_id = (isset($_SESSION['customer_id'])) ? $_SESSION['customer_id'] : 'na';
         return DIR_FS_LOGS . "/myDEBUG-one_page_checkout-$customer_id.log";
     }
     
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) OPC's
+    ** guest-checkout is currently enabled.
+    */
     public function guestCheckoutEnabled()
     {
         $this->initializeGuestCheckout();
         return ($this->isEnabled && $this->isGuestCheckoutEnabled);
     }
     
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) the order
+    ** is currently being processed with the shipping address, same as billing.
+    */    
     public function getShippingBilling()
     {
         $_SESSION['shipping_billing'] = (isset($_SESSION['shipping_billing'])) ? $_SESSION['shipping_billing'] : true;
         return $_SESSION['shipping_billing'];
     }
     
-    // -----
-    // Issued by the OPC's observer-class to determine whether order-related notifications need
-    // to be monitored.
-    //
+    /* -----
+    ** Issued by the OPC's observer-class to determine whether order-related notifications need
+    ** to be monitored.
+    */
     public function initTemporaryAddresses()
     {
         $this->initializeGuestCheckout();
         return ($this->isGuestCheckoutEnabled || $this->registeredAccounts);
     }
     
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) OPC's
+    ** "temporary addresses" (used for guest-checkout and registered-accounts) is currently
+    ** enabled.
+    */       
     public function temporaryAddressesEnabled()
     {
         $this->initializeGuestCheckout();
         return ($this->isEnabled && ($this->isGuestCheckoutEnabled || $this->registeredAccounts));
     }
 
+    // -----
+    // This internal function initializes the class variables associated with guest-checkout.
+    //
     protected function initializeGuestCheckout()
     {
         $this->isGuestCheckoutEnabled = (defined('CHECKOUT_ONE_ENABLE_GUEST') && CHECKOUT_ONE_ENABLE_GUEST == 'true');
@@ -85,17 +101,34 @@ class OnePageCheckout extends base
         $this->tempSendtoAddressBookId = (defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID : 0;
     }
 
-    
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) the current
+    ** session is in "guest-checkout" mode.
+    **
+    ** OPC's observer-class causes this function's return value to be returned by call to the
+    ** zen_in_guest_checkout() function.
+    */      
     public function isGuestCheckout()
     {
         return (isset($_SESSION['is_guest_checkout']));
     }
-    
+
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) a customer is
+    ** logged in for the current session.
+    **
+    ** OPC's observer-class causes this function's return value to be returned by call to the
+    ** zen_is_logged_in() function.
+    */       
     public function isLoggedIn()
     {
         return (!empty($_SESSION['customer_id']));
     }
     
+    /* -----
+    ** This function resets the guest-related information stored in the current session,
+    ** essentially restoring the session to a non-guest-checkout scenario.
+    */           
     public function resetSessionValues()
     {
         if (zen_in_guest_checkout() || $_SESSION['customer_id'] == $this->guestCustomerId) {
@@ -115,6 +148,10 @@ class OnePageCheckout extends base
         );
         $this->reset();
     }
+    
+    // -----
+    // This internal function resets the class' variables to their non-guest-checkout state.
+    //
     protected function reset()
     {
         $this->isEnabled = false;
@@ -126,16 +163,16 @@ class OnePageCheckout extends base
         $this->initializeGuestCheckout();
     }
     
-    // -----
-    // Issued (currently) by the checkout_one page's header processing to initialize any guest-checkout
-    // processing.  Since the process starts by the login page's form-submittal with the 'guest_checkout'
-    // input set, we need to recognize that condition and perform a POST-less redirect back to the
-    // page after recording the guest-related settings into the session.
-    //
-    // Without this redirect, the checkout-one page's form is interpreted by the browser as having an
-    // unprocessed POST value and results in an unwanted browser message when the guest updates his/her
-    // contact information and/or addresses.
-    //
+    /* -----
+    ** Issued (currently) by the checkout_one page's header processing to initialize any guest-checkout
+    ** processing.  Since the process starts by the login page's form-submittal with the 'guest_checkout'
+    ** input set, we need to recognize that condition and perform a POST-less redirect back to the
+    ** page after recording the guest-related settings into the session.
+    **
+    ** Without this redirect, the checkout-one page's form is interpreted by the browser as having an
+    ** unprocessed POST value and results in an unwanted browser message when the guest updates his/her
+    ** contact information and/or addresses.
+    */
     public function startGuestOnePageCheckout()
     {
         $this->guestIsActive = false;
@@ -205,11 +242,11 @@ class OnePageCheckout extends base
         return !zen_in_guest_checkout();
     }
     
-    // -----
-    // This function, called from the OPC's observer-class, provides any address/tax-basis
-    // update when an order includes one or more temporary addresses (a superset of guest
-    // checkout).
-    //
+    /* -----
+    ** This function, called from the OPC's observer-class, provides any address/tax-basis
+    ** update when an order includes one or more temporary addresses (a superset of guest
+    ** checkout).
+    */
     public function updateOrderAddresses($order, &$taxCountryId, &$taxZoneId)
     {
         $this->debugMessage("updateOrderAddresses, on entry:" . var_export($order, true) . var_export($this, true));
@@ -237,6 +274,9 @@ class OnePageCheckout extends base
         $this->debugMessage("updateOrderAddresses, $temp_billing_address, $temp_shipping_address, $taxCountryId, $taxZoneId" . var_export($order->customer, true) . var_export($order->billing, true) . var_export($order->delivery, true));
     }
     
+    // -----
+    // This internal function returns the guest-customer information currently gathered.
+    //
     protected function getGuestCustomerInfo()
     {
         if (!isset($this->guestCustomerInfo)) {
@@ -250,6 +290,11 @@ class OnePageCheckout extends base
         );
         return $customer;
     }
+    
+    // -----
+    // This internal function creates an address-array in the format used by the built-in Zen Cart
+    // order-class from the selected temporary address.
+    //
     protected function createOrderAddressFromTemporary($which)
     {
         $country_id = $this->tempAddressValues[$which]['country'];
@@ -341,6 +386,9 @@ class OnePageCheckout extends base
         );
     }
     
+    /* -----
+    ** This function returns the Zen-Cart formatted address for the specified temporary address.
+    */
     public function formatAddress($which)
     {
         $this->inputPreCheck($which);
@@ -350,10 +398,17 @@ class OnePageCheckout extends base
         return zen_address_format($address['format_id'], $address, 0, '', "\n");
     }
     
+    /* -----
+    ** This function validates whether (true) or not (false) the specified order-related
+    ** address ('bill' or 'ship').
+    */
     public function validateBilltoSendto($which)
     {
         $this->inputPreCheck($which);
         
+        // -----
+        // First, determine whether the specified address is/isn't temporary.
+        //
         if ($which == 'bill') {
             $address_book_id = $_SESSION['billto'];
             $is_temp_address = ($address_book_id == $this->tempBilltoAddressBookId);
@@ -365,6 +420,9 @@ class OnePageCheckout extends base
             }
         }
         
+        // -----
+        // Next, determine if a temporary address is valid for the current customer session.
+        //
         $is_valid = true;
         if (zen_in_guest_checkout()) {
             if (!$is_temp_address) {
@@ -384,6 +442,12 @@ class OnePageCheckout extends base
                 $is_valid = !$check->EOF;
             }
         }
+        
+        // -----
+        // If the address isn't valid for the current usage, reset the session's address to
+        // the customer's default and kill the session-variable previously set for that
+        // invalid address.
+        //
         if (!$is_valid) {
             if ($which == 'bill') {
                 $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
@@ -396,6 +460,9 @@ class OnePageCheckout extends base
         return $is_valid;
     }
     
+    /* -----
+    ** This function resets the current session's address to the specified address-book entry.
+    */
     public function setAddressFromSavedSelections($which, $address_book_id)
     {
         $this->inputPreCheck($which);
@@ -468,7 +535,7 @@ class OnePageCheckout extends base
             'state' => '',
             'country' => (int)STORE_COUNTRY,
             'zone_id' => (int)STORE_ZONE,
-            'zone_name' => '',
+            'zone_name' => zen_get_zone_name(STORE_COUNTRY, STORE_ZONE, ''),
             'address_book_id' => 0,
             'selected_country' => (int)STORE_COUNTRY,
             'country_has_zones' => $this->countryHasZones((int)STORE_COUNTRY),
@@ -477,6 +544,8 @@ class OnePageCheckout extends base
             'error' => false,
             'error_state_input' => false,
         );
+        $address_values = $this->updateStateDropdownSettings($address_values);
+        
         $this->notify('NOTIFY_OPC_INIT_ADDRESS_FOR_GUEST', '', $address_values);
         
         return $address_values;
@@ -649,6 +718,11 @@ class OnePageCheckout extends base
         }
     }
     
+    // -----
+    // This internal function validates (and potentially updates) the supplied address-values information,
+    // returning an array of messages identifying "issues" found.  If the returned array is
+    // empty, no "issues" were found.
+    //
     protected function validateUpdatedAddress(&$address_values, $which, $prepend_which = true)
     {
         $error = false;
@@ -774,19 +848,30 @@ class OnePageCheckout extends base
                     'zone_name' => $zone_name,
                     'error_state_input' => $error_state_input,
                     'country_has_zones' => $country_has_zones,
-                    'show_pulldown_states' => (($zone_name == '' && $county_has_zones) || ACCOUNT_STATE_DRAW_INITIAL_DROPDOWN == 'true' || $error_state_input),
+                    'show_pulldown_states' => false,
                     'error' => $error
                 )
             );
+            $address_values = $this->updateStateDropdownSettings($address_values);
         }
         
         $this->debugMessage('Exiting validateUpdatedAddress.' . var_export($messages, true) . var_export($address_values, true));
         return $messages;
     }
     
+    // -----
+    // This internal function saves the requested (and previously validated!) address,
+    // either to a temporary, in-session, value or to the database.
+    //
     protected function saveCustomerAddress($address, $which, $add_address = false)
     {
         $this->debugMessage("saveCustomerAddress($which, $add_address), " . ((isset($_SESSION['shipping_billing']) && $_SESSION['shipping_billing']) ? 'shipping=billing' : 'shipping!=billing') . ' ' . var_export($address, true));
+        
+        // -----
+        // If the address is **not** to be added to the customer's address book or if
+        // guest-checkout is currently active, the updated address is stored in
+        // a temporary address-book record.
+        //
         if (!$add_address || $this->isGuestCheckout()) {
             $this->tempAddressValues[$which] = $address;
             if ($which == 'ship') {
@@ -803,7 +888,13 @@ class OnePageCheckout extends base
                 }
             }
             $this->debugMessage("Updated tempAddressValues[$which], billing=shipping(" . $_SESSION['shipping_billing'] . "), sendto(" . $_SESSION['sendto'] . "), billto(" . $_SESSION['billto'] . "):" . var_export($this->tempAddressValues, true));
+        // -----
+        // Otherwise, the address is to be saved in the database ...
+        //
         } else {
+            // -----
+            // Build up the to-be-stored address.
+            //
             $sql_data_array = array(
                 array('fieldName' => 'entry_firstname', 'value' => $address['firstname'], 'type' => 'stringIgnoreNull'),
                 array('fieldName' => 'entry_lastname', 'value' => $address['lastname'], 'type' => 'stringIgnoreNull'),
@@ -835,6 +926,10 @@ class OnePageCheckout extends base
                 }
             }
             
+            // -----
+            // If a matching address-book entry is found for this logged-in customer, use that pre-saved
+            // address entry.  Otherwise, save the new address for the customer.
+            //
             $existing_address_book_id = $this->findAddressBookEntry($address);
             if ($existing_address_book_id !== false) {
                 $address_book_id = $existing_address_book_id;
@@ -843,9 +938,12 @@ class OnePageCheckout extends base
                 $GLOBALS['db']->perform(TABLE_ADDRESS_BOOK, $sql_data_array);
                 $address_book_id = $GLOBALS['db']->Insert_ID();
                 
-                $this->notify('NOTIFY_OPC_HELPER_ADDED_ADDRESS_BOOK_RECORD', array('address_book_id' => $address_book_id), $sql_data_array);
+                $this->notify('NOTIFY_OPC_ADDED_ADDRESS_BOOK_RECORD', array('address_book_id' => $address_book_id), $sql_data_array);
             }
             
+            // -----
+            // Update the session's billto/sendto address based on the previous processing.
+            //
             if ($which == 'bill') {
                 $_SESSION['billto'] = $address_book_id;
             } else {
@@ -854,10 +952,15 @@ class OnePageCheckout extends base
         }
     }
     
+    /* -----
+    ** This function, called from the 'checkout_success' OPC header processing, creates a
+    ** customer-account from the information associated with the just-placed order.
+    */
     public function createAccountFromGuestInfo($order_id, $password, $newsletter)
     {
-        if (!$this->guestIsActive || !isset($this->guestCustomerInfo) || !isset($this->tempAddressValues)) {
-            trigger_error('Invalid access' . var_export($this, true), E_USER_ERROR);
+        $password_error = (strlen((string)$password) < ENTRY_PASSWORD_MIN_LENGTH);
+        if (!$this->guestIsActive || !isset($this->guestCustomerInfo) || !isset($this->tempAddressValues) || $password_error) {
+            trigger_error("Invalid access ($password_error):" . var_export($this, true), E_USER_ERROR);
         }
         
         $customer_id = $this->createCustomerRecordFromGuestInfo($password, $newsletter);
@@ -901,6 +1004,11 @@ class OnePageCheckout extends base
         
         $this->reset();
     }
+    
+    // -----
+    // This internal function creates a customer record in the database for the
+    // current guest.
+    //
     protected function createCustomerRecordFromGuestInfo($password, $newsletter)
     {
         $dob = '';
@@ -934,9 +1042,16 @@ class OnePageCheckout extends base
                 VALUES 
                     ($customer_id, 1, now(), now())"
         );
+        
+        $this->notify('OPC_ADDED_CUSTOMER_RECORD_FOR_GUEST', $customer_id, $sql_data_array);
 
         return $customer_id;
     }
+    
+    // -----
+    // This internal function creates an address-book record in the database using one of the 
+    // temporary address-book records.
+    //
     protected function createAddressBookRecord($customer_id, $which)
     {
         $sql_data_array = array(
@@ -969,10 +1084,17 @@ class OnePageCheckout extends base
             }
         }
         $GLOBALS['db']->perform(TABLE_ADDRESS_BOOK, $sql_data_array);
+        $address_book_id = $GLOBALS['db']->Insert_ID();
+        
+        $this->notify('OPC_CREATED_ADDRESS_BOOK_DB_ENTRY', $address_book_id, $sql_data_array);
 
-        return $GLOBALS['db']->Insert_ID();
+        return $address_book_id;
     }
     
+    // -----
+    // This internal function checks the database to see if the specified address already exists
+    // for the customer associated with the current session.
+    //
     protected function findAddressBookEntry($address)
     {
         $country_id = $address['country'];
@@ -1008,6 +1130,10 @@ class OnePageCheckout extends base
         return $address_book_id;
     }
     
+    // -----
+    // This internal function creates a string containing the address-related values
+    // in the specified address-array.
+    //
     protected function addressArrayToString($address_array) 
     {
         $the_address = 
@@ -1018,9 +1144,15 @@ class OnePageCheckout extends base
             $address_array['city'] . 
             $address_array['postcode'];
         $the_address = strtolower(str_replace(array("\n", "\t", "\r", "\0", ' ', ',', '.'), '', $the_address));
+        
         return $the_address;
     }
 
+    // -----
+    // This internal function issues a debug-message using the OPC's observer-class
+    // function.  This allows the various messages to be consolidated into a single
+    // log-file for easier troubleshooting.
+    //
     protected function debugMessage($message, $include_request = false)
     {
         $GLOBALS['checkout_one']->debug_message($message, $include_request, 'OnePageCheckout');
