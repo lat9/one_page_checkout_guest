@@ -14,7 +14,10 @@ if (!defined('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION')) {
     define('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION', 'true');
 }
 if (!defined('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED')) {
-    define('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED', 'account, account_edit, account_history, account_history_info, account_newsletters, account_notifications, account_password, address_book, address_book_process, create_account_success, password_forgotten, product_reviews_write, unsubscribe');
+    define('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED', 'account, account_edit, account_history, account_history_info, account_newsletters, account_notifications, account_password, address_book, address_book_process, create_account_success, gv_redeem, gv_send, password_forgotten, product_reviews_write, unsubscribe');
+}
+if (!defined('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED')) {
+    define('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED', '');
 }
 
 class checkout_one_observer extends base 
@@ -50,10 +53,12 @@ class checkout_one_observer extends base
         
         // -----
         // Perform a little "session-cleanup".  If a guest just placed an order and has navigated off
-        // the checkout_success page, need to remove all session-variables associated with that
+        // the checkout_success or other, customizable, pages, need to remove all session-variables associated with that
         // guest checkout.
         //
-        if (isset($_SESSION['order_placed_by_guest']) && $GLOBALS['current_page_base'] != FILENAME_CHECKOUT_SUCCESS) {
+        $post_checkout_pages = explode(',', CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED);
+        $post_checkout_pages[] = FILENAME_CHECKOUT_SUCCESS;
+        if (isset($_SESSION['order_placed_by_guest']) && !in_array($GLOBALS['current_page_base'], $post_checkout_pages)) {
             unset($_SESSION['order_placed_by_guest'], $_SESSION['order_number_created']);
             $_SESSION['opc']->resetSessionValues();
         }

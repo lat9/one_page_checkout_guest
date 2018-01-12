@@ -153,7 +153,7 @@ $field_id = "country-$opc_address_type";
       <label class="inputLabel" for="country-bill"><?php echo ENTRY_COUNTRY; ?></label>
       <?php echo zen_get_country_list($field_name, $address_values['country'], "id=\"$field_id\" " . ($address_values['show_pulldown_states'] ? ('onchange="update_zone(this.form, \'' . $opc_address_type . '\');"') : '')) . 
       (zen_not_null(ENTRY_COUNTRY_TEXT) ? '<span class="alert">' . ENTRY_COUNTRY_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
+      <div class="clearBoth"></div>
       
       <div id="messages-<?php echo $opc_address_type; ?>"></div>
 <!--eof address block -->

@@ -20,7 +20,6 @@ if (!$flagDisablePaymentAddressChange) {
     $show_add_address = $_SESSION['opc']->showAddAddressField();
     $parameters = ($show_add_address) ? '' : ' class="hiddenField"';
 ?>
-        <br class="clearBoth" />
         <div class="buttonRow opc-buttons">
             <div>
                 <?php echo zen_draw_checkbox_field("add_address['bill']", '1', false, 'id="opc-add-bill"' . $parameters); ?>
