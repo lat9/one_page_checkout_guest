@@ -28,3 +28,27 @@ if (!function_exists('zen_is_logged_in')) {
         return (bool)$is_logged_in;
     }
 }
+
+// -----
+// This function identifies whether (true) or not (false) the current page is being accessed
+// by a spider.
+//
+if (!function_exists('zen_is_spider_session')) {
+    function zen_is_spider_session()
+    {
+        $user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        $spider_flag = false;
+        if (zen_not_null($user_agent)) {
+            $spiders = file(DIR_WS_INCLUDES . 'spiders.txt');
+            for ($i=0, $n=count($spiders); $i<$n; $i++) {
+                if (zen_not_null($spiders[$i]) && strpos($spiders[$i], '$Id:') !== 0) {
+                    if (strpos($user_agent, trim($spiders[$i])) !== false) {
+                        $spider_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return $spider_flag;
+    }
+}
