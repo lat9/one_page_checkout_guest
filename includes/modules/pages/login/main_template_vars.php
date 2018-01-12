@@ -7,7 +7,7 @@
 // load the OPC's modified login template.
 //
 if (isset($_SESSION['opc']) && $_SESSION['opc']->temporaryAddressesEnabled()) {
-    $login_template = 'tpl_login_opc.php';
+    $login_template = 'tpl_login_guest.php';
 } else {
     $login_template = 'tpl_login_default.php';
 }
