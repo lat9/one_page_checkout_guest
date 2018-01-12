@@ -80,6 +80,16 @@ class OnePageCheckout extends base
     
     /* -----
     ** This function returns a boolean indication as to whether (true) or not (false) OPC's
+    ** account-registration is enabled.  This is used by the OPC's observer class to determine
+    ** whether accesses to the 'create_account' page should be redirected to the 'register' page.
+    */
+    public function accountRegistrationEnabled()
+    {
+        return $this->registeredAccounts;
+    }
+    
+    /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) OPC's
     ** "temporary addresses" (used for guest-checkout and registered-accounts) is currently
     ** enabled.
     */       

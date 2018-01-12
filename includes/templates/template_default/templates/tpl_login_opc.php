@@ -3,6 +3,9 @@
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
 // Copyright (C) 2017, Vinos de Frutas Tropicales.  All rights reserved.
 //
+if (!defined('CHECKOUT_ONE_DISPLAY_ACCOUNT_BENEFITS')) {
+    define('CHECKOUT_ONE_DISPLAY_ACCOUNT_BENEFITS', 'false');
+}
 ?>
 <div class="centerColumn" id="loginOpcDefault">
     <h1 id="loginDefaultHeading"><?php echo HEADING_TITLE; ?></h1>
@@ -69,22 +72,27 @@ if ($_SESSION['cart']->count_contents() > 0 && $_SESSION['opc']->guestCheckoutEn
     echo '</form>';
 ?>
     </div>
-    
+<?php
+if (CHECKOUT_ONE_DISPLAY_ACCOUNT_BENEFITS == 'true') {
+?> 
     <div class="opc-block">
         <h2><?php echo HEADING_ACCOUNT_BENEFITS_OPC; ?></h2>
         <div class="opc-info"><?php echo TEXT_ACCOUNT_BENEFITS_OPC; ?></div>
 <?php
-for ($i = 1; $i < 5; $i++) {
-    $benefit_heading = "HEADING_BENEFIT_$i";
-    $benefit_text = "TEXT_BENEFIT_$i";
-    if (defined($benefit_heading) && constant($benefit_heading) != '' && defined($benefit_text) && constant($benefit_text) != '') {
+    for ($i = 1; $i < 5; $i++) {
+        $benefit_heading = "HEADING_BENEFIT_$i";
+        $benefit_text = "TEXT_BENEFIT_$i";
+        if (defined($benefit_heading) && constant($benefit_heading) != '' && defined($benefit_text) && constant($benefit_text) != '') {
 ?>
         <div class="opc-head"><?php echo constant($benefit_heading); ?></div>
         <div class="opc-info"><?php echo constant($benefit_text); ?></div>
 <?php
+        }
     }
-}
 ?>
     </div>
+<?php
+}
+?>
     <br class="clearBoth" />
 </div>

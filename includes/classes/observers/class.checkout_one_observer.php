@@ -150,7 +150,9 @@ class checkout_one_observer extends base
                 break;
                 
             case 'NOTIFY_HEADER_START_CREATE_ACCOUNT':
-                zen_redirect(zen_href_link(FILENAME_REGISTER, '', 'SSL'));
+                if ($_SESSION['opc']->accountRegistrationEnabled()) {
+                    zen_redirect(zen_href_link(FILENAME_REGISTER, '', 'SSL'));
+                }
                 break;
                 
             // -----
