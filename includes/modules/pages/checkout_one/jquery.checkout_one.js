@@ -671,19 +671,41 @@ jQuery(document).ready(function(){
     // -----
     // If the checkout process is currently being performed in "guest" mode, make sure that any
     // required fields in the guest-login block are currently filled-in and, if not, give focus
-    // to that block and require those inputs to be supplied.
+    // to the first required input in that block.
     //
-    $('#checkoutOneGuestInfo').find('input').each(function(){
-        if ($(this).prop('required')) {
-            if ($(this).val() == '') {
-                jQuery('#checkoutOneGuestInfo .opc-buttons').show();
-                jQuery('#opc-guest-cancel').hide();
-                jQuery('#checkoutPayment > .opc-overlay').addClass('active');
-                jQuery('#checkoutOneGuestInfo').addClass('opc-view');
-                return false;
-            }
+    var guestInputsOk = true;
+    jQuery('#checkoutOneGuestInfo').find('input').each(function() {
+        if (jQuery(this).prop('required') && jQuery(this).val() == '') {
+            jQuery('#checkoutOneGuestInfo .opc-buttons').show();
+            jQuery('#opc-guest-cancel').hide();
+            jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+            jQuery('#checkoutOneGuestInfo').addClass('opc-view');
+            jQuery(this).focus();
+            guestInputsOk = false;
+            return false;
         }
     });
+    
+    // -----
+    // If the guest customer-information inputs are OK (or not required), make sure
+    // that the billing-address block's required fields are all set, too.
+    //
+    if (guestInputsOk) {
+        jQuery('#checkoutOneBillto').find('input').each(function() {
+            if (jQuery(this).prop('required') && jQuery(this).val() == '') {
+                jQuery('#checkoutOneBillto .opc-buttons').show();
+                jQuery('#opc-bill-cancel').hide();
+                jQuery('#checkoutPayment > .opc-overlay').addClass('active');
+                jQuery('#checkoutOneBillto').addClass('opc-view');
+                jQuery(this).focus();
+                return false;
+            }
+        });
+    }
+    
+    // -----
+    // Monitor the guest customer-information block's inputs for change.
+    //
     jQuery(document).on('change', '#checkoutOneGuestInfo input', function(event) {
         jQuery(this).addClass('opc-changed');
         jQuery('#checkoutOneGuestInfo .opc-buttons').show();

@@ -639,6 +639,21 @@ class OnePageCheckout extends base
         return $error;
     }
     
+    public function formatAddressElement($which, $field_name, $field_value, $field_text, $db_table, $db_fieldname, $min_length, $placeholder)
+    {
+        $this->inputPreCheck($which);
+        
+        $field_id = str_replace('_', '-', $field_name) . "-$which";
+        $field_name .= "[$which]";
+        $field_len = zen_set_field_length($db_table, $db_fieldname, '40');
+        $field_required = (((int)$min_length) > 0) ? ' required' : '';
+        
+        return
+            '<label class="inputLabel" for="' . $field_id . '">' . $field_text . '</label>' . PHP_EOL .
+            zen_draw_input_field($field_name, $field_value, "$field_len id=\"$field_id\" placeholder=\"$placeholder\" $field_required") . PHP_EOL .
+            '<br class="clearBoth" />';
+    }
+    
     public function validateAndSaveAjaxPostedAddress($which, &$messages)
     {
         $this->inputPreCheck($which);

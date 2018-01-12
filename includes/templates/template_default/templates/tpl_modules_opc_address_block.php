@@ -30,11 +30,12 @@ if (count($address_selections) != 0) {
 // -----
 // Start address formatting ...
 //
-$address_values = $_SESSION['opc']->getAddressValues($opc_address_type);
+$which = $opc_address_type;
+$address = $_SESSION['opc']->getAddressValues($which);
 if (ACCOUNT_GENDER == 'true') {
-    $field_name = "gender[$opc_address_type]";
-    $male_id = "gender-male-$opc_address_type";
-    $female_id = "gender-female-$opc_address_type";
+    $field_name = "gender[$which]";
+    $male_id = "gender-male-$which";
+    $female_id = "gender-female-$which";
     echo zen_draw_radio_field ($field_name, 'm', ($address_values['gender'] == 'm'), "id=\"$male_id\"") . 
     "<label class=\"radioButtonLabel\" for=\"$male_id\">" . MALE . '</label>' . 
     zen_draw_radio_field ($field_name, 'f', ($address_values['gender'] == 'f'), "id=\"$female_id\"") . 
@@ -45,78 +46,37 @@ if (ACCOUNT_GENDER == 'true') {
 <?php
 }
 
-$field_name = "firstname[$opc_address_type]";
-$field_id = "firstname-$opc_address_type";
-?>
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_FIRST_NAME; ?></label>
-      <?php echo zen_draw_input_field ($field_name, $address_values['firstname'], zen_set_field_length(TABLE_CUSTOMERS, 'customers_firstname', '40') . " id=\"$field_id\"") . 
-      (zen_not_null(ENTRY_FIRST_NAME_TEXT) ? '<span class="alert">' . ENTRY_FIRST_NAME_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
-<?php
-$field_name = "lastname[$opc_address_type]";
-$field_id = "lastname-$opc_address_type";
-?>
+echo $_SESSION['opc']->formatAddressElement($which, 'firstname', $address['firstname'], ENTRY_FIRST_NAME, TABLE_CUSTOMERS, 'customers_firstname', ENTRY_FIRST_NAME_MIN_LENGTH, ENTRY_FIRST_NAME_TEXT);
+    
+echo $_SESSION['opc']->formatAddressElement($which, 'lastname', $address['lastname'], ENTRY_LAST_NAME, TABLE_CUSTOMERS, 'customers_lastname', ENTRY_LAST_NAME_MIN_LENGTH, ENTRY_LAST_NAME_TEXT);
 
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_LAST_NAME; ?></label>
-      <?php echo zen_draw_input_field($field_name, $address_values['lastname'], zen_set_field_length(TABLE_CUSTOMERS, 'customers_lastname', '40') . " id=\"$field_id\"") . 
-      (zen_not_null(ENTRY_LAST_NAME_TEXT) ? '<span class="alert">' . ENTRY_LAST_NAME_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
-<?php
 if (ACCOUNT_COMPANY == 'true') {
-    $field_name = "company[$opc_address_type]";
-    $field_id = "company-$opc_address_type";
-?>
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_COMPANY; ?></label>
-      <?php echo zen_draw_input_field($field_name, $address_values['company'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_company', '40') . " id=\"$field_id\"") . 
-      (zen_not_null(ENTRY_COMPANY_TEXT) ? '<span class="alert">' . ENTRY_COMPANY_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
-<?php
+    echo $_SESSION['opc']->formatAddressElement($which, 'company', $address['company'], ENTRY_COMPANY, TABLE_ADDRESS_BOOK, 'entry_company', ENTRY_COMPANY_MIN_LENGTH, ENTRY_COMPANY_TEXT);
 }
 
-$field_name = "street_address[$opc_address_type]";
-$field_id = "street-address-$opc_address_type";
-?>
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_STREET_ADDRESS; ?></label>
-        <?php echo zen_draw_input_field($field_name, $address_values['street_address'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_street_address', '40') . " id=\"$field_id\"") . 
-        (zen_not_null (ENTRY_STREET_ADDRESS_TEXT) ? '<span class="alert">' . ENTRY_STREET_ADDRESS_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
+echo $_SESSION['opc']->formatAddressElement($which, 'street_address', $address['street_address'], ENTRY_STREET_ADDRESS, TABLE_ADDRESS_BOOK, 'entry_street_address', ENTRY_STREET_ADDRESS_MIN_LENGTH, ENTRY_STREET_ADDRESS_TEXT);
 
-<?php
 if (ACCOUNT_SUBURB == 'true') {
-    $field_name = "suburb[$opc_address_type]";
-    $field_id = "suburb-$opc_address_type";
-?>
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_SUBURB; ?></label>
-      <?php echo zen_draw_input_field($field_name, $address_values['suburb'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_suburb', '40') . " id=\"$field_id\"") . 
-      (zen_not_null(ENTRY_SUBURB_TEXT) ? '<span class="alert">' . ENTRY_SUBURB_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
-<?php
+    echo $_SESSION['opc']->formatAddressElement($which, 'suburb', $address['suburb'], ENTRY_SUBURB, TABLE_ADDRESS_BOOK, 'entry_suburb', 0, ENTRY_SUBURB_TEXT);
 }
 
-$field_name = "city[$opc_address_type]";
-$field_id = "city-$opc_address_type";
-?>     
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_CITY; ?></label>
-      <?php echo zen_draw_input_field($field_name, $address_values['city'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_city', '40') . " id=\"$field_id\"") . 
-      (zen_not_null(ENTRY_CITY_TEXT) ? '<span class="alert">' . ENTRY_CITY_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
+echo $_SESSION['opc']->formatAddressElement($which, 'city', $address['city'], ENTRY_CITY, TABLE_ADDRESS_BOOK, 'entry_city', ENTRY_CITY_MIN_LENGTH, ENTRY_CITY_TEXT);
 
-<?php
 if (ACCOUNT_STATE == 'true') {
-    $state_zone_id = "stateZone-$opc_address_type";
-    $zone_label_id = "zoneLabel-$opc_address_type";
-    $zone_field_name = "zone_id[$opc_address_type]";
-    $break_id = "stBreak-$opc_address_type";
-    $state_field_name = "state[$opc_address_type]";
-    $state_field_id = "state-$opc_address_type";
-    $state_label_id = "stateLabel-$opc_address_type";
-    $state_text_id = "stText-$opc_address_type";
+    $state_zone_id = "stateZone-$which";
+    $zone_label_id = "zoneLabel-$which";
+    $zone_field_name = "zone_id[$which]";
+    $break_id = "stBreak-$which";
+    $state_field_name = "state[$which]";
+    $state_field_id = "state-$which";
+    $state_label_id = "stateLabel-$which";
+    $state_text_id = "stText-$which";
     
     if ($opc_flag_show_pulldown_states) {
 ?>
       <label class="inputLabel" for="<?php echo $state_zone_id; ?>" id="<?php echo $zone_label_id; ?>"><?php echo ENTRY_STATE; ?></label>
 <?php
-        echo zen_draw_pull_down_menu($zone_field_name, zen_prepare_country_zones_pull_down($address_values['country'], $address_values['zone_id']), $address_values['zone_id'], "id=\"$state_zone_id\"");
+        echo zen_draw_pull_down_menu($zone_field_name, zen_prepare_country_zones_pull_down($address['country'], $address['zone_id']), $address['zone_id'], "id=\"$state_zone_id\"");
         if (zen_not_null(ENTRY_STATE_TEXT)) {
             echo '&nbsp;<span class="alert">' . ENTRY_STATE_TEXT . '</span>'; 
         }
@@ -125,35 +85,29 @@ if (ACCOUNT_STATE == 'true') {
 <?php    
     }
 ?>
-      <label class="inputLabel" for="<?php echo $state_field_id; ?>" id="<?php echo $state_label_id; ?>"><?php echo $address_values['state_field_label']; ?></label>
+      <label class="inputLabel" for="<?php echo $state_field_id; ?>" id="<?php echo $state_label_id; ?>"><?php echo $address['state_field_label']; ?></label>
 <?php
-    echo zen_draw_input_field($state_field_name, $address_values['state'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_state', '40') . " id=\"$state_field_id\"");
+    echo zen_draw_input_field($state_field_name, $address['state'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_state', '40') . " id=\"$state_field_id\"");
     if (zen_not_null(ENTRY_STATE_TEXT)) {
         echo "&nbsp;<span class=\"alert\" id=\"$state_text_id\">" . ENTRY_STATE_TEXT . '</span>';
     }
-    if (!$address_values['show_pulldown_states']) {
-        echo zen_draw_hidden_field($zone_field_name, $address_values['zone_name'], "id=\"$state_zone_id\"");
+    if (!$address['show_pulldown_states']) {
+        echo zen_draw_hidden_field($zone_field_name, $address['zone_name'], "id=\"$state_zone_id\"");
     }
 ?>
       <br class="clearBoth" />
 <?php
 }
 
-$field_name = "postcode[$opc_address_type]";
-$field_id = "postcode-$opc_address_type";
-?>
-      <label class="inputLabel" for="<?php echo $field_id; ?>"><?php echo ENTRY_POST_CODE; ?></label>
-      <?php echo zen_draw_input_field($field_name, $address_values['postcode'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_postcode', '40') . " id=\"$field_id\"") . 
-      (zen_not_null (ENTRY_POST_CODE_TEXT) ? '<span class="alert">' . ENTRY_POST_CODE_TEXT . '</span>': ''); ?>
-      <br class="clearBoth" />
-<?php
-$field_name = "zone_country_id[$opc_address_type]";
-$field_id = "country-$opc_address_type";
+echo $_SESSION['opc']->formatAddressElement($which, 'postcode', $address['postcode'], ENTRY_POST_CODE, TABLE_ADDRESS_BOOK, 'entry_postcode', ENTRY_POSTCODE_MIN_LENGTH, ENTRY_POST_CODE_TEXT);
+
+$field_name = "zone_country_id[$which]";
+$field_id = "country-$which";
 ?>
       <label class="inputLabel" for="country-bill"><?php echo ENTRY_COUNTRY; ?></label>
-      <?php echo zen_get_country_list($field_name, $address_values['country'], "id=\"$field_id\" " . ($address_values['show_pulldown_states'] ? ('onchange="update_zone(this.form, \'' . $opc_address_type . '\');"') : '')) . 
+      <?php echo zen_get_country_list($field_name, $address['country'], "id=\"$field_id\" " . ($address['show_pulldown_states'] ? ('onchange="update_zone(this.form, \'' . $which . '\');"') : '')) . 
       (zen_not_null(ENTRY_COUNTRY_TEXT) ? '<span class="alert">' . ENTRY_COUNTRY_TEXT . '</span>': ''); ?>
       <div class="clearBoth"></div>
       
-      <div id="messages-<?php echo $opc_address_type; ?>"></div>
+      <div id="messages-<?php echo $which; ?>"></div>
 <!--eof address block -->
