@@ -602,6 +602,18 @@ class OnePageCheckout extends base
         return $select_array;
     }
     
+    public function getAddressDropDownSelection($which)
+    {
+        $this->inputPreCheck($which);
+        
+        if ($which == 'bill') {
+            $selection = (!isset($_SESSION['billto']) || $_SESSION['billto'] == $this->tempBilltoAddressBookId) ? 0 : $_SESSION['billto'];
+        } else {
+            $selection = (!isset($_SESSION['sendto']) || $_SESSION['sendto'] == $this->tempSendtoAddressBookId) ? 0 : $_SESSION['sendto'];
+        }
+        return $selection;
+    }
+    
     protected function initializeTempAddressValues()
     {
         if (!isset($this->tempAddressValues)) {

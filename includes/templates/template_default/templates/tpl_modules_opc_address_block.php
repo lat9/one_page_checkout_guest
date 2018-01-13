@@ -22,8 +22,9 @@ if (!isset($opc_address_type) || !in_array($opc_address_type, array('bill', 'shi
 //
 $address_selections = $_SESSION['opc']->formatAddressBookDropdown();
 if (count($address_selections) != 0) {
+    $selected = $_SESSION['opc']->getAddressDropDownSelection($opc_address_type);
 ?>
-    <div id="choices-<?php echo $opc_address_type; ?>"><?php echo zen_draw_pull_down_menu("address-$opc_address_type", $address_selections, 0); ?></div>
+    <div id="choices-<?php echo $opc_address_type; ?>"><?php echo zen_draw_pull_down_menu("address-$opc_address_type", $address_selections, $selected); ?></div>
 <?php
 }
 

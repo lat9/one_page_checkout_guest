@@ -17,6 +17,7 @@ fieldset#checkoutOneCartGroup { padding-bottom: 0; }
 fieldset > #cartContentsDisplay div { margin-right: 0; }
 
 #choices-bill, #choices-ship { text-align: right; }
+#select-address-bill, #select-address-ship { width: auto; }
 
 .edit-button { text-align: right; }
 .opc-buttons { display: none; }

@@ -17,6 +17,7 @@ fieldset#checkoutOneCartGroup { padding-bottom: 0; }
 fieldset > #cartContentsDisplay div { margin-right: 0; }
 
 #choices-bill, #choices-ship { text-align: right; }
+#select-address-bill, #select-address-ship { width: auto; }
 
 .edit-button { text-align: right; }
 .opc-buttons { display: none; }
@@ -27,9 +28,10 @@ fieldset > #cartContentsDisplay div { margin-right: 0; }
 .opc-error { border: 2px solid red; }
 .opc-right { text-align: right; }
 .opc-view { position: relative; z-index: 2; box-shadow: 3px 3px 5px 6px #ccc; }
-.opc-cc-submit, #opc-order-confirm, #opc-order-review, #opc-bill-cancel, #opc-bill-save, #opc-ship-cancel, #opc-ship-save { cursor: pointer; }
+.opc-cc-submit, #opc-order-confirm, #opc-order-review, #opc-bill-cancel, #opc-bill-save, #opc-ship-cancel, #opc-ship-save, #opc-guest-cancel, #opc-guest-save { cursor: pointer; }
 .opc-base, .opc-credit { position: relative; }
 .opc-overlay.active { background: #dcdcdc; height: 100%; width: 100%; opacity: 0.5; top: 0; left: 0; position: absolute; padding: 0; z-index: 1; }
+.buttonRow.opc-buttons { clear: both; }
 
 @media (max-width: 979px) {
   .floatingBox { width: 95%; float: none; margin: 0 auto; }
