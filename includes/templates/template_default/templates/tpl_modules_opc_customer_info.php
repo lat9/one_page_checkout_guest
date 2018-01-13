@@ -4,6 +4,9 @@
 // Copyright (C) 2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 if ($_SESSION['opc']->isGuestCheckout()) {
+    $cancel_title = 'title="' . BUTTON_CANCEL_CHANGES_TITLE . '"';
+    $save_title = 'title="' . BUTTON_SAVE_CHANGES_TITLE . '"';
+    
     $email_field_len = zen_set_field_length(TABLE_CUSTOMERS, 'customers_email_address', '40');
     $email_required = ((int)ENTRY_EMAIL_ADDRESS_MIN_LENGTH > 0) ? ' required' : '';
     $email_value = $_SESSION['opc']->getGuestEmailAddress();

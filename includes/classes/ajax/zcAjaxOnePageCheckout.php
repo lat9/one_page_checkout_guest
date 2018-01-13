@@ -201,7 +201,7 @@ class zcAjaxOnePageCheckout extends base
                         $messageStack->reset();
                     }
                 }
-                unset($GLOBALS[_SESSION]['messageToStack']);
+                unset($GLOBALS[$_SESSION]['messageToStack']);
 
                 $checkout_one->debug_message("Shipping method changed: " . var_export($quote, true) . var_export($_SESSION['shipping'], true), false, 'zcAjaxOnePageCheckout');
             }

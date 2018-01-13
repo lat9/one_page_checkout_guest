@@ -148,7 +148,9 @@ class OnePageCheckout extends base
                 $_SESSION['customers_authorization'],
                 $_SESSION['sendto'], 
                 $_SESSION['billto'],
-                $_SESSION['customer_default_address_id']
+                $_SESSION['customer_default_address_id'],
+                $_SESSION['customer_country_id'],
+                $_SESSION['customer_zone_id']
             );
         }
         unset(
@@ -201,14 +203,18 @@ class OnePageCheckout extends base
                 }
             }
         }
+        $this->initializeTempAddressValues();
         if ($this->guestIsActive) {
             $_SESSION['is_guest_checkout'] = true;
             $_SESSION['customer_id'] = $this->guestCustomerId;
             $_SESSION['customer_default_address_id'] = $this->tempBilltoAddressBookId;
+            $_SESSION['customer_country_id'] = $this->tempAddressValues['bill']['country'];
+            $_SESSION['customer_zone_id'] = $this->tempAddressValues['bill']['zone_id'];
+            $_SESSION['customers_authorization'] = 0;
         } else {
             unset($_SESSION['is_guest_checkout']);
         }
-        $this->initializeTempAddressValues();
+
         $this->debugMessage('startGuestOnePageCheckout, exit: sendto: ' . ((isset($_SESSION['sendto'])) ? $_SESSION['sendto'] : 'not set') . ', billto: ' . ((isset($_SESSION['billto'])) ? $_SESSION['billto'] : 'not set') . var_export($this, true));
         
         if ($redirect_required) {
@@ -479,6 +485,9 @@ class OnePageCheckout extends base
         
         if ($which == 'bill') {
             $_SESSION['billto'] = $address_book_id;
+            if (isset($_SESSION['shipping_billing']) && $_SESSION['shipping_billing']) {
+                $_SESSION['sendto'] = $address_book_id;
+            }
         } else {
             $_SESSION['sendto'] = $address_book_id;
         }
@@ -553,6 +562,7 @@ class OnePageCheckout extends base
             'show_pulldown_states' => false,
             'error' => false,
             'error_state_input' => false,
+            'validated' => false,
         );
         $address_values = $this->updateStateDropdownSettings($address_values);
         
@@ -629,14 +639,12 @@ class OnePageCheckout extends base
         $this->inputPreCheck($which);
         
         $messages = $this->validateUpdatedAddress($_POST[$which], $which);
-        $error = false;
-        if (count($messages) > 0) {
-            $error = true;
+        if (!$_POST[$which]['validated']) {
             foreach ($messages as $field_name => $message) {
                 $GLOBALS['messageStack']->add_session('addressbook', $message, 'error');
             }
         }
-        return $error;
+        return !$_POST[$which]['validated'];
     }
     
     public function formatAddressElement($which, $field_name, $field_value, $field_text, $db_table, $db_fieldname, $min_length, $placeholder)
@@ -667,12 +675,11 @@ class OnePageCheckout extends base
         }
         unset($address_info['securityToken'], $address_info['add_address'], $address_info['shipping_billing']);
         $messages = $this->validateUpdatedAddress($address_info, $which, false);
-        $address_validated = (count($messages) == 0);
-        if ($address_validated) {
+        if ($address_info['validated']) {
             $this->saveCustomerAddress($address_info, $which, (isset($_POST['add_address']) && $_POST['add_address'] === 'true'));
         }
         
-        return $address_validated;
+        return !$address_info['validated'];
     }
     
     public function validateAndSaveAjaxCustomerInfo()
@@ -856,7 +863,9 @@ class OnePageCheckout extends base
             }
         }
 
-        if (!$error) {
+        if ($error) {
+            $address_values['validated'] = false;
+        } else {
             $address_values = array_merge(
                 $address_values,
                 array(
@@ -874,7 +883,8 @@ class OnePageCheckout extends base
                     'error_state_input' => $error_state_input,
                     'country_has_zones' => $country_has_zones,
                     'show_pulldown_states' => false,
-                    'error' => $error
+                    'error' => false,
+                    'validated' => true
                 )
             );
             $address_values = $this->updateStateDropdownSettings($address_values);
