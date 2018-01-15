@@ -247,6 +247,56 @@ class OnePageCheckout extends base
     }
     
     /* -----
+    ** This function, called by tpl_modules_opc_credit_selections.php, returns a boolean
+    ** indication as to whether (true) or not (false) the specified order-total is
+    ** "authorized" for use during guest-checkout.
+    **
+    ** Most of these values are controlled via configuration setting, with the addition
+    ** of the Gift-Voucher processing, which is **always** disabled.
+    */
+    public function enableCreditSelection($ot_name)
+    {
+        return !($ot_name == 'ot_gv' || in_array($ot_name, explode(',', str_replace(' ', '', CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST))));
+    }
+    
+    /* -----
+    ** This function, called from the OPC's observer class when the ot_coupon handling
+    ** needs to know if a limited uses-per-user coupon should be honored, checks through
+    ** past orders to see if the coupon has been used by the current email address when
+    ** the checkout is running for a guest customer.
+    */
+    public function validateUsesPerUserCoupon($coupon_info, $coupon_uses_per_user_exceeded)
+    {
+        $uses_per_user = (int)$coupon_info['uses_per_user'];
+        if ($uses_per_user > 0) {
+            if ($this->isGuestCheckout() && isset($this->guestCustomerInfo) && !empty($this->guestCustomerInfo['email_address'])) {
+                $coupon_id = (int)$coupon_info['coupon_id'];
+                $email_address = zen_db_prepare_input($this->guestCustomerInfo['email_address']);
+                $uses_per_user++;  //- This value now contains one more than the allowed number of uses!
+                
+                // -----
+                // Check the orders that have been granted use of the coupon for those using the
+                // current guest's email-address, stopping the search once we know that the number
+                // of coupon-uses per user has been exceeded.
+                //
+                $check = $GLOBALS['db']->Execute(
+                    "SELECT count(*) AS use_count
+                       FROM " . TABLE_ORDERS . " o
+                            INNER JOIN " . TABLE_COUPON_REDEEM_TRACK . " crt
+                                ON crt.coupon_id = $coupon_id
+                               AND crt.order_id = o.orders_id
+                      WHERE o.customers_email_address = '$email_address'
+                      LIMIT $uses_per_user"
+                );
+                if ($check->fields['use_count'] == $uses_per_user) {
+                    $coupon_uses_per_user_exceeded = true;
+                }
+            }
+        }
+        return $coupon_uses_per_user_exceeded;
+    }
+    
+    /* -----
     ** This function, called by the billing/shipping address blocks' formatting, instructs
     ** the module whether (true) or not (false) to include the checkbox to add the updated
     ** address.

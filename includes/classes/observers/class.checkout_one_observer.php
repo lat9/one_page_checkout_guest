@@ -19,6 +19,9 @@ if (!defined('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED')) {
 if (!defined('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED')) {
     define('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED', '');
 }
+if (!defined('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST')) {
+    define('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST', '');
+}
 
 class checkout_one_observer extends base 
 {
@@ -122,7 +125,8 @@ class checkout_one_observer extends base
         }
             
         // -----
-        // If the OPC's guest-checkout is enabled, watch for guest-related events, too.
+        // If the OPC's guest-/account-registration is enabled, some additional notifications
+        // need to be monitored.
         //
         if ($this->enabled && $_SESSION['opc']->initTemporaryAddresses()) {    
             $this->attach(
@@ -134,7 +138,8 @@ class checkout_one_observer extends base
                     'NOTIFY_ORDER_DURING_CREATE_ADDED_ORDER_HEADER',
                     'NOTIFY_ORDER_INVOICE_CONTENT_READY_TO_SEND',
                     'NOTIFY_CHECKOUT_PROCESS_BEFORE_CART_RESET',
-                    'NOTIFY_HEADER_START_CHECKOUT_SUCCESS'
+                    'NOTIFY_HEADER_START_CHECKOUT_SUCCESS',
+                    'NOTIFY_OT_COUPON_USES_PER_USER_CHECK'
                 )
             );
         }
@@ -359,6 +364,21 @@ class checkout_one_observer extends base
                     $p2 = $email_text;
                     $p3 = $html_msg;
                 }
+                break;
+                
+           // -----
+           // Issued by the ot_coupon handling when determining if the uses_per_user defined in the active
+           // coupon is restricted.  The main OPC controller will check to see if the uses "per email address"
+           // is acceptable.
+           //
+           // On entry,
+           //
+           // $p1 ... (r/o) The result of a SQL query gathering information about the to-be-checked coupon.
+           // $p2 ... (r/w) A reference to the (boolean) processing flag that indicates whether (true) or
+           //               not (false) the coupon's use has been exceeded.
+           //
+           case 'NOTIFY_OT_COUPON_USES_PER_USER_CHECK':
+                $p2 = $_SESSION['opc']->validateUsesPerUserCoupon($p1, $p2);
                 break;
                 
             default:

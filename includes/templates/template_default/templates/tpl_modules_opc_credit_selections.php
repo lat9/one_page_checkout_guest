@@ -13,7 +13,15 @@
 if ($shipping_module_available) {
     $credit_selection =  $order_total_modules->credit_selection();
     foreach ($credit_selection as $current_selection) {
-        if (isset($_GET['credit_class_error_code']) && $_GET['credit_class_error_code'] == $credit_selection[$i]['id']) {
+        // -----
+        // Check with the overall OPC controller to ensure that the current credit-selection is
+        // valid for the current checkout-environment (e.g. is it allowed during guest checkout).
+        //
+        if (!$_SESSION['opc']->enableCreditSelection($current_selection['id'])) {
+            continue;
+        }
+        
+        if (isset($_GET['credit_class_error_code']) && $_GET['credit_class_error_code'] == $current_selection['id']) {
 ?>
     <div class="messageStackError"><?php echo zen_output_string_protected($_GET['credit_class_error']); ?></div>
 
