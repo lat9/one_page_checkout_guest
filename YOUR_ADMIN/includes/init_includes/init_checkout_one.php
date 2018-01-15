@@ -8,7 +8,7 @@ if (!defined('IS_ADMIN_FLAG')) {
 }
 
 define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha1');
-define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-10');
+define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-15');
 
 if (isset($_SESSION['admin_id'])) {
     $version_release_date = CHECKOUT_ONE_CURRENT_VERSION . ' (' . CHECKOUT_ONE_CURRENT_UPDATE_DATE . ')';
@@ -99,15 +99,6 @@ if (isset($_SESSION['admin_id'])) {
                 ( 'Payment Methods Requiring Confirmation', 'CHECKOUT_ONE_CONFIRMATION_REQUIRED', 'eway_rapid,stripepay,gps', 'Identify (using a comma-separated list) the payment modules on your store that require confirmation.  If your store requires confirmation on all orders, simply list all payment modules used by your store.<br /><br />Default: <code>eway_rapid,stripepay,gps</code>', $cgi, now(), 21, NULL, NULL)"
         );
     }
-
-    if (version_compare(CHECKOUT_ONE_MODULE_VERSION, '1.5.0', '<')) {
-        $db->Execute(
-            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
-                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
-                VALUES 
-                ( 'Load Minified Script File?', 'CHECKOUT_ONE_MINIFIED_SCRIPT', 'true', 'Should the plugin load the minified version of its jQuery script, reducing the page-load time for the <code>checkout_one</code> page?<br /><br />Default: <b>true</b>.', $cgi, now(), 25, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
-        );
-    }
     
     if (version_compare(CHECKOUT_ONE_MODULE_VERSION, '2.0.0', '<')) {
         $db->Execute(
@@ -123,73 +114,7 @@ if (isset($_SESSION['admin_id'])) {
               WHERE configuration_key = 'CHECKOUT_ONE_ENABLE_SHIPPING_BILLING'
               LIMIT 1"
         );
-        
-        if (defined('CHECKOUT_ONE_GUEST_CUSTOMER_ID')) {
-            $guest_customer_id = CHECKOUT_ONE_GUEST_CUSTOMER_ID;
-        } else {
-            $sql_data_array = array(
-                'customers_firstname' => 'Guest',
-                'customers_lastname' => 'Customer, **do not remove**'
-            );
-            zen_db_perform(TABLE_CUSTOMERS, $sql_data_array);
-            $guest_customer_id = zen_db_insert_id();
-            $db->Execute(
-                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
-                    ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
-                    VALUES 
-                    ( 'Guest Checkout: Customer ID', 'CHECKOUT_ONE_GUEST_CUSTOMER_ID', '$guest_customer_id', 'This (hidden) value identifies the customers-table entry that is used as the pseudo-customers_id for any guest checkout in your store.', 6, now(), 30, NULL, NULL)"
-            );
-            $sql_data_array = array(
-                'customers_info_id' => $guest_customer_id,
-                'customers_info_date_account_created' => 'now()'
-            );
-            zen_db_perform(TABLE_CUSTOMERS_INFO, $sql_data_array);
-        }
-        
-        if (!defined('CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID')) {
-            $sql_data_array = array(
-                'customers_id' => $guest_customer_id,
-                'entry_firstname' => 'Guest',
-                'entry_lastname' => 'Customer, **do not remove**',
-                'entry_street_address' => 'Default billing address',
-                'entry_country_id' => (int)STORE_COUNTRY,
-                'entry_zone_id' => (int)STORE_ZONE
-            );
-            zen_db_perform(TABLE_ADDRESS_BOOK, $sql_data_array);
-            $address_book_id = zen_db_insert_id();
-            $db->Execute(
-                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
-                    ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
-                    VALUES 
-                    ( 'Guest Checkout: Billing-Address ID', 'CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID', '$address_book_id', 'This (hidden) value identifies the address_book-table entry that is used as the pseudo-billing-address entry for any guest checkout in your store.', 6, now(), 30, NULL, NULL)"
-            );
-            $db->Execute(
-                "UPDATE " . TABLE_CUSTOMERS . "
-                    SET customers_default_address_id = $address_book_id
-                  WHERE customers_id = $guest_customer_id
-                  LIMIT 1"
-            );
-        }
-        
-        if (!defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) {
-            $sql_data_array = array(
-                'customers_id' => $guest_customer_id,
-                'entry_firstname' => 'Guest',
-                'entry_lastname' => 'Customer, **do not remove**',
-                'entry_street_address' => 'Default shipping address',
-                'entry_country_id' => (int)STORE_COUNTRY,
-                'entry_zone_id' => (int)STORE_ZONE
-            );
-            zen_db_perform(TABLE_ADDRESS_BOOK, $sql_data_array);
-            $address_book_id = zen_db_insert_id();
-            $db->Execute(
-                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
-                    ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
-                    VALUES 
-                    ( 'Guest Checkout: Shipping-Address ID', 'CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID', '$address_book_id', 'This (hidden) value identifies the address_book-table entry that is used as the pseudo-shipping-address entry for any guest checkout in your store, if different from the billing address.', 6, now(), 30, NULL, NULL)"
-            );
-        }
-        
+
         if (!$sniffer->field_exists(TABLE_ORDERS, 'is_guest_order')) {
             $db->Execute("ALTER TABLE " . TABLE_ORDERS . " ADD COLUMN is_guest_order tinyint(1) NOT NULL default 0");
         }
@@ -207,7 +132,77 @@ if (isset($_SESSION['admin_id'])) {
         $next_sort = $db->Execute('SELECT MAX(sort_order) as max_sort FROM ' . TABLE_ADMIN_PAGES . " WHERE menu_key='configuration'", false, false, 0, true);
         zen_register_admin_page('configOnePageCheckout', 'BOX_TOOLS_CHECKOUT_ONE', 'FILENAME_CONFIGURATION', "gID=$cgi", 'configuration', 'Y', $next_sort->fields['max_sort'] + 1);
     }
-
+        
+    // -----
+    // Make sure that the guest-/temporary-address indexes have been registered (in case the store-owner
+    // somehow removes those settings).
+    //
+    if (defined('CHECKOUT_ONE_GUEST_CUSTOMER_ID')) {
+        $guest_customer_id = CHECKOUT_ONE_GUEST_CUSTOMER_ID;
+    } else {
+        $sql_data_array = array(
+            'customers_firstname' => 'Guest',
+            'customers_lastname' => 'Customer, **do not remove**'
+        );
+        zen_db_perform(TABLE_CUSTOMERS, $sql_data_array);
+        $guest_customer_id = zen_db_insert_id();
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Customer ID', 'CHECKOUT_ONE_GUEST_CUSTOMER_ID', '$guest_customer_id', 'This (hidden) value identifies the customers-table entry that is used as the pseudo-customers_id for any guest checkout in your store.', 6, now(), 30, NULL, NULL)"
+        );
+        $sql_data_array = array(
+            'customers_info_id' => $guest_customer_id,
+            'customers_info_date_account_created' => 'now()'
+        );
+        zen_db_perform(TABLE_CUSTOMERS_INFO, $sql_data_array);
+    }
+    
+    if (!defined('CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID')) {
+        $sql_data_array = array(
+            'customers_id' => $guest_customer_id,
+            'entry_firstname' => 'Guest',
+            'entry_lastname' => 'Customer, **do not remove**',
+            'entry_street_address' => 'Default billing address',
+            'entry_country_id' => (int)STORE_COUNTRY,
+            'entry_zone_id' => (int)STORE_ZONE
+        );
+        zen_db_perform(TABLE_ADDRESS_BOOK, $sql_data_array);
+        $address_book_id = zen_db_insert_id();
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Billing-Address ID', 'CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID', '$address_book_id', 'This (hidden) value identifies the address_book-table entry that is used as the pseudo-billing-address entry for any guest checkout in your store.', 6, now(), 30, NULL, NULL)"
+        );
+        $db->Execute(
+            "UPDATE " . TABLE_CUSTOMERS . "
+                SET customers_default_address_id = $address_book_id
+              WHERE customers_id = $guest_customer_id
+              LIMIT 1"
+        );
+    }
+    
+    if (!defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) {
+        $sql_data_array = array(
+            'customers_id' => $guest_customer_id,
+            'entry_firstname' => 'Guest',
+            'entry_lastname' => 'Customer, **do not remove**',
+            'entry_street_address' => 'Default shipping address',
+            'entry_country_id' => (int)STORE_COUNTRY,
+            'entry_zone_id' => (int)STORE_ZONE
+        );
+        zen_db_perform(TABLE_ADDRESS_BOOK, $sql_data_array);
+        $address_book_id = zen_db_insert_id();
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Shipping-Address ID', 'CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID', '$address_book_id', 'This (hidden) value identifies the address_book-table entry that is used as the pseudo-shipping-address entry for any guest checkout in your store, if different from the billing address.', 6, now(), 30, NULL, NULL)"
+        );
+    }
+        
     // -----
     // Now, check to make sure that the currently-active template's folder includes the jscript_framework.php file and disable the One-Page Checkout if
     // that file's not found.
