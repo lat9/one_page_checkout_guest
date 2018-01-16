@@ -297,8 +297,14 @@ if ($payment_modules->in_special_checkout()) {
     unset($payment_modules);
     $payment_modules = new payment($_SESSION['payment']);
 }
-$payment_selections = $payment_modules->selection();
-$flagOnSubmit = count($payment_selections);
+$enabled_payment_modules = $_SESSION['opc']->validateGuestPaymentMethods($payment_modules->selection());
+$flagOnSubmit = count($enabled_payment_modules);
+
+// -----
+// Gather the count of enabled shipping- and payment-methods, so that only applicable sections are displayed.
+//
+$shipping_module_available = ($free_shipping || $is_virtual_order || zen_count_shipping_modules() > 0);
+$payment_module_available = ($payment_modules->in_special_checkout() || count($enabled_payment_modules > 0));
 
 // -----
 // Determine if there are any payment modules that are in the confirmation-required list.
@@ -307,7 +313,7 @@ $flagOnSubmit = count($payment_selections);
 // display for the order-submittal text/title.
 //
 $confirmation_required = array();
-foreach ($payment_selections as $current_selection) {
+foreach ($enabled_payment_modules as $current_selection) {
     $current_module = $current_selection['id'];
     if (in_array($current_module, explode(',', CHECKOUT_ONE_CONFIRMATION_REQUIRED))) {
         $confirmation_required[] = $current_module;

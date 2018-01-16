@@ -271,7 +271,7 @@ class OnePageCheckout extends base
         if ($uses_per_user > 0) {
             if ($this->isGuestCheckout() && isset($this->guestCustomerInfo) && !empty($this->guestCustomerInfo['email_address'])) {
                 $coupon_id = (int)$coupon_info['coupon_id'];
-                $email_address = zen_db_prepare_input($this->guestCustomerInfo['email_address']);
+                $email_address = zen_db_input($this->guestCustomerInfo['email_address']);
                 $uses_per_user++;  //- This value now contains one more than the allowed number of uses!
                 
                 // -----
@@ -280,7 +280,7 @@ class OnePageCheckout extends base
                 // of coupon-uses per user has been exceeded.
                 //
                 $check = $GLOBALS['db']->Execute(
-                    "SELECT count(*) AS use_count
+                    "SELECT crt.coupon_id
                        FROM " . TABLE_ORDERS . " o
                             INNER JOIN " . TABLE_COUPON_REDEEM_TRACK . " crt
                                 ON crt.coupon_id = $coupon_id
@@ -288,12 +288,40 @@ class OnePageCheckout extends base
                       WHERE o.customers_email_address = '$email_address'
                       LIMIT $uses_per_user"
                 );
-                if ($check->fields['use_count'] == $uses_per_user) {
+                if ($check->recordCount() == $uses_per_user) {
                     $coupon_uses_per_user_exceeded = true;
                 }
             }
         }
         return $coupon_uses_per_user_exceeded;
+    }
+    
+    /* -----
+    ** This function, called by the checkout_one page's header processing, determines if any
+    ** of the currently-enabled payment methods should be disabled due to guest-checkout
+    ** restraints configured by the current store.
+    */
+    public function validateGuestPaymentMethods($enabled_payment_modules)
+    {
+        if (!is_array($enabled_payment_modules)) {
+            $enabled_payment_modules = array();
+        }
+        
+        if ($this->isGuestCheckout()) {
+            $disallowed_payment_methods = explode(',', str_replace(' ', '', CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST));
+            if (count($disallowed_payment_methods) > 0) {
+                for ($i = 0, $n = count($enabled_payment_modules); $i < $n; $i++) {
+                    if (in_array($enabled_payment_modules[$i]['id'], $disallowed_payment_methods)) {
+                        if (isset($_SESSION['payment']) && $_SESSION['payment'] == $enabled_payment_modules[$i]['id']) {
+                            unset($_SESSION['payment']);
+                        }
+                        unset($enabled_payment_modules[$i]);
+                    }
+                }
+            }
+        }
+        
+        return $enabled_payment_modules;
     }
     
     /* -----

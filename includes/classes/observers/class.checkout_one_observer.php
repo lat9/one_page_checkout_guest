@@ -22,6 +22,9 @@ if (!defined('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED')) {
 if (!defined('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST')) {
     define('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST', '');
 }
+if (!defined('CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST')) {
+    define('CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST', 'moneyorder, cod');
+}
 
 class checkout_one_observer extends base 
 {
