@@ -223,6 +223,24 @@ class OnePageCheckout extends base
     }
     
     /* -----
+    ** This function, called upon successful login or account-creation, removes any remnants
+    ** of a previously-started guest-checkout from the customer's current session.
+    */
+    public function cleanupGuestSession()
+    {
+        if ($this->guestIsActive) {
+            unset(
+                $_SESSION['is_guest_checkout'],
+                $_SESSION['shipping_billing'], 
+                $_SESSION['opc_sendto_saved'],
+                $_SESSION['billto'],
+                $_SESSION['sendto']
+            );
+            $this->reset();
+        }
+    }
+    
+    /* -----
     ** This function, called by the guest customer-information block's formatting, returns the
     ** guest's currently-set email address.
     */

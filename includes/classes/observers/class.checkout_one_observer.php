@@ -116,6 +116,8 @@ class checkout_one_observer extends base
             $this->attach(
                 $this, 
                 array(
+                    'NOTIFY_LOGIN_SUCCESS',
+                    'NOTIFY_LOGIN_SUCCESS_VIA_CREATE_ACCOUNT',
                     'NOTIFY_HEADER_START_CHECKOUT_SHIPPING', 
                     'NOTIFY_HEADER_START_CHECKOUT_PAYMENT', 
                     'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS', 
@@ -135,8 +137,6 @@ class checkout_one_observer extends base
             $this->attach(
                 $this, 
                 array(
-                    'NOTIFY_HEADER_START_CREATE_ACCOUNT',
-                    'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
                     'NOTIFY_ORDER_CART_AFTER_ADDRESSES_SET',
                     'NOTIFY_ORDER_DURING_CREATE_ADDED_ORDER_HEADER',
                     'NOTIFY_ORDER_INVOICE_CONTENT_READY_TO_SEND',
@@ -151,6 +151,15 @@ class checkout_one_observer extends base
     public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
     {
         switch ($eventID) {     
+            // -----
+            // If a customer has just successfully logged in, they might have logged in after
+            // starting a guest-checkout.  Let the session-based OPC controller perform any
+            // clean-up required.
+            //
+            case 'NOTIFY_LOGIN_SUCCESS':
+            case 'NOTIFY_LOGIN_SUCCESS_VIA_CREATE_ACCOUNT':     //-Fall-through from above ...
+                $_SESSION['opc']->cleanupGuestSession();
+                break;
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING':
             case 'NOTIFY_HEADER_START_CHECKOUT_PAYMENT':
             case 'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION':
@@ -160,12 +169,7 @@ class checkout_one_observer extends base
                 
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS':
                 $_SESSION['shipping_billing'] = false;
-                break;
                 
-            case 'NOTIFY_HEADER_START_CREATE_ACCOUNT':
-                if ($_SESSION['opc']->accountRegistrationEnabled()) {
-                    zen_redirect(zen_href_link(FILENAME_REGISTER, '', 'SSL'));
-                }
                 break;
                 
             // -----
@@ -211,19 +215,7 @@ class checkout_one_observer extends base
                             $_POST['primary'] = 'on';
                         }
                     }
-                }
-                break;
                 
-            // -----
-            // Parameters:
-            //
-            // $p1 ... Supplied email address
-            // $p2 ... Supplied password
-            // $p3 ... Boolean flag, set to true if the login is to be authorized.
-            //
-            case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
-                if ($p3 === true) {
-                    //-Handle registered accounts here
                 }
                 break;
 

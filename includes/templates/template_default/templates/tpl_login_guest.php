@@ -64,11 +64,17 @@ foreach ($column_blocks as $display_blocks) {
         <h2><?php echo HEADING_GUEST_OPC; ?></h2>
         <div class="information"><?php echo TEXT_GUEST_OPC; ?></div>
 <?php
+                    if (!$guest_active) {
                     echo zen_draw_form('guest', zen_href_link(FILENAME_CHECKOUT_ONE, '', 'SSL'), 'post') . zen_draw_hidden_field('guest_checkout', 1);
 ?>
         <div class="buttonRow"><?php echo zen_image_submit(BUTTON_IMAGE_CHECKOUT, BUTTON_CHECKOUT_ALT); ?></div>
+        </form>
 <?php
-                    echo '</form><hr />';
+                    } else {
+?>
+        <div class="buttonRow"><a href="<?php echo zen_href_link(FILENAME_CHECKOUT_ONE, '', 'SSL'); ?>"><?php echo zen_image_button(BUTTON_IMAGE_CHECKOUT, BUTTON_CHECKOUT_ALT); ?></a></div>
+<?php
+                    }
                     break;
                     
                 // -----

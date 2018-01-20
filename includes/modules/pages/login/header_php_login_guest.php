@@ -25,7 +25,7 @@ if (isset($_SESSION['opc']) && $_SESSION['opc']->temporaryAddressesEnabled()) {
     // B ... (optional) The "Account Benefits" block.
     //
     if (!defined('CHECKOUT_ONE_LOGIN_LAYOUT')) {
-        define('CHECKOUT_ONE_LOGIN_LAYOUT', 'L;P,G;C');
+        define('CHECKOUT_ONE_LOGIN_LAYOUT', 'L;P,G,C;B');
     }
     
     $required_blocks = array(
@@ -72,4 +72,6 @@ if (isset($_SESSION['opc']) && $_SESSION['opc']->temporaryAddressesEnabled()) {
         trigger_error('Invalid value(s) found in CHECKOUT_ONE_LOGIN_LAYOUT (' . CHECKOUT_ONE_LOGIN_LAYOUT . ').  Guest-checkout is disabled.', E_USER_WARNING);
     }
     unset($display_elements, $valid_blocks, $current_element, $block, $current_block, $column_elements, $required_blocks);
+    
+    $guest_active = zen_in_guest_checkout();
 }
