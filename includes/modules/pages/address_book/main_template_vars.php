@@ -23,7 +23,7 @@ if (!defined('CHECKOUT_ONE_ENABLED')) {
 //
 } else {
     $zco_notifier->notify('NOTIFY_MAIN_TEMPLATE_VARS_OPC_ADDRESS_BOOK_START');
-    $page_template = 'tpl_address_book_opc.php';
+    $page_template = 'tpl_address_book_register.php';
     if (!isset($addressArray)) {
         $addressArray = array();
     }
