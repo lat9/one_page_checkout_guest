@@ -18,7 +18,7 @@ If the address-change is *temporary* (i.e. the checkbox is not ticked), the upda
 In either case, the address-related session-variable (either `$_SESSION['billto']` or `$_SESSION['sendto']`) is updated to reflect the change.  Any *temporary* address-book information is removed once the checkout process is completed.
 
 ## Registered-Account Checkout ##
-This mode starts when a partially-registered, logged-in customer enters the checkout process.  The customer previously created their account going through the `register` page's processing and does not (yet) have a defined primary address-book entry.
+This mode starts when a partially-registered, logged-in customer enters the checkout process.  The customer previously created their account going through the *modified* `login` page's processing and does not (yet) have a defined primary address-book entry.
 
 On entry, the Billing Address block is given focus, requiring the customer to supply that information; unlike the ***Guest Checkout*** mode, the customer is given the opportunity to ***Add to Address Book***.  The *First Name* and *Last Name* fields of that block are populated with the information the customer supplied at account-registration.
 
@@ -32,3 +32,5 @@ Once supplied, the ***Billing Address*** block is given focus, requiring the cus
 If the customer chooses to have a different ship-to address, they un-tick the ***Billing, same as Shipping*** checkbox and supply that address' information.  Upon validation, the information is stored in the customer's session and is used as the order's current shipping address.
 
 All address-book entries are removed once the checkout process is completed.
+
+The guest is given the opportunity to create a permanent account using the customer- and address-values from the just-placed order on the display of the `checkout_success` page.  At that time, they can supply a password (and confirmation) and (optionally) sign up for any newsletters.
