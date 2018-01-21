@@ -20,6 +20,7 @@ class OnePageCheckout extends base
     // guestCustomerId .......... Contains a sanitized/int version of the configured "guest" customer ID.
     // tempBilltoAddressBookId .. Contains a sanitized/int version of the configured "temporary" bill-to address-book ID.
     // tempSendtoAddressBookId .. Contains a sanitized/int version of the configured "temporary" ship-to address-book ID.
+    // dbStringType ............. Identifies the form of string data "binding" to use on $db requests; 'string' for ZC < 1.5.5b, 'stringIgnoreNull', otherwise.
     //
     public $isGuestCheckoutEnabled,
               $registeredAccounts,
@@ -29,7 +30,8 @@ class OnePageCheckout extends base
               $guestCustomerInfo,
               $guestCustomerId,
               $tempBilltoAddressBookId,
-              $tempSendtoAddressBookId;
+              $tempSendtoAddressBookId,
+              $dbStringType;
     
     public function __construct()
     {
@@ -109,6 +111,18 @@ class OnePageCheckout extends base
         $this->guestCustomerId = (defined('CHECKOUT_ONE_GUEST_CUSTOMER_ID')) ? (int)CHECKOUT_ONE_GUEST_CUSTOMER_ID : 0;
         $this->tempBilltoAddressBookId = (defined('CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID : 0;
         $this->tempSendtoAddressBookId = (defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID : 0;
+        
+        // -----
+        // The 'stringIgnoreNull' type of database "bind" type was introduced in ZC1.5.5b; if the store
+        // is using an earlier version of Zen Cart, we'll log a debug message and use the 'string'
+        // type instead.
+        //
+        $zc_version = PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR;
+        $this->dbStringType = 'stringIgnoreNull';
+        if ($zc_version < '1.5.5b') {
+            $this->dbStringType = 'string';
+            $this->debugMessage("Using 'string' database types instead of 'stringIgnoreNull' for Zen Cart $zc_version.");
+        }
     }
 
     /* -----
@@ -1039,11 +1053,11 @@ class OnePageCheckout extends base
             // Build up the to-be-stored address.
             //
             $sql_data_array = array(
-                array('fieldName' => 'entry_firstname', 'value' => $address['firstname'], 'type' => 'stringIgnoreNull'),
-                array('fieldName' => 'entry_lastname', 'value' => $address['lastname'], 'type' => 'stringIgnoreNull'),
-                array('fieldName' => 'entry_street_address', 'value' => $address['street_address'], 'type' => 'stringIgnoreNull'),
-                array('fieldName' => 'entry_postcode', 'value' => $address['postcode'], 'type' => 'stringIgnoreNull'),
-                array('fieldName' => 'entry_city', 'value' => $address['city'], 'type' => 'stringIgnoreNull'),
+                array('fieldName' => 'entry_firstname', 'value' => $address['firstname'], 'type' => $this->dbStringType),
+                array('fieldName' => 'entry_lastname', 'value' => $address['lastname'], 'type' => $this->dbStringType),
+                array('fieldName' => 'entry_street_address', 'value' => $address['street_address'], 'type' => $this->dbStringType),
+                array('fieldName' => 'entry_postcode', 'value' => $address['postcode'], 'type' => $this->dbStringType),
+                array('fieldName' => 'entry_city', 'value' => $address['city'], 'type' => $this->dbStringType),
                 array('fieldName' => 'entry_country_id', 'value' => $address['country'], 'type' => 'integer')
             );
 
@@ -1052,20 +1066,20 @@ class OnePageCheckout extends base
             }
             
             if (ACCOUNT_COMPANY == 'true') {
-                $sql_data_array[] = array('fieldName' => 'entry_company', 'value' => $address['company'], 'type' => 'stringIgnoreNull');
+                $sql_data_array[] = array('fieldName' => 'entry_company', 'value' => $address['company'], 'type' => $this->dbStringType);
             }
             
             if (ACCOUNT_SUBURB == 'true') {
-                $sql_data_array[] = array('fieldName' => 'entry_suburb', 'value' => $address['suburb'], 'type' => 'stringIgnoreNull');
+                $sql_data_array[] = array('fieldName' => 'entry_suburb', 'value' => $address['suburb'], 'type' => $this->dbStringType);
             }
             
             if (ACCOUNT_STATE == 'true') {
                 if ($address['zone_id'] > 0) {
                     $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => $address['zone_id'], 'type' => 'integer');
-                    $sql_data_array[] = array('fieldName' => 'entry_state', 'value'=> '', 'type' => 'stringIgnoreNull');
+                    $sql_data_array[] = array('fieldName' => 'entry_state', 'value'=> '', 'type' => $this->dbStringType);
                 } else {
                     $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => '0', 'type' => 'integer');
-                    $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => $address['state'], 'type' => 'stringIgnoreNull');
+                    $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => $address['state'], 'type' => $this->dbStringType);
                 }
             }
             
@@ -1157,19 +1171,19 @@ class OnePageCheckout extends base
         $dob = '';
         
         $sql_data_array = array(
-            array('fieldName' => 'customers_firstname', 'value' => $this->guestCustomerInfo['firstname'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'customers_lastname', 'value' => $this->guestCustomerInfo['lastname'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'customers_email_address', 'value' => $this->guestCustomerInfo['email_address'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'customers_telephone', 'value' => $this->guestCustomerInfo['telephone'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_firstname', 'value' => $this->guestCustomerInfo['firstname'], 'type' => $this->dbStringType),
+            array('fieldName' => 'customers_lastname', 'value' => $this->guestCustomerInfo['lastname'], 'type' => $this->dbStringType),
+            array('fieldName' => 'customers_email_address', 'value' => $this->guestCustomerInfo['email_address'], 'type' => $this->dbStringType),
+            array('fieldName' => 'customers_telephone', 'value' => $this->guestCustomerInfo['telephone'], 'type' => $this->dbStringType),
             array('fieldName' => 'customers_newsletter', 'value' => $newsletter, 'type' => 'integer'),
-            array('fieldName' => 'customers_email_format', 'value' => 'TEXT', 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_email_format', 'value' => 'TEXT', 'type' => $this->dbStringType),
             array('fieldName' => 'customers_default_address_id', 'value' => 0, 'type' => 'integer'),
-            array('fieldName' => 'customers_password', 'value' => zen_encrypt_password($password), 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'customers_password', 'value' => zen_encrypt_password($password), 'type' => $this->dbStringType),
             array('fieldName' => 'customers_authorization', 'value' => 0, 'type' => 'integer'),
         );
 
         if (ACCOUNT_GENDER == 'true') {
-            $sql_data_array[] = array('fieldName' => 'customers_gender', 'value' => $gender, 'type' => 'stringIgnoreNull');
+            $sql_data_array[] = array('fieldName' => 'customers_gender', 'value' => $gender, 'type' => $this->dbStringType);
         }
         if (ACCOUNT_DOB == 'true') {
             $dob = (empty($dob) || $dob == '0001-01-01 00:00:00') ? zen_db_prepare_input('0001-01-01 00:00:00') : zen_date_raw($dob);
@@ -1199,31 +1213,31 @@ class OnePageCheckout extends base
     {
         $sql_data_array = array(
             array('fieldName' => 'customers_id', 'value' => $customer_id, 'type' => 'integer'),
-            array('fieldName' => 'entry_firstname', 'value' => $this->tempAddressValues[$which]['firstname'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'entry_lastname', 'value' => $this->tempAddressValues[$which]['lastname'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'entry_street_address', 'value' => $this->tempAddressValues[$which]['street_address'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'entry_postcode', 'value' => $this->tempAddressValues[$which]['postcode'], 'type' => 'stringIgnoreNull'),
-            array('fieldName' => 'entry_city', 'value' => $this->tempAddressValues[$which]['city'], 'type' => 'stringIgnoreNull'),
+            array('fieldName' => 'entry_firstname', 'value' => $this->tempAddressValues[$which]['firstname'], 'type' => $this->dbStringType),
+            array('fieldName' => 'entry_lastname', 'value' => $this->tempAddressValues[$which]['lastname'], 'type' => $this->dbStringType),
+            array('fieldName' => 'entry_street_address', 'value' => $this->tempAddressValues[$which]['street_address'], 'type' => $this->dbStringType),
+            array('fieldName' => 'entry_postcode', 'value' => $this->tempAddressValues[$which]['postcode'], 'type' => $this->dbStringType),
+            array('fieldName' => 'entry_city', 'value' => $this->tempAddressValues[$which]['city'], 'type' => $this->dbStringType),
             array('fieldName' => 'entry_country_id', 'value' => $this->tempAddressValues[$which]['country'], 'type' => 'integer'),
         );
 
         if (ACCOUNT_GENDER == 'true') {
-            $sql_data_array[] = array('fieldName' => 'entry_gender', 'value' => $this->tempAddressValues[$which]['gender'], 'type' => 'stringIgnoreNull');
+            $sql_data_array[] = array('fieldName' => 'entry_gender', 'value' => $this->tempAddressValues[$which]['gender'], 'type' => $this->dbStringType);
         }
         if (ACCOUNT_COMPANY == 'true') {
-            $sql_data_array[] = array('fieldName' => 'entry_company', 'value' => $this->tempAddressValues[$which]['company'], 'type' => 'stringIgnoreNull');
+            $sql_data_array[] = array('fieldName' => 'entry_company', 'value' => $this->tempAddressValues[$which]['company'], 'type' => $this->dbStringType);
         }
         if (ACCOUNT_SUBURB == 'true') {
-            $sql_data_array[] = array('fieldName' => 'entry_suburb', 'value' => $this->tempAddressValues[$which]['suburb'], 'type' => 'stringIgnoreNull');
+            $sql_data_array[] = array('fieldName' => 'entry_suburb', 'value' => $this->tempAddressValues[$which]['suburb'], 'type' => $this->dbStringType);
         }
 
         if (ACCOUNT_STATE == 'true') {
             if ($this->tempAddressValues[$which]['zone_id'] > 0) {
                 $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => $this->tempAddressValues[$which]['zone_id'], 'type' => 'integer');
-                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => '', 'type' => 'stringIgnoreNull');
+                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => '', 'type' => $this->dbStringType);
             } else {
                 $sql_data_array[] = array('fieldName' => 'entry_zone_id', 'value' => 0, 'type' => 'integer');
-                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => $this->tempAddressValues[$which]['state'], 'type' => 'stringIgnoreNull');
+                $sql_data_array[] = array('fieldName' => 'entry_state', 'value' => $this->tempAddressValues[$which]['state'], 'type' => $this->dbStringType);
             }
         }
         $GLOBALS['db']->perform(TABLE_ADDRESS_BOOK, $sql_data_array);
@@ -1298,6 +1312,8 @@ class OnePageCheckout extends base
     //
     protected function debugMessage($message, $include_request = false)
     {
-        $GLOBALS['checkout_one']->debug_message($message, $include_request, 'OnePageCheckout');
+        if (isset($GLOBALS['checkout_one'])) {
+            $GLOBALS['checkout_one']->debug_message($message, $include_request, 'OnePageCheckout');
+        }
     }
 }
