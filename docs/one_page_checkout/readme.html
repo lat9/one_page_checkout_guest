@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" href="../vinos_favicon.ico" type="image/x-icon" />
-<link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
 <title>One-Page Checkout</title>
 
 <style type="text/css">
@@ -12,7 +12,7 @@
 a, a:active, a:visited { color: #006666; text-decoration: none; }
 a:hover { color:#00CC99; text-decoration: underline; }
 BODY, P, H1, H2, H3, H4, H5, H6, LI, TD, DD, DT, pre, code, img, table, #outer-container {
-  font-family: Roboto, Verdana, AvantGarde, Tahoma, Arial, sans-serif;
+  font-family: Lato, Verdana, AvantGarde, Tahoma, Arial, sans-serif;
   font-size: 12pt;
   color: black;
   padding: 0px;
@@ -51,6 +51,11 @@ th { background-color: #eee; }
 pre.scroll { border: 1px solid #666; padding: 5px; }
 .new-code { font-weight: bold; color: red; }
 #details h2 { border-top: 1px solid #666; }
+#config th:last-child, #config td:last-child { text-align: center; }
+#storefront .wrap { width: 50%; float: left; }
+#storefront .wrap > div { border: 1px solid #444; margin: 5px; }
+#storefront .wrap h3 { background-color: #77bfc7; padding: 0 5px; }
+#storefront .wrap:nth-child(even) { clear: both; }
 
 .etabs { margin: 0; padding: 0; }
 .tab { display: inline-block; zoom:1; *display:inline; background: #eee; border: solid 1px #999; border-bottom: none; border-radius: 4px 4px 0 0; margin: 0; }
@@ -61,7 +66,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
 .tab-container .panel-container { background: #fff; border: solid #666 1px; padding: 10px; border-radius: 0 4px 4px 4px; }
 .panel-container { margin-bottom: 10px; }
 @media (max-width: 979px) {
-  .multi-list { width: 95%; float: none; margin: 0 auto; }
+  .multi-list, #storefront .wrap { width: 95%; float: none; margin: 0 auto; }
 }
 -->
 </style>
@@ -111,6 +116,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
           <div class="panel-container">
             <div id="operation">
               <p>This plugin streamlines the flow that your customers see during your store's checkout process, combining the handling required for the <code class="no-pad">checkout_shipping</code>, <code class="no-pad">checkout_payment</code> and <code class="no-pad">checkout_confirmation</code> into a single-page display.</p>
+              <p>Starting with v2.0.0, your customers can also <em>Checkout as Guest</em>!</p>
               <div class="box-border">
                 <p>The plugin's design utilizes <b><i>standard Zen Cart</i></b> HTML/CSS layout when rendering its new pages, so the look-and-feel of your store gets &quot;inherited&quot;.  Some templates make <em>drastic</em>  modifications to that layout &mdash; removing those <em>standard</em> HTML/CSS selectors &mdash; which causes this plugin's newly-added pages to display improperly.  The following templates are known to be incompatible with the <em>One-Page Checkout</em> plugin:<p>
                 <ol>
@@ -139,7 +145,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 </ol>
               </div>
               <p><em>One-Page Checkout's</em> installation loads all the plugin's files into the folders associated with the <em>template_default</em> template's use; that way, the processing is available for <b>all</b> templates you might use in your store.  If you make changes to those default files, you'll use the Zen Cart &quot;override&quot; system to make your updates.  For example, if you're adding a top-of-page message, you'll copy the file /includes/languages/english/checkout_one.php to the /includes/languages/english/YOUR_TEMPLATE folder and make your changes there.</p>
-              <p>The plugin has been validated on Zen Cart 1.5.4 and Zen Cart 1.5.5a through Zen Cart 1.5.5e, using the following shipping, order-total and payment methods:</p>
+              <p>The plugin has been validated on Zen Cart 1.5.4 and Zen Cart 1.5.5a through Zen Cart 1.5.5f, using the following shipping, order-total and payment methods:</p>
               <div class="multi-list">
                 <h3>Shipping Methods</h3>
                 <ol>
@@ -321,55 +327,56 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                     <area alt="Give your customers some guidance" title="Upper Message" href="#upper-message" shape="poly" coords="14,83,1396,78,1402,129,13,127" />
               </map>
               
-              <fieldset id="upper-message">
-                <legend>Upper Message</legend>
+              <div class="wrap" id="upper-message"><div>
+                <h3>Upper Message</h3>
                 <p>The <em>Upper Message</em> section <em>conditionally</em> displays at the very top of the page.  This message, which defaults to empty text, can be customized by editing the <code class="no-pad">TEXT_CHECKOUT_ONE_TOP_INSTRUCTIONS</code> definition, present in <code class="no-pad">/includes/languages/english/checkout_one.php</code>.  If you're going to change the text, you should copy that file to <code class="no-pad">/includes/languages/YOUR_LANGUAGE/YOUR_TEMPLATE/checkout_one.php</code> before making your edits.</p>
                 <p>This section is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_checkout_one_default.php</code>.</p>
-              </fieldset>
+              </div></div>
               
-              <fieldset id="billing">
-                <legend>Billing-Address Block</legend>
+              <div class="wrap" id="billing"><div>
+                <h3>Billing-Address Block</h3>
                 <p>This section, always displayed, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php</code>.</p>
                 <p>The plugin's default layout displays this block at the top of the left-side pane and displays the order's current billing address.  If allowed by the selected payment method, this block includes an &quot;Edit&quot; button, allowing the customer to change their billing address.</p>
-              </fieldset>
-              <fieldset id="shipping">
-                <legend>Shipping-Address Block</legend>
+              </div></div>
+              
+              <div class="wrap" id="shipping"><div>
+                <h3>Shipping-Address Block</h3>
                 <p>This section, displayed <em>only if</em> the order includes at least one physical (i.e. shippable) product, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_shipping_address.php</code>.</p>
                 <p>The plugin's default layout displays this block in the left-side pane just under the <em>Billing-Address Block</em>.  On initial entry to the page, the <b><em>Shipping Address, same as billing?</em></b> checkbox is checked &hellip; unless you've configured <em>OPC</em> not to display that checkbox.  The shipping address is displayed when that checkbox is unchecked. If allowed by the selected payment method, this block includes an &quot;Edit&quot; button, allowing the customer to change their shipping address.</p>
-              </fieldset>
+              </div></div>
               
-              <fieldset id="comments">
-                <legend>Order Comments</legend>
+              <div class="wrap" id="comments"><div>
+                <h3>Order Comments</h3>
                 <p>This section, always displayed, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_comments.php</code>.</p>
                 <p>The plugin's default layout displays this block in the left-side pane just under the <em>Shipping-Address Block</em>, including a textbox field into which the customer enters any comments pertinent to the order.</p>
-              </fieldset>
+              </div></div>
                
-              <fieldset id="order-credits">
-                <legend>Order Credits</legend>
+              <div class="wrap" id="order-credits"><div>
+                <h3>Order Credits</h3>
                 <p>This section is displayed <em>only if</em> your store has enabled any credit-class &quot;order-totals&quot;, e.g. coupons or gift certificates; its formatting is provided by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_credit_selections.php</code>.</p>
                 <p>The plugin's default layout displays this block in the left-side pane just under the <em>Order Comments</em>.</p>
-              </fieldset>   
+              </div></div>   
                
-              <fieldset id="shipping">
-                <legend>Shipping-Method Selection</legend>
+              <div class="wrap" id="shipping"><div>
+                <h3>Shipping-Method Selection</h3>
                 <p>This section, displayed <em>only if</em> the current order contains at least one physical (i.e. shippable) product, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_shipping_choices.php</code>.</p>
                 <p>The plugin's default layout displays this block at the top of the right-side pane and contains the shipping methods that are currently valid for the order.  When the customer changes the shipping-method selection, a teeny AJAX message is sent back to your store to allow the order's totals-block to be re-built.</p>
-              </fieldset>   
+              </div></div>   
                 
-              <fieldset id="payment">
-                <legend>Payment-Method Selection</legend>
+              <div class="wrap" id="payment"><div>
+                <h3>Payment-Method Selection</h3>
                 <p>This section, always displayed, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_payment_choices.php</code>.</p>
                 <p>The plugin's default layout displays this block in the right-hand pane, just below the <em>Shipping-Method Selection</em> block (if present) and contains the payment methods that are currently valid for the order.</p>
-              </fieldset>
+              </div></div>
               
-              <fieldset id="cart" class="clearBoth">
-                <legend>Shopping Cart / Order Totals</legend>
+              <div class="wrap" id="cart"><div>
+                <h3>Shopping Cart / Order Totals</h3>
                 <p>This section, always displayed, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_shopping_cart.php</code>.</p>
                 <p>The plugin's default layout displays this block full-screen width, just below the upper panes, and identifies the order's current product list and totals.</p>
-              </fieldset>
+              </div></div>
               
-              <fieldset id="pre-confirm">
-                <legend>Pre-Confirmation Message</legend>
+              <div class="wrap" id="pre-confirm"><div>
+                <h3>Pre-Confirmation Message</h3>
                 <p>This section, displayed under the conditions described below, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_instructions.php</code>.</p>
                 <p>The plugin's default layout displays this block full-screen width, just below the <b><em>Shopping Cart</em></b> section.  If you want to display a pre-confirmation message to your customers, you'll need to change a couple of language-file constants present in <code class="no-pad">/includes/languages/english/checkout_one.php</code>.</p>
                 <p>If you're going to change the text, you should copy that file to <code class="no-pad">/includes/languages/YOUR_LANGUAGE/YOUR_TEMPLATE/checkout_one.php</code> before making your edits; two constants are &quot;involved&quot;:</p>
@@ -377,19 +384,21 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li><em>TEXT_CHECKOUT_ONE_INSTRUCTIONS</em>.  This constant, if not empty, results in the <code class="no-pad">fieldset</code> being displayed, with the text you've entered surrounded by a <code class="no-pad">p</code> tag.</li>
                   <li><em>TEXT_CHECKOUT_ONE_INSTRUCTION_LABEL</em>.  This constant, if not empty, is displayed as the fieldset's <code class="no-pad">label</code>.</li>
                 </ol>
-              </fieldset>
+              </div></div>
               
-              <fieldset id="conditions">
-                <legend>Terms and Condition</legend>
+              <div class="wrap" id="conditions"><div>
+                <h3>Terms and Condition</h3>
                 <p>This section, displayed under the conditions described below, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_conditions.php</code>.</p>
                 <p>The plugin's default layout displays this block full-screen width, just above the <b><em>Order Confirmation</em></b> section, based on your store's setting of <em>Configuration-&gt;Regulations-&gt;Confirm Terms and Conditions During Checkout Procedure</em>.</p>
-              </fieldset>
+              </div></div>
                
-              <fieldset id="confirm">
-                <legend>Order Confirmation</legend>
+              <div class="wrap" id="confirm"><div>
+                <h3>Order Confirmation</h3>
                 <p>This section, always displayed, is formatted by <code class="no-pad">/includes/templates/template_default/templates/tpl_modules_opc_submit_block.php</code>.</p>
                 <p>The plugin's default layout displays this block full-screen width as the last element of the page, containing the order-confirmation submit-buttons and shows the customer the email-address to which the order-confirmation email will be sent.</p>
-              </fieldset>
+              </div></div>
+              
+              <div class="clearBoth"></div>
                            
             </div>
             
@@ -650,40 +659,56 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
               <p>You can view the details of these changes on the plugin's <a href="https://github.com/lat9/one_page_checkout/issues" target="_blank">GitHub repository.</a> <span class="template-changed">Changes to the plugin's default templates are identified in this color</span>; remember to merge those changes with any template-override version you might have created!</p>
               <ul>
                 <li>v2.0.0, 2018-01-xx:<ul>
+                    <li>CHANGE: Add processing to enable <em>guest-checkout</em>.</li>
                     <li>The following files were affected:<ol>
                         <li>/includes/auto_loaders/config.checkout_one.php</li>
                         <li><span class="added">/includes/classes/OnePageCheckout.php</span></li>
-                        <li><span class="corefile">/includes/classes/order.php</span> <span class="smaller">(Added one notifier)</span></li>
+                        <li><span class="corefile">/includes/classes/order.php</span> <span class="smaller">(Added, one notifier)</span></li>
                         <li>/includes/classes/ajax/zcAjaxOnePageCheckout.php</li>
                         <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                         <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                         <li><span class="added">/includes/functions/extra_functions/one_page_checkout_functions.php</span></li>
                         <li>/includes/languages/english/checkout_one.php</li>
+                        <li><span class="added">/includes/languages/english/address_book_register.php</span></li>
+                        <li><span class="added">/includes/languages/english/checkout_process_guest.php</span></li>
+                        <li><span class="added">/includes/languages/english/checkout_success_guest.php</span></li>
                         <li><span class="added">/includes/languages/english/login_guest.php</span></li>
                         <li><span class="added">/includes/languages/english/order_status.php</span></li>
+                        <li>/includes/languages/english/extra_definitions/checkout_one_extra_definitions.php</li>
+                        <li><span class="added">/includes/languages/english/html_includes/define_checkout_success_guest.php</span></li>
+                        <li><span class="added">/includes/languages/english/html_includes/YOUR_TEMPLATE/define_checkout_success_guest.php</span></li>
+                        <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span> <span class="smaller">(Added, one notifier)</span></li>
+                        <li><span class="added">/includes/modules/pages/address_book/main_template_vars.php</span></li>
                         <li>/includes/modules/pages/checkout_one/header_php.php</li>
+                        <li>/includes/modules/pages/checkout_one/jquery.checkout_one.js</li>
+                        <li>/includes/modules/pages/checkout_one/jquery.checkout_one.min.js</li>
                         <li>/includes/modules/pages/checkout_one/jscript_main.php</li>
-                        <li>/includes/modules/pages/checkout_one/onload_main.js</li>
                         <li>/includes/modules/pages/checkout_one_confirmation/header_php.php</li>
-                        <li><span class="added">/includes/modules/pages/login/header_php_opc.php</li>
+                        <li><span class="added">/includes/modules/pages/checkout_success/header_php_guest.php</span></li>
+                        <li><span class="added">/includes/modules/pages/checkout_success/main_template_vars.php</span></li>
+                        <li><span class="corefile">/includes/modules/pages/login/header_php.php</span> <span class="smaller">(Added, one notifier)</span></li>
+                        <li><span class="added">/includes/modules/pages/login/header_php_guest.php</li>
                         <li><span class="added">/includes/modules/pages/login/main_template_vars.php</span></li>
                         <li><span class="added">/includes/modules/pages/order_status/header_php.php</span></li>
-                        <li><span class="added">/includes/modules/pages/register/header_php.php</span></li>
-                        <li><span class="added">/includes/modules/pages/register/jscript_form_check.php</span></li>
-                        <li><span class="added">/includes/modules/pages/register_success/header_php.php</span></li>
                         <li>/includes/templates/template_default/css/checkout_one.css</li>
                         <li><span class="added">/includes/templates/template_default/css/login.css</span></li>
-                        <li><span class="added">/includes/templates/template_default/css/register.css</span></li>
-                        <li>/includes/templates/template_default/templates/tpl_checkout_one_default.php</li>
+                        <li><span class="added">/includes/templates/template_default/tpl_address_book_register.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_checkout_one_default.php</span></li>
+                        <li><span class="added">/includes/templates/template_default/tpl_checkout_success_guest.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_login_guest.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_modules_opc_address_block.php</span></li>
-                        <li>/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php</li>
-                        <li>/includes/templates/template_default/templates/tpl_modules_opc_payment_choices.php</li>
-                        <li>/includes/templates/template_default/templates/tpl_modules_opc_shipping_address.php</li>
-                        <li><span class="added">/includes/templates/template_default/templates/tpl_order_status.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/tpl_modules_opc_credit_selections.php</span></li>
+                        <li><span class="added">/includes/templates/template_default/tpl_modules_opc_customer_info.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_payment_choices.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_shipping_address.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_shopping_cart.php</span></li>
+                        <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_submit_block.php</span></li>
+                        <li><span class="added">/includes/templates/template_default/templates/tpl_order_status_default.php</span></li>
+                        <li><span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</span></li>
+                        <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_success.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/login.css</span> <span class="smaller">(Added)</span></li>
-                        <li><span class="added">/includes/templates/YOUR_TEMPLATE/css/register.css</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
                     </ol></li>
                 </ul>
