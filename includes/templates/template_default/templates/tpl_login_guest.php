@@ -72,7 +72,7 @@ foreach ($column_blocks as $display_blocks) {
 <?php
                     } else {
 ?>
-        <div class="buttonRow"><a href="<?php echo zen_href_link(FILENAME_CHECKOUT_ONE, '', 'SSL'); ?>"><?php echo zen_image_button(BUTTON_IMAGE_CHECKOUT, BUTTON_CHECKOUT_ALT); ?></a></div>
+        <div class="buttonRow"><a href="<?php echo zen_href_link(FILENAME_CHECKOUT_ONE, '', 'SSL'); ?>" rel="nofollow"><?php echo zen_image_button(BUTTON_IMAGE_CHECKOUT, BUTTON_CHECKOUT_ALT); ?></a></div>
 <?php
                     }
                     break;
