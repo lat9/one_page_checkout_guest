@@ -7,8 +7,8 @@ if (!defined('IS_ADMIN_FLAG')) {
     die('Illegal Access');
 }
 
-define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha1');
-define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-15');
+define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha3');
+define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-25');
 
 if (isset($_SESSION['admin_id'])) {
     $version_release_date = CHECKOUT_ONE_CURRENT_VERSION . ' (' . CHECKOUT_ONE_CURRENT_UPDATE_DATE . ')';
