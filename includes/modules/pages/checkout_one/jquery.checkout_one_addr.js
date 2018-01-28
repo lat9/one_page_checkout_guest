@@ -13,18 +13,22 @@ jQuery(document).ready(function() {
     // Initialize the display for the dropdown vs. hand-entry of the state fields.  If the initially-selected
     // country doesn't have zones, the dropdown will contain only 1 element ('Type a choice below ...').
     //
-    if (jQuery('#stateZone-bill > option').length == 1) {
-        jQuery('#stateZone-bill, #stateZone-bill+span, #stateZone-bill+span+br').hide();
-    } else {
-        jQuery('#state-bill, #state-bill+span').hide();
-        jQuery('#stateZone-bill').show();
+    initializeStateZones = function() 
+    {
+        if (jQuery('#stateZone-bill > option').length == 1) {
+            jQuery('#stateZone-bill, #stateZone-bill+span, #stateZone-bill+span+br').hide();
+        } else {
+            jQuery('#state-bill, #state-bill+span').hide();
+            jQuery('#stateZone-bill').show();
+        }
+        if (jQuery('#stateZone-ship > option').length == 1) {
+            jQuery('#stateZone-ship, #stateZone-ship+span, #stateZone-ship+span+br').hide();
+        } else {
+            jQuery('#state-ship, #state-ship+span').hide();
+            jQuery('#stateZone-ship').show();
+        }
     }
-    if (jQuery('#stateZone-ship > option').length == 1) {
-        jQuery('#stateZone-ship, #stateZone-ship+span, #stateZone-ship+span+br').hide();
-    } else {
-        jQuery('#state-ship, #state-ship+span').hide();
-        jQuery('#stateZone-ship').show();
-    }
+    initializeStateZones();
     
     // -----
     // Monitor the billing- and shipping-address blocks for changes to the selected country.

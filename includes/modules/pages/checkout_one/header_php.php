@@ -154,6 +154,7 @@ $comments = (isset($_SESSION['comments'])) ? $_SESSION['comments'] : '';
 // -----
 // If the order DOES NOT contain only virtual products, then we need to get shipping quotes.
 //
+$quotes = array();
 if (!$is_virtual_order) {
     // load all enabled shipping modules
     require DIR_WS_CLASSES . 'shipping.php';

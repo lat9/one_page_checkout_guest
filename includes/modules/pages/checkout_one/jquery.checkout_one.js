@@ -578,6 +578,9 @@ jQuery(document).ready(function(){
             },
         }).done(function( response ) {
             jQuery(address_block).html(response.addressHtml);
+            if (typeof initializeStateZones != 'undefined') {
+                initializeStateZones();
+            }
         });
     }
     
