@@ -65,35 +65,25 @@ echo $_SESSION['opc']->formatAddressElement($which, 'city', $address['city'], EN
 
 if (ACCOUNT_STATE == 'true') {
     $state_zone_id = "stateZone-$which";
-    $zone_label_id = "zoneLabel-$which";
     $zone_field_name = "zone_id[$which]";
-    $break_id = "stBreak-$which";
     $state_field_name = "state[$which]";
     $state_field_id = "state-$which";
-    $state_label_id = "stateLabel-$which";
-    $state_text_id = "stText-$which";
-    
-    if ($opc_flag_show_pulldown_states) {
 ?>
-      <label class="inputLabel" for="<?php echo $state_zone_id; ?>" id="<?php echo $zone_label_id; ?>"><?php echo ENTRY_STATE; ?></label>
-<?php
+      <label class="inputLabel"><?php echo ENTRY_STATE; ?></label>
+<?php    
+    if ($address['show_pulldown_states']) {
         echo zen_draw_pull_down_menu($zone_field_name, zen_prepare_country_zones_pull_down($address['country'], $address['zone_id']), $address['zone_id'], "id=\"$state_zone_id\"");
         if (zen_not_null(ENTRY_STATE_TEXT)) {
-            echo '&nbsp;<span class="alert">' . ENTRY_STATE_TEXT . '</span>'; 
+            echo '<span class="alert">' . ENTRY_STATE_TEXT . '</span>';
         }
-?>
-      <br class="clearBoth" id="<?php echo $break_id; ?>" />
-<?php    
+        echo '<br />';
+    } else {
+        echo zen_draw_hidden_field($zone_field_name, $address['zone_name']);
     }
-?>
-      <label class="inputLabel" for="<?php echo $state_field_id; ?>" id="<?php echo $state_label_id; ?>"><?php echo $address['state_field_label']; ?></label>
-<?php
+    
     echo zen_draw_input_field($state_field_name, $address['state'], zen_set_field_length(TABLE_ADDRESS_BOOK, 'entry_state', '40') . " id=\"$state_field_id\"");
     if (zen_not_null(ENTRY_STATE_TEXT)) {
-        echo "&nbsp;<span class=\"alert\" id=\"$state_text_id\">" . ENTRY_STATE_TEXT . '</span>';
-    }
-    if (!$address['show_pulldown_states']) {
-        echo zen_draw_hidden_field($zone_field_name, $address['zone_name'], "id=\"$state_zone_id\"");
+        echo '<span class="alert">' . ENTRY_STATE_TEXT . '</span>';
     }
 ?>
       <br class="clearBoth" />
@@ -106,8 +96,8 @@ $field_name = "zone_country_id[$which]";
 $field_id = "country-$which";
 ?>
       <label class="inputLabel" for="country-bill"><?php echo ENTRY_COUNTRY; ?></label>
-      <?php echo zen_get_country_list($field_name, $address['country'], "id=\"$field_id\" " . ($address['show_pulldown_states'] ? ('onchange="update_zone(this.form, \'' . $which . '\');"') : '')) . 
-      (zen_not_null(ENTRY_COUNTRY_TEXT) ? '<span class="alert">' . ENTRY_COUNTRY_TEXT . '</span>': ''); ?>
+      <?php echo zen_get_country_list($field_name, $address['country'], "id=\"$field_id\"") . 
+      (zen_not_null(ENTRY_COUNTRY_TEXT) ? '<span class="alert">' . ENTRY_COUNTRY_TEXT . '</span>' : ''); ?>
       <div class="clearBoth"></div>
       
       <div id="messages-<?php echo $which; ?>"></div>

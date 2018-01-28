@@ -11,7 +11,6 @@
 <?php
 $opc_address_type = 'bill';
 $opc_disable_address_change = $flagDisablePaymentAddressChange;
-$opc_flag_show_pulldown_states = false;
 require $template->get_template_dir('tpl_modules_opc_address_block.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_address_block.php';
 
 if (!$flagDisablePaymentAddressChange) {

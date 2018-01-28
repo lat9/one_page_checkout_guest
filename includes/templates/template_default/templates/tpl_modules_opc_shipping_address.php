@@ -28,7 +28,6 @@ if ($is_virtual_order) {
 <?php
 $opc_address_type = 'ship';
 $opc_disable_address_change = $editShippingButtonLink;
-$opc_flag_show_pulldown_states = false;
 require $template->get_template_dir('tpl_modules_opc_address_block.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_opc_address_block.php';
 
 if ($editShippingButtonLink) {

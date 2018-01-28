@@ -592,7 +592,7 @@ jQuery(document).ready(function(){
             suburb = jQuery('input[name="suburb['+which+']"]').val(),
             city = jQuery('input[name="city['+which+']"]').val(),
             state = jQuery('input[name="state['+which+']"]').val(),
-            zone_id = jQuery('input[name="zone_id['+which+']"]').val(),
+            zone_id = jQuery('select[name="zone_id['+which+']"] option:selected').val(),
             postcode = jQuery('input[name="postcode['+which+']"]').val(),
             zone_country_id = jQuery('select[name="zone_country_id['+which+']"] option:selected').val(),
             shipping_billing = jQuery('#shipping_billing').is(':checked'),

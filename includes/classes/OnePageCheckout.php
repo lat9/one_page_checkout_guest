@@ -724,6 +724,47 @@ class OnePageCheckout extends base
         return $selection;
     }
     
+    // -----
+    // Creates the json-formatted array that maps countries to zones, for use in the
+    // customer address-forms when dropdown states are enabled.
+    //
+    public function getCountriesZonesJavascript()
+    {
+        $countries = $GLOBALS['db']->Execute(
+            "SELECT DISTINCT zone_country_id
+               FROM " . TABLE_ZONES . "
+                    INNER JOIN " . TABLE_COUNTRIES . "
+                        ON countries_id = zone_country_id
+                       AND status = 1
+           ORDER BY zone_country_id"
+        );
+        
+        $c2z = array();
+        while (!$countries->EOF) {
+            $current_country_id = $countries->fields['zone_country_id'];
+            $c2z[$current_country_id] = array();
+
+            $states = $GLOBALS['db']->Execute(
+                "SELECT zone_name, zone_id
+                   FROM " . TABLE_ZONES . "
+                  WHERE zone_country_id = $current_country_id
+               ORDER BY zone_name"
+            );
+            while (!$states->EOF) {
+                $c2z[$current_country_id][$states->fields['zone_id']] = $states->fields['zone_name'];
+                $states->MoveNext();
+            }
+            $countries->MoveNext();
+        }
+        
+        if (count($c2z) == 0) {
+            $output_string = '';
+        } else {
+            $output_string = 'var c2z = \'' . json_encode($c2z) . '\';' . PHP_EOL;
+        }
+        return $output_string;
+    }
+    
     protected function initializeTempAddressValues()
     {
         if (!isset($this->tempAddressValues)) {
@@ -836,6 +877,7 @@ class OnePageCheckout extends base
         
         return $messages;
     }
+    
     // -----
     // See if the supplied email-address is present (and banned) within the store's
     // database.  Returns true if present and banned; false otherwise.
@@ -937,8 +979,8 @@ class OnePageCheckout extends base
             $error = true;
             $messages['zone_country_id'] = $message_prefix . ENTRY_COUNTRY_ERROR;
         } elseif (ACCOUNT_STATE == 'true') {
-            $state = (isset($address_values['state'])) ? trim(zen_db_prepare_input($address_values['state'])) : false;
-            $zone_id = (isset($address_values['zone_id'])) ? zen_db_prepare_input($address_values['zone_id']) : false;
+            $state = (isset($address_values['state'])) ? trim(zen_db_prepare_input($address_values['state'])) : '';
+            $zone_id = (isset($address_values['zone_id'])) ? zen_db_prepare_input($address_values['zone_id']) : 0;
 
             $country_has_zones = $this->countryHasZones((int)$country);
             if ($country_has_zones) {
