@@ -7,8 +7,8 @@ if (!defined('IS_ADMIN_FLAG')) {
     die('Illegal Access');
 }
 
-define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha3');
-define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-25');
+define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha4');
+define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-29');
 
 if (isset($_SESSION['admin_id'])) {
     $version_release_date = CHECKOUT_ONE_CURRENT_VERSION . ' (' . CHECKOUT_ONE_CURRENT_UPDATE_DATE . ')';
@@ -100,12 +100,43 @@ if (isset($_SESSION['admin_id'])) {
         );
     }
     
+    // -----
+    // v2.0.0:
+    //
+    // - Various guest-checkout options.
+    // - Update debug-related sort-orders to "make room" for the guest-checkout options.
+    // - Add 'is_guest_order' field to the orders table in the database.
+    //
     if (version_compare(CHECKOUT_ONE_MODULE_VERSION, '2.0.0', '<')) {
         $db->Execute(
             "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
                 ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
                 VALUES 
                 ( 'Enable Guest Checkout?', 'CHECKOUT_ONE_ENABLE_GUEST', 'false', 'Do you want to enable <em>Guest Checkout</em> for your store?<br /><br />Default: <b>false</b>', $cgi, now(), 30, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Pages Allowed Post-Checkout', 'CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED', '', 'Identify (using a comma-separated list, intervening blanks are OK) the pages that are <em>allowed</em> once a guest has completed their checkout.  When the guest navigates from the <code>checkout_success</code> page to any page <em><b>not in this list</b></em>, their guest-customer session is reset.<br /><br />For example, if your store provides a pop-up print invoice, you would include the name of that page in this list.<br />', $cgi, now(), 50, NULL, NULL)"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Disallowed Pages', 'CHECKOUT_ONE_GUEST_PAGES_DISALLOWED', 'account, account_edit, account_history, account_history_info, account_newsletters, account_notifications, account_password, address_book, address_book_process, create_account_success, gv_redeem, gv_send, password_forgotten, product_reviews_write, unsubscribe', 'Identify (using a comma-separated list, intervening blanks are OK) the pages that are <em>disallowed</em> during guest-checkout.<br /><br />These pages <em>normally</em> require a logged-in customer prior to display, e.g. <code>account</code>.  <b>Do not</b> include the <code>login</code>, <code>create_account</code> or <code>logoff</code> pages in this list!<br />', $cgi, now(), 100, NULL, NULL)"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Disallowed <em>Credit Class</em> Order-Totals', 'CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST', 'ot_gv', 'Identify (using a comma-separated list, intervening blanks are OK) any <em>credit-class</em> order-totals that are <em>disallowed</em> during guest-checkout.<br /><br />These order-totals <em>normally</em> require a customer-account for their processing, e.g. <code>ot_gv</code>.<br />', $cgi, now(), 105, NULL, NULL)"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Disallowed Payment Methods', 'CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST', 'moneyorder, cod', 'Identify (using a comma-separated list, intervening blanks are OK) any payment methods that are <em>disallowed</em> during guest-checkout.<br /><br />These payment methods <em>normally</em> have no validation of purchase &mdash; e.g. <code>moneyorder</code> and <code>cod</code> &mdash; and can, if left enabled, result in unwanted <em>spam purchases</em>.<br />', $cgi, now(), 110, NULL, NULL)"
         );
         $db->Execute(
             "UPDATE " . TABLE_CONFIGURATION . "
@@ -115,6 +146,19 @@ if (isset($_SESSION['admin_id'])) {
               LIMIT 1"
         );
 
+        $db->Execute(
+            "UPDATE " . TABLE_CONFIGURATION . "
+                SET sort_order = 1000
+              WHERE configuration_key = 'CHECKOUT_ONE_DEBUG'
+              LIMIT 1"
+        );
+        $db->Execute(
+            "UPDATE " . TABLE_CONFIGURATION . "
+                SET sort_order = 1001
+              WHERE configuration_key = 'CHECKOUT_ONE_DEBUG_EXTRA'
+              LIMIT 1"
+        );
+        
         if (!$sniffer->field_exists(TABLE_ORDERS, 'is_guest_order')) {
             $db->Execute("ALTER TABLE " . TABLE_ORDERS . " ADD COLUMN is_guest_order tinyint(1) NOT NULL default 0");
         }
@@ -129,7 +173,15 @@ if (isset($_SESSION['admin_id'])) {
     // Register the plugin's configuration page for display on the menus.
     //
     if (!zen_page_key_exists('configOnePageCheckout')) {
-        $next_sort = $db->Execute('SELECT MAX(sort_order) as max_sort FROM ' . TABLE_ADMIN_PAGES . " WHERE menu_key='configuration'", false, false, 0, true);
+        $next_sort = $db->Execute(
+            "SELECT MAX(sort_order) AS max_sort 
+               FROM " . TABLE_ADMIN_PAGES . " 
+              WHERE menu_key='configuration'", 
+              false, 
+              false, 
+              0, 
+              true
+        );
         zen_register_admin_page('configOnePageCheckout', 'BOX_TOOLS_CHECKOUT_ONE', 'FILENAME_CONFIGURATION', "gID=$cgi", 'configuration', 'Y', $next_sort->fields['max_sort'] + 1);
     }
         

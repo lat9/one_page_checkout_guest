@@ -4,7 +4,7 @@
 // Copyright (C) 2013-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 if (!defined('IS_ADMIN_FLAG')) {
-  die('Illegal Access');
+    die('Illegal Access');
 }
 
 // -----
@@ -12,18 +12,6 @@ if (!defined('IS_ADMIN_FLAG')) {
 //
 if (!defined('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION')) {
     define('CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION', 'true');
-}
-if (!defined('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED')) {
-    define('CHECKOUT_ONE_GUEST_PAGES_DISALLOWED', 'account, account_edit, account_history, account_history_info, account_newsletters, account_notifications, account_password, address_book, address_book_process, create_account_success, gv_redeem, gv_send, password_forgotten, product_reviews_write, unsubscribe');
-}
-if (!defined('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED')) {
-    define('CHECKOUT_ONE_GUEST_POST_CHECKOUT_PAGES_ALLOWED', '');
-}
-if (!defined('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST')) {
-    define('CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST', '');
-}
-if (!defined('CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST')) {
-    define('CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST', 'moneyorder, cod');
 }
 
 class checkout_one_observer extends base 
