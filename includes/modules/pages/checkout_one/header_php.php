@@ -278,7 +278,9 @@ if (isset($_SESSION['cot_gv'])) {
     $_POST['cot_gv'] = $_SESSION['cot_gv'];
 }
 
-require DIR_WS_CLASSES . 'order_total.php';
+if (!class_exists('order_total')) {
+    require DIR_WS_CLASSES . 'order_total.php';
+}
 $order_total_modules = new order_total;
 $order_total_modules->collect_posts();
 $order_total_modules->pre_confirmation_check();

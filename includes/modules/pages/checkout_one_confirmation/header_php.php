@@ -1,7 +1,7 @@
 <?php
 // -----
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
-// Copyright (C) 2013-2017, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2013-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 
 // This should be first line of the script:
@@ -188,7 +188,9 @@ if ($order->content_type != 'virtual') {
 }
 $checkout_one->debug_message('Shipping setup, preparing to call order-totals.' . var_export($shipping_modules, true) . var_export($quote, true) . ((isset($_SESSION['shipping'])) ? var_export($_SESSION['shipping'], true) : 'Shipping not set'));
 
-require DIR_WS_CLASSES . 'order_total.php';
+if (!class_exists('order_total')) {
+    require DIR_WS_CLASSES . 'order_total.php';
+}
 $order_total_modules = new order_total;
 $order_total_modules->collect_posts();
 $order_total_modules->pre_confirmation_check();
