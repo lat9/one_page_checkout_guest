@@ -281,14 +281,14 @@ class OnePageCheckout extends base
     /* -----
     ** This function, called by tpl_modules_opc_credit_selections.php, returns a boolean
     ** indication as to whether (true) or not (false) the specified order-total is
-    ** "authorized" for use during guest-checkout.
+    ** "authorized" for use.  If guest-checkout is active, some order-total modules might
+    ** require disablement.
     **
-    ** Most of these values are controlled via configuration setting, with the addition
-    ** of the Gift-Voucher processing, which is **always** disabled.
+    ** Those values are controlled via Configuration->One-Page Checkout Settings.
     */
     public function enableCreditSelection($ot_name)
     {
-        return !($ot_name == 'ot_gv' || in_array($ot_name, explode(',', str_replace(' ', '', CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST))));
+        return !($this->isGuestCheckout() && in_array($ot_name, explode(',', str_replace(' ', '', CHECKOUT_ONE_ORDER_TOTALS_DISALLOWED_FOR_GUEST))));
     }
     
     /* -----
