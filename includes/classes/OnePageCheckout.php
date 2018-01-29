@@ -102,7 +102,7 @@ class OnePageCheckout extends base
     }
 
     // -----
-    // This internal function initializes the class variables associated with guest-checkout.
+    // This internal function initializes the class variables associated with guest-checkout and account-registration.
     //
     protected function initializeGuestCheckout()
     {
@@ -111,6 +111,7 @@ class OnePageCheckout extends base
         $this->guestCustomerId = (defined('CHECKOUT_ONE_GUEST_CUSTOMER_ID')) ? (int)CHECKOUT_ONE_GUEST_CUSTOMER_ID : 0;
         $this->tempBilltoAddressBookId = (defined('CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID : 0;
         $this->tempSendtoAddressBookId = (defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID : 0;
+        $this->registeredAccounts = (CHECKOUT_ONE_ENABLE_REGISTERED_ACCOUNTS === 'true');
         
         // -----
         // The 'stringIgnoreNull' type of database "bind" type was introduced in ZC1.5.5b; if the store
@@ -123,6 +124,14 @@ class OnePageCheckout extends base
             $this->dbStringType = 'string';
             $this->debugMessage("Using 'string' database types instead of 'stringIgnoreNull' for Zen Cart $zc_version.");
         }
+    }
+    
+    /* -----
+    ** This function returns the current value to be used when setting string-type values into the database.
+    */
+    public function getDbStringType()
+    {
+        return $this->dbStringType;
     }
 
     /* -----
