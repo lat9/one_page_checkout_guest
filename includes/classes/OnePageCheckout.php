@@ -91,6 +91,39 @@ class OnePageCheckout extends base
     }
     
     /* -----
+    ** This function returns a boolean indication as to whether (true) or not (false) the 
+    ** currently-logged-in customer has registered (i.e. no primary address yet provided) or
+    ** created a fully-fledged account.
+    */
+    public function customerAccountNeedsPrimaryAddress()
+    {
+        $account_needs_primary_address = true;
+        $addresses_query = 
+            "SELECT address_book_id, entry_firstname as firstname, entry_lastname as lastname,
+                    entry_company as company, entry_street_address as street_address,
+                    entry_suburb as suburb, entry_city as city, entry_postcode as postcode,
+                    entry_state as state, entry_zone_id as zone_id, entry_country_id as country_id
+               FROM " . TABLE_ADDRESS_BOOK . "
+              WHERE customers_id = :customersID
+                AND address_book_id = :addressBookID
+              LIMIT 1";
+
+        $addresses_query = $GLOBALS['db']->bindVars($addresses_query, ':customersID', $_SESSION['customer_id'], 'integer');
+        $addresses_query = $GLOBALS['db']->bindVars($addresses_query, ':addressBookID', $_SESSION['customer_default_address_id'], 'integer');
+        $default_address = $GLOBALS['db']->Execute($addresses_query);
+        
+        if (!$default_address->EOF) {
+            if (strlen($default_address->fields['street_address']) >= (int)ENTRY_STREET_ADDRESS_MIN_LENGTH ||
+                strlen($default_address->fields['city']) >= (int)ENTRY_CITY_MIN_LENGTH ||
+                strlen($default_address->fields['postcode']) >= (int)ENTRY_POSTCODE_MIN_LENGTH) {
+                $account_needs_primary_address = false;
+            }
+        }
+        
+        return $account_needs_primary_address;
+    }
+    
+    /* -----
     ** This function returns a boolean indication as to whether (true) or not (false) OPC's
     ** "temporary addresses" (used for guest-checkout and registered-accounts) is currently
     ** enabled.
