@@ -92,6 +92,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
     <li>Responsive image-map handling courtesy of <a href="https://github.com/davidjbradshaw/image-map-resizer" target="_blank">https://github.com/davidjbradshaw/image-map-resizer</a>.</li>
     <li>Browser detection class courtesy of <a href="https://github.com/cbschuld/Browser.php" target="_blank">https://github.com/cbschuld/Browser.php</a>.</li>
     <li>Simple CSS overlay courtesy of <a href="https://github.com/KorenLeslieCohen/simple-css-overlay" target="_blank">https://github.com/KorenLeslieCohen/simple-css-overlay</a>.</li>
+    <li>Guest checkout, especially the <code class="no-pad">orders_status</code> page's processing, based on the <a href="https://www.zen-cart.com/showthread.php?196995-COWOA-%28for-ZC-v1-5-x%29">COWOA</a> (by @DivaVocals, @countrycharm and others) and <a href="https://www.zen-cart.com/downloads.php?do=file&id=2131">COWAA</a> (by @davewest).</li>
   </ol>
   <hr />
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread">https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread</a></p>
@@ -434,7 +435,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/templates/YOUR_TEMPLATE</li>
                 </ol></li>
                 <li>Rename the YOUR_ADMIN folder to match your store's admin-folder name.</li>
-                <li>Merge the <span class="corefile">core-file</span> and <span class="template">template-override</span> modifications required by this plugin with your store's existing copy of the file, using the plugin's version of the file if not currently present in your store's file-system.</li>
+                <li>Merge the <span class="corefile">core-file</span> and <span class="template">template-override</span> modifications required by this plugin with your store's existing copy of each file, using the plugin's version of the file if not currently present in your store's file-system.</li>
                 <li><em><b>If your store is running a Zen Cart version less than 1.5.5b, there are a couple of <span class="corefile">core-files</span> that need to be at the ZC1.5.5b version for <em>OPC</em> to operate properly:</b></em>&nbsp;&nbsp;<span class="smaller">(If your store is running a Zen Cart version of 1.5.5c or later, continue the installation/upgrade with step <b>E</b>.)</span><ol>
                   <li>For Zen Cart 1.5.4, copy the files from the <em>OPC</em> plugin's /zc154 directory:<ol>
                     <li><span class="corefile">/ajax.php</span> <span class="smaller">(Added in v1.3.0)</span></li>
@@ -453,6 +454,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                     <li><span class="corefile">/includes/classes/message_stack.php</span></li>
                     <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span></li>
                     <li><span class="corefile">/includes/modules/pages/login/header_php.php</span></li>
+                    <li><span class="corefile">/YOUR_ADMIN/orders.php</span></li>
                 </ol></li>
                 <li>Sign into your Zen Cart's admin panel.</li>
                 <li>Copy the plugin's files (with the folders renamed as identified in steps <b>A</b> and <b>B</b>) to your store's folder structure:<ol>
@@ -539,6 +541,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span></li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span></li>
                   <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
+                  <li>/YOUR_ADMIN/includes/classes/observers/CheckoutOneAdminObserver.php</li>
                   <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
                   <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/checkout_one_name.php</li>
                 </ol></li>
@@ -672,7 +675,9 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/templates/YOUR_TEMPLATE/css/login.css <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span> <span class="smaller">(Added in v1.0.3, the ZC1.5.5a version of the file, with modifications to produce valid HTML)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span> <span class="smaller">(Added in v1.0.3)</span></li>
+                <li><span class="corefile">/YOUR_ADMIN/orders.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
+                <li>/YOUR_ADMIN/includes/classes/observers/CheckoutOneAdminObserver.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
                 <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/checkout_one_name.php</li>
                 <li><span class="corefile removed">/pre_zc155a/ajax.php</span> <span class="smaller">(Removed in v1.0.2)</span></li>
@@ -756,7 +761,10 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_success.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/create_account.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/login.css</span> <span class="smaller">(Added)</span></li>
+                        <li><span class="corefile">/YOUR_ADMIN/orders.php</span> <span class="smaller">(Added)</span></li>
+                        <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
+                        <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/checkout_one_name.php</li>
                     </ol></li>
                 </ul>
                 <li>v1.5.0, 2018-01-10:<ul>
