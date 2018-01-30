@@ -13,7 +13,7 @@ require_once (DIR_WS_CLASSES . 'http_client.php');
 // -----
 // Use "normal" checkout if not enabled.
 //
-if (!(defined('CHECKOUT_ONE_ENABLED') && is_object($checkout_one) && $checkout_one->enabled)) {
+if (!(defined('CHECKOUT_ONE_ENABLED') && isset($checkout_one) && $checkout_one->isEnabled())) {
     $zco_notifier->notify('NOTIFY_CHECKOUT_ONE_NOT_ENABLED');
     zen_redirect(zen_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'));
 }

@@ -726,7 +726,7 @@ class OnePageCheckout extends base
     public function formatAddressBookDropdown()
     {
         $select_array = array();
-        if (isset($_SESSION['customer_id']) && !$this->isGuestCheckout()) {
+        if (isset($_SESSION['customer_id']) && !$this->isGuestCheckout() && !$this->customerAccountNeedsPrimaryAddress()) {
             // -----
             // Build up address list input to create a customer-specific selection list of 
             // pre-existing addresses from which to choose.

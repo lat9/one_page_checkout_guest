@@ -7,7 +7,15 @@ if (!defined('IS_ADMIN_FLAG')) {
     die('Illegal Access');
 }
 
-define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha4');
+// -----
+// Note: The Configuration->One-Page Checkout Settings sort-orders are grouped as follows, enabling the settings to be "grouped":
+//
+// 1-29 ...... Basic settings
+// 30-499 .... Guest-checkout settings
+// 500-599 ... Registered-account settings
+// 1000+ ..... Debug settings
+//
+define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha5');
 define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-29');
 
 if (isset($_SESSION['admin_id'])) {
@@ -139,11 +147,10 @@ if (isset($_SESSION['admin_id'])) {
                 ( 'Guest Checkout: Disallowed Payment Methods', 'CHECKOUT_ONE_PAYMENTS_DISALLOWED_FOR_GUEST', 'moneyorder, cod', 'Identify (using a comma-separated list, intervening blanks are OK) any payment methods that are <em>disallowed</em> during guest-checkout.<br /><br />These payment methods <em>normally</em> have no validation of purchase &mdash; e.g. <code>moneyorder</code> and <code>cod</code> &mdash; and can, if left enabled, result in unwanted <em>spam purchases</em>.<br />', $cgi, now(), 110, NULL, NULL)"
         );
         $db->Execute(
-            "UPDATE " . TABLE_CONFIGURATION . "
-                SET configuration_description = 'Do you want to enable the <em>Shipping Address, same as Billing</em> for your store?<br /><br />You can always enable the feature (<em>true</em>), never enable the feature (<em>false</em>), enable only for account-based checkout (<em>Accounts only</em>) or enable only for guest-checkout (<em>Guest only</em>).<br /><br />Default: <b>true</b>',
-                    set_function = 'zen_cfg_select_option(array(\'true\', \'Accounts only\', \'Guest only\', \'false\'),'
-              WHERE configuration_key = 'CHECKOUT_ONE_ENABLE_SHIPPING_BILLING'
-              LIMIT 1"
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Enable Account Registration?', 'CHECKOUT_ONE_ENABLE_REGISTERED_ACCOUNTS', 'false', 'Do you want your store\\'s <code>create_account</code> processing to create a <em>registered</em> rather than a <em>full</em> account?<br /><br />Default: <b>false</b>', $cgi, now(), 500, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
         );
 
         $db->Execute(
