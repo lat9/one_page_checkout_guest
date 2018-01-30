@@ -33,6 +33,7 @@ textarea { width: 100%; }
 .corefile { color: red; }
 .template { color: green; }
 .forward { float: right; }
+.added { color: blue; }
 .removed { text-decoration: line-through; }
 .back { float: back; }
 .clearBoth { clear: both; }
@@ -434,7 +435,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 </ol></li>
                 <li>Rename the YOUR_ADMIN folder to match your store's admin-folder name.</li>
                 <li>Merge the <span class="corefile">core-file</span> and <span class="template">template-override</span> modifications required by this plugin with your store's existing copy of the file, using the plugin's version of the file if not currently present in your store's file-system.</li>
-                <li><em><b>If your store is running a Zen Cart version less than 1.5.5b, there are a couple of <span class="corefile">core-files</span> that need to be at the ZC1.5.5b version for <em>OPC</em> to operate properly:</b></em> <span class="smaller">(If your store is running a Zen Cart version of 1.5.5c or later, continue the installation/upgrade with step <b>E</b>.)</span><ol>
+                <li><em><b>If your store is running a Zen Cart version less than 1.5.5b, there are a couple of <span class="corefile">core-files</span> that need to be at the ZC1.5.5b version for <em>OPC</em> to operate properly:</b></em>&nbsp;&nbsp;<span class="smaller">(If your store is running a Zen Cart version of 1.5.5c or later, continue the installation/upgrade with step <b>E</b>.)</span><ol>
                   <li>For Zen Cart 1.5.4, copy the files from the <em>OPC</em> plugin's /zc154 directory:<ol>
                     <li><span class="corefile">/ajax.php</span> <span class="smaller">(Added in v1.3.0)</span></li>
                   </ol></li>
@@ -464,11 +465,13 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                   <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                   <li>/includes/functions/extra_functions/one_page_checkout_functions.php</li>
-                  <li>/includes/langauges/english/address_book_opc.php</li>
+                  <li>/includes/langauges/english/address_book_register.php</li>
                   <li>/includes/languages/english/checkout_one.php</li>
                   <li>/includes/languages/english/checkout_one_confirmation.php</li>
                   <li>/includes/languages/english/checkout_process_guest.php</li>
                   <li>/includes/languages/english/checkout_success_guest.php</li>
+                  <li>/includes/languages/english/create_account_register.php</li>
+                  <li>/includes/langauges/english/create_account_success_register.php</li>
                   <li>/includes/languages/english/login_guest.php</li>
                   <li>/includes/languages/english/order_status.php</li>
                   <li>/includes/languages/english/extra_definitions/checkout_one_extra_definitions.php</li>
@@ -478,6 +481,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_gv.php</span></li>
                   <li><span class="template">/includes/languages/english/YOUR_TEMPLATE/checkout_confirmation.php</span></li>
                   <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span></li>
+                  <li>/includes/modules/pages/address_book/header_php_address_book_register.php</li>
                   <li>/includes/modules/pages/address_book/main_template_vars.php</li>
                   <li>/includes/modules/pages/checkout_one/header_php.php</li>
                   <li>/includes/modules/pages/checkout_one/jquery.checkout_one.js</li>
@@ -490,18 +494,27 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/modules/pages/checkout_one_confirmation/jscript_main.php</li>
                   <li>/includes/modules/pages/checkout_success/header_php_guest.php</li>
                   <li>/includes/modules/pages/checkout_success/main_template_vars.php</li>
+                  <li>/includes/modules/pages/create_account/header_php_create_account_register.php</li>
+                  <li>/includes/modules/pages/create_account/jscript_form_check_register.php</li>
+                  <li>/includes/modules/pages/create_account/main_template_vars.php</li>
+                  <li>/includes/modules/pages/create_account_success/header_php_create_account_success_register.php</li>
+                  <li>/includes/modules/pages/create_account_success/main_template_vars.php</li>
                   <li><span class="corefile">/includes/modules/pages/login/header_php.php</span></li>
-                  <li>/includes/modules/pages/login/header_php_guest.php</li>
+                  <li>/includes/modules/pages/login/header_php_login_guest.php</li>
                   <li>/includes/modules/pages/login/main_template_vars.php</li>
                   <li>/includes/modules/pages/order_status/header_php.php</li>
                   <li>/includes/templates/template_default/css/checkout_one.css</li>
                   <li>/includes/templates/template_default/css/checkout_one_confirmation.css</li>
+                  <li>/includes/templates/template_default/css/checkout_success.css</li>
+                  <li>/includes/templates/template_default/css/create_account.css</li>
                   <li>/includes/templates/template_default/css/login.css</li>
                   <li>/includes/templates/template_default/images/confirmation_one_loading.gif</li>
                   <li>/includes/templates/template_default/templates/tpl_address_book_register.php</li>
                   <li>/includes/templates/template_default/templates/tpl_checkout_one_confirmation_default.php</li>
                   <li>/includes/templates/template_default/templates/tpl_checkout_one_default.php</li>
                   <li>/includes/templates/template_default/templates/tpl_checkout_success_guest.php</li>
+                  <li>/includes/templates/template_default/templates/tpl_create_account_register.php</li>
+                  <li>/includes/templates/template_default/templates/tpl_create_account_success_register.php</li>
                   <li>/includes/templates/template_default/templates/tpl_login_guest.php</li>
                   <li>/includes/templates/template_default/templates/tpl_modules_checkout_one_shipping.php</li>
                   <li>/includes/templates/template_default/templates/tpl_modules_opc_address_block.php</li>
@@ -521,6 +534,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</li>
                   <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one_confirmation.css</li>
                   <li>/includes/templates/YOUR_TEMPLATE/css/checkout_success.css</li>
+                  <li>/includes/templates/YOUR_TEMPLATE/css/create_account.css</li>
                   <li>/includes/templates/YOUR_TEMPLATE/css/login.css</li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span></li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span></li>
@@ -584,11 +598,13 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                 <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                 <li>/includes/functions/extra_functions/one_page_checkout_functions.php <span class="smaller">(Added in v2.0.0)</span></li>
-                <li>/includes/languages/english/address_book_opc.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/languages/english/address_book_register.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/languages/english/checkout_one.php</li>
                 <li>/includes/languages/english/checkout_one_confirmation.php</li>
                 <li>/includes/languages/english/checkout_process_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/languages/english/checkout_success_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/languages/english/create_account_register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/languages/english/create_account_success_register.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/languages/english/login_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/languages/english/order_status.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/languages/english/extra_definitions/checkout_one_extra_definitions.php <span class="smaller">(Added in v1.0.8)</span></li>
@@ -598,6 +614,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_gv.php</span></li>
                 <li><span class="template">/includes/languages/english/YOUR_TEMPLATE/checkout_confirmation.php</span></li>
                 <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span> <span class="smaller">(Added in v2.0.0, one marked change section)</span></li>
+                <li>/includes/modules/pages/address_book/header_php_address_book_register.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/address_book/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/checkout_one/header_php.php</li>
                 <li>/includes/modules/pages/checkout_one/jquery.checkout_one.js <span class="smaller">(Added in v1.5.0)</span></li>
@@ -610,12 +627,19 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/modules/pages/checkout_one_confirmation/jscript_main.php</li>
                 <li>/includes/modules/pages/checkout_success/header_php_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/checkout_success/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/modules/pages/create_account/header_php_create_account_register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/modules/pages/create_account/jscript_form_check_register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/modules/pages/create_account/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/modules/pages/create_account_success/header_php_create_account_success_register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/modules/pages/create_account_success/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="corefile">/includes/modules/pages/login/header_php.php</span> <span class="smaller">(Added in v2.0.0, one marked change section)</span></li>
                 <li>/includes/modules/pages/login/header_php_login_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/login/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/order_status/header_php.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/template_default/css/checkout_one.css</li>
                 <li>/includes/templates/template_default/css/checkout_one_confirmation.css</li>
+                <li>/includes/templates/template_default/css/checkout_success.css <span class="smaller">(Added in v2.0.0)<span></li>
+                <li>/includes/templates/template_default/css/create_account.css <span class="smaller">(Added in v2.0.0)<span></li>
                 <li>/includes/templates/template_default/css/login.css <span class="smaller">(Added in v2.0.0)<span></li>
                 <li>/includes/templates/template_default/images/confirmation_one_loading.gif</li>
                 <li><span class="corefile removed">/includes/templates/template_default/jscript/jscript_framework.php</span> <span class="smaller">(Removed from this distribution in v1.4.1)</span></li>
@@ -623,6 +647,8 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/templates/template_default/templates/tpl_checkout_one_confirmation_default.php</li>
                 <li>/includes/templates/template_default/templates/tpl_checkout_one_default.php</li>
                 <li>/includes/templates/template_default/templates/tpl_checkout_success_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_create_account_register.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li>/includes/templates/template_default/templates/tpl_create_account_success_register.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_login_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_checkout_one_shipping.php <span class="smaller">(Added in v1.0.2)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_address_block.php <span class="smaller">(Added in v2.0.0)</span></li>
@@ -641,8 +667,9 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one_confirmation.css</li>
+                <li>/includes/templates/YOUR_TEMPLATE/css/checkout_success.css <span class="smaller">(Added in v2.0.0)<span></li>
+                <li>/includes/templates/YOUR_TEMPLATE/css/create_account.css <span class="smaller">(Added in v2.0.0)<span></li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/login.css <span class="smaller">(Added in v2.0.0)</span></li>
-                <li>/includes/templates/YOUR_TEMPLATE/css/checkout_success.css <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span> <span class="smaller">(Added in v1.0.3, the ZC1.5.5a version of the file, with modifications to produce valid HTML)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span> <span class="smaller">(Added in v1.0.3)</span></li>
                 <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
@@ -660,7 +687,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
             </div>
             
             <div id="changes">
-              <p>You can view the details of these changes on the plugin's <a href="https://github.com/lat9/one_page_checkout/issues" target="_blank">GitHub repository.</a> <span class="template-changed">Changes to the plugin's default templates are identified in this color</span>; remember to merge those changes with any template-override version you might have created!</p>
+              <p>You can view the details of these changes on the plugin's <a href="https://github.com/lat9/one_page_checkout/issues" target="_blank">GitHub repository.</a> <span class="template-changed">Changes to the plugin's default templates are identified in this color</span>; remember to merge those changes with any template-override version you might have created!  Additions are identified by <span class="added">this</span> color.</p>
               <ul>
                 <li>v2.0.0, 2018-01-xx:<ul>
                     <li>CHANGE: Add processing to enable <em>guest-checkout</em>.</li>
@@ -672,16 +699,19 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li>/includes/classes/observers/class.checkout_one_observer.php</li>
                         <li>/includes/extra_datafiles/checkout_one_filenames.php</li>
                         <li><span class="added">/includes/functions/extra_functions/one_page_checkout_functions.php</span></li>
-                        <li>/includes/languages/english/checkout_one.php</li>
                         <li><span class="added">/includes/languages/english/address_book_register.php</span></li>
+                        <li>/includes/languages/english/checkout_one.php</li>
                         <li><span class="added">/includes/languages/english/checkout_process_guest.php</span></li>
                         <li><span class="added">/includes/languages/english/checkout_success_guest.php</span></li>
+                        <li><span class="added">/includes/languages/english/create_account_register.php</span></li>
+                        <li><span class="added">/includes/languages/english/create_account_success_register.php</span></li>
                         <li><span class="added">/includes/languages/english/login_guest.php</span></li>
                         <li><span class="added">/includes/languages/english/order_status.php</span></li>
                         <li>/includes/languages/english/extra_definitions/checkout_one_extra_definitions.php</li>
                         <li><span class="added">/includes/languages/english/html_includes/define_checkout_success_guest.php</span></li>
                         <li><span class="added">/includes/languages/english/html_includes/YOUR_TEMPLATE/define_checkout_success_guest.php</span></li>
                         <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span> <span class="smaller">(Added, one notifier)</span></li>
+                        <li><span class="added">/includes/modules/pages/address_book/header_php_address_book_register.php</span></li>
                         <li><span class="added">/includes/modules/pages/address_book/main_template_vars.php</span></li>
                         <li>/includes/modules/pages/checkout_one/header_php.php</li>
                         <li>/includes/modules/pages/checkout_one/jquery.checkout_one.js</li>
@@ -690,17 +720,27 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="added">/includes/modules/pages/checkout_one/jquery.checkout_one_addr.min.js</span></li>
                         <li>/includes/modules/pages/checkout_one/jscript_main.php</li>
                         <li>/includes/modules/pages/checkout_one_confirmation/header_php.php</li>
+                        <li><span class="added">/includes/modules/pages/address_book/main_template_vars.php</span></li>
                         <li><span class="added">/includes/modules/pages/checkout_success/header_php_guest.php</span></li>
                         <li><span class="added">/includes/modules/pages/checkout_success/main_template_vars.php</span></li>
+                        <li><span class="added">/includes/modules/pages/create_account/header_php_create_account_register.php</span></li>
+                        <li><span class="added">/includes/modules/pages/create_account/jscript_form_check_register.php</span></li>
+                        <li><span class="added">/includes/modules/pages/create_account/main_template_vars.php</span></li>
+                        <li><span class="added">/includes/modules/pages/create_account_success/header_php_create_account_success_register.php</span></li>
+                        <li><span class="added">/includes/modules/pages/create_account_success/main_template_vars.php</span></li>
                         <li><span class="corefile">/includes/modules/pages/login/header_php.php</span> <span class="smaller">(Added, one notifier)</span></li>
                         <li><span class="added">/includes/modules/pages/login/header_php_guest.php</li>
                         <li><span class="added">/includes/modules/pages/login/main_template_vars.php</span></li>
                         <li><span class="added">/includes/modules/pages/order_status/header_php.php</span></li>
                         <li>/includes/templates/template_default/css/checkout_one.css</li>
+                        <li><span class="added">/includes/templates/template_default/css/checkout_success.css</span></li>
+                        <li><span class="added">/includes/templates/template_default/css/create_account.css</span></li>
                         <li><span class="added">/includes/templates/template_default/css/login.css</span></li>
                         <li><span class="added">/includes/templates/template_default/tpl_address_book_register.php</span></li>
                         <li><span class="template-changed">/includes/templates/template_default/templates/tpl_checkout_one_default.php</span></li>
                         <li><span class="added">/includes/templates/template_default/tpl_checkout_success_guest.php</span></li>
+                        <li><span class="added">/includes/templates/template_default/tpl_create_account_register.php</span></li>
+                        <li><span class="added">/includes/templates/template_default/tpl_create_account_success_register.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_login_guest.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_modules_opc_address_block.php</span></li>
                         <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_billing_address.php</span></li>
@@ -714,6 +754,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_success.css</span> <span class="smaller">(Added)</span></li>
+                        <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/create_account.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/login.css</span> <span class="smaller">(Added)</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
                     </ol></li>
