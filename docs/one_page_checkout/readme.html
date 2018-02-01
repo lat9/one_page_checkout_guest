@@ -92,7 +92,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
     <li>Responsive image-map handling courtesy of <a href="https://github.com/davidjbradshaw/image-map-resizer" target="_blank">https://github.com/davidjbradshaw/image-map-resizer</a>.</li>
     <li>Browser detection class courtesy of <a href="https://github.com/cbschuld/Browser.php" target="_blank">https://github.com/cbschuld/Browser.php</a>.</li>
     <li>Simple CSS overlay courtesy of <a href="https://github.com/KorenLeslieCohen/simple-css-overlay" target="_blank">https://github.com/KorenLeslieCohen/simple-css-overlay</a>.</li>
-    <li>Guest checkout, especially the <code class="no-pad">orders_status</code> page's processing, based on the <a href="https://www.zen-cart.com/showthread.php?196995-COWOA-%28for-ZC-v1-5-x%29">COWOA</a> (by @DivaVocals, @countrycharm and others) and <a href="https://www.zen-cart.com/downloads.php?do=file&id=2131">COWAA</a> (by @davewest).</li>
+    <li>Guest checkout, especially the <code class="no-pad">orders_status</code> page's processing, based on the <a href="https://www.zen-cart.com/showthread.php?196995-COWOA-%28for-ZC-v1-5-x%29">COWOA</a> (by @DivaVocals, @countrycharm and others) and <a href="https://www.zen-cart.com/downloads.php?do=file&id=2131">COWAA</a> (by @davewest) plugins.</li>
   </ol>
   <hr />
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread">https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread</a></p>
@@ -422,21 +422,43 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
               <hr />
               <p><b>Notes:</b></p>
               <ol>
-                <li>These instructions have changed <b>significantly</b> for v1.0.3 of the <em>One-Page Checkout</em> plugin!  Please make sure that you've read the full instructions before beginning your installation or upgrade.</li>
+                <li>These instructions have changed <b>significantly</b> for v1.0.3 and v2.0.0 of the <em>One-Page Checkout</em> plugin!  Please make sure that you've read the full instructions before beginning your installation or upgrade.</li>
                 <li>When you're upgrading the plugin, make sure to merge any of the plugin's base template and language files with any template-override versions that you might have created!</li>
               </ol>
               <hr />
               <p>There are <span class="corefile">core-file</span> and <span class="template">template-override</span> changes required by this plugin; you should <strong>always</strong> backup your cart's database and files prior to making any changes.  Unzip the plugin's package file and then:</p>
               <ol type="A">
-                <li>Rename the YOUR_TEMPLATE folders (4 of them) to match your store's template name:<ol type="a">
+                <li>Rename the YOUR_TEMPLATE folders <b>(5 of them)</b> to match your store's template name:<ol type="a">
                   <li>/includes/languages/english/YOUR_TEMPLATE</li>
                   <li>/includes/languages/english/html_includes/YOUR_TEMPLATE</li>
                   <li>/includes/languages/english/modules/order_total/YOUR_TEMPLATE</li>
+                  <li>/includes/modules/YOUR_TEMPLATE</li>
                   <li>/includes/templates/YOUR_TEMPLATE</li>
                 </ol></li>
                 <li>Rename the YOUR_ADMIN folder to match your store's admin-folder name.</li>
-                <li>Merge the <span class="corefile">core-file</span> and <span class="template">template-override</span> modifications required by this plugin with your store's existing copy of each file, using the plugin's version of the file if not currently present in your store's file-system.</li>
-                <li><em><b>If your store is running a Zen Cart version less than 1.5.5b, there are a couple of <span class="corefile">core-files</span> that need to be at the ZC1.5.5b version for <em>OPC</em> to operate properly:</b></em>&nbsp;&nbsp;<span class="smaller">(If your store is running a Zen Cart version of 1.5.5c or later, continue the installation/upgrade with step <b>E</b>.)</span><ol>
+                <li>Merge the <span class="template">template-override</span> modifications required by this plugin with your store's existing copy of each file, using the plugin's version of the file if not currently present in your store's file-system.<ol>
+                  <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_coupon.php</span></li>
+                  <li><span class="template">/includes/languages/english/modules/order_total/YOUR_TEMPLATE/ot_gv.php</span></li>
+                  <li><span class="template">/includes/languages/english/YOUR_TEMPLATE/checkout_confirmation.php</span></li>
+                  <li><span class="template">/includes/modules/YOUR_TEMPLATE/downloads.php</span></li>
+                  <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span></li>
+                  <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span></li>
+                  <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_modules_downloads.php</span></li>
+                  <li>If your store plans to use the <em>guest-checkout</em> functionality of <em>OPC</em> v2.0.0 and later, you'll need to update your current template's <code class="no-pad">common/tpl_header.php</code> module to modify the display of the <code class="no-pad">account</code> and <code class="no-pad">logoff</code> page's display during a guest checkout.  <em>OPC</em> provides two versions of that modification:<ol type="a">
+                    <li>If your template is based on the Zen Cart <code class="no-pad">classic</code> template, merge your template's file with <span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span>.</li>
+                    <li>If your template is based on the Zen Cart <code class="no-pad">responsive_classic</code> template, merge your template's file with <span class="template">/includes/templates/YOUR_RC_CLONE/common/tpl_header.php</span>.</li>
+                    <li>For all other templates, determine which of the above files most closely matches your template's version of the file for the merge.</li>
+                  </ol></li>
+                </ol></li>
+                <li>Merge the <span class="corefile">core-file</span> overrides required for <em>all</em> supported Zen Cart versions with your current store files:<ol>
+                    <li><span class="corefile">/includes/classes/order.php</span></li>
+                    <li><span class="corefile">/includes/classes/message_stack.php</span></li>
+                    <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span></li>
+                    <li><span class="corefile">/includes/modules/pages/download/header_php.php</span></li>
+                    <li><span class="corefile">/includes/modules/pages/login/header_php.php</span></li>
+                    <li><span class="corefile">/YOUR_ADMIN/orders.php</span></li>
+                </ol></li>
+                <li><em><b>If your store is running a Zen Cart version less than 1.5.5b, there are a couple of additional <span class="corefile">core-files</span> that need to be at the ZC1.5.5b version for <em>OPC</em> to operate properly:</b></em>&nbsp;&nbsp;<span class="smaller">(If your store is running a Zen Cart version of 1.5.5c or later, continue the installation/upgrade with step <b>F</b>.)</span><ol>
                   <li>For Zen Cart 1.5.4, copy the files from the <em>OPC</em> plugin's /zc154 directory:<ol>
                     <li><span class="corefile">/ajax.php</span> <span class="smaller">(Added in v1.3.0)</span></li>
                   </ol></li>
@@ -449,15 +471,9 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                     <li><span class="corefile">/includes/classes/payment.php</span></li>
                   </ol></li>
                 </ol></li>
-                <li>Merge the <span class="corefile">core-file</span> overrides required for <em>all</em> supported Zen Cart versions with your current store files:<ol>
-                    <li><span class="corefile">/includes/classes/order.php</span></li>
-                    <li><span class="corefile">/includes/classes/message_stack.php</span></li>
-                    <li><span class="corefile">/includes/modules/order_total/ot_coupon.php</span></li>
-                    <li><span class="corefile">/includes/modules/pages/login/header_php.php</span></li>
-                    <li><span class="corefile">/YOUR_ADMIN/orders.php</span></li>
-                </ol></li>
+
                 <li>Sign into your Zen Cart's admin panel.</li>
-                <li>Copy the plugin's files (with the folders renamed as identified in steps <b>A</b> and <b>B</b>) to your store's folder structure:<ol>
+                <li>Copy the plugin's files &mdash; with the folders renamed as identified in steps <b>A</b> and <b>B</b> and the file-merges performed as identified in steps <b>C</b>, <b>D</b> and <b>E</b> &mdash; to your store's directory structure:<ol>
                   <li>/includes/auto_loaders/config.checkout_one.php</li>
                   <li>/includes/classes/OnePageCheckout.php</li>
                   <li><span class="corefile">/includes/classes/order.php</span></li>
@@ -505,6 +521,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/modules/pages/login/header_php_login_guest.php</li>
                   <li>/includes/modules/pages/login/main_template_vars.php</li>
                   <li>/includes/modules/pages/order_status/header_php.php</li>
+                  <li><span class="template">/includes/modules/YOUR_TEMPLATE/downloads.php</span></li>
                   <li>/includes/templates/template_default/css/checkout_one.css</li>
                   <li>/includes/templates/template_default/css/checkout_one_confirmation.css</li>
                   <li>/includes/templates/template_default/css/checkout_success.css</li>
@@ -540,6 +557,8 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li>/includes/templates/YOUR_TEMPLATE/css/login.css</li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span></li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span></li>
+                  <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_modules_downloads.php</span></li>
+                  <li><span class="corefile">/YOUR_ADMIN/orders.php</span></li>
                   <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
                   <li>/YOUR_ADMIN/includes/classes/observers/CheckoutOneAdminObserver.php</li>
                   <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
@@ -588,7 +607,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
               <p><b>Notes:</b><p>
               <ul>
                 <li>The files present in the &quot;zc155a&quot; folder are required <b>only if</b> you're installing/upgrading this plugin on either Zen Cart 1.5.5 or 1.5.5a &mdash; the required changes are present in the Zen Cart 1.5.5b (and later) core.</li>
-                <li>All changes to Zen Cart <span class="corefile">core files</span> use the version shipped in Zen Cart 1.5.5f as their change-basis.</li>
+                <li>Unless otherwise noted, all changes to Zen Cart <span class="corefile">core files</span> use the version shipped in Zen Cart 1.5.5f as their change-basis.</li>
               </ul>
               <p>The plugin provides the following files in its distribution zip-file:<p>
               <ol>
@@ -635,10 +654,12 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/modules/pages/create_account/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/create_account_success/header_php_create_account_success_register.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/create_account_success/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li><span class="corefile">/includes/modules/pages/download/header_php.php</span> <span class="smaller">(Added in v2.0.0, this is the zc156 version of the file)</span>
                 <li><span class="corefile">/includes/modules/pages/login/header_php.php</span> <span class="smaller">(Added in v2.0.0, one marked change section)</span></li>
                 <li>/includes/modules/pages/login/header_php_login_guest.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/login/main_template_vars.php <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/modules/pages/order_status/header_php.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li><span class="template">/includes/modules/YOUR_TEMPLATE/downloads.php</span> <span class="smaller">(Added in v2.0.0, this is the zc156 version of the file)</span></li>
                 <li>/includes/templates/template_default/css/checkout_one.css</li>
                 <li>/includes/templates/template_default/css/checkout_one_confirmation.css</li>
                 <li>/includes/templates/template_default/css/checkout_success.css <span class="smaller">(Added in v2.0.0)<span></li>
@@ -667,6 +688,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_shopping_cart.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_modules_opc_submit_block.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/includes/templates/template_default/templates/tpl_order_status_default.php <span class="smaller">(Added in v2.0.0)</span></li>
+                <li><span class="template">/includes/templates/YOUR_RC_CLONE/common/tpl_header.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/checkout_one_confirmation.css</li>
@@ -674,7 +696,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 <li>/includes/templates/YOUR_TEMPLATE/css/create_account.css <span class="smaller">(Added in v2.0.0)<span></li>
                 <li>/includes/templates/YOUR_TEMPLATE/css/login.css <span class="smaller">(Added in v2.0.0)</span></li>
                 <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span> <span class="smaller">(Added in v1.0.3, the ZC1.5.5a version of the file, with modifications to produce valid HTML)</span></li>
-                <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span> <span class="smaller">(Added in v1.0.3)</span></li>
+                <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span> <span class="smaller">(Added in v1.0.3)</span></li>             <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_modules_downloads.php</span> <span class="smaller">(Added in v2.0.0, this is the zc156 version of the file)</span></li>
                 <li><span class="corefile">/YOUR_ADMIN/orders.php</span> <span class="smaller">(Added in v2.0.0)</span></li>
                 <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
                 <li>/YOUR_ADMIN/includes/classes/observers/CheckoutOneAdminObserver.php <span class="smaller">(Added in v2.0.0)</span></li>
@@ -763,6 +785,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/login.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="corefile">/YOUR_ADMIN/orders.php</span> <span class="smaller">(Added)</span></li>
                         <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
+                        <li><span class="added">/YOUR_ADMIN/includes/classes/observers/OnePageCheckoutAdminObserver.php</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
                         <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/checkout_one_name.php</li>
                     </ol></li>

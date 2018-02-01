@@ -4,12 +4,12 @@
 // Copyright (C) 2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 // Adapted from the like-named page handling with the following history:
-// - Integrated COWAA v1.0
+// - Integrated COWAA v1.0 (@davewest)
 //
- //use the following difines if you want to turn off payment, products, shipping
- define('DISPLAY_PAYMENT', true);
- define('DISPLAY_SHIPPING', true);
- define('DISPLAY_PRODUCTS', true);
+//use the following defines if you want to turn off payment, products, shipping
+define('DISPLAY_PAYMENT', true);
+define('DISPLAY_SHIPPING', true);
+define('DISPLAY_PRODUCTS', true);
 ?>
 <div class="centerColumn" id="orderStatus">
     <h1 id="orderHistoryHeading"><?php echo HEADING_TITLE; ?></h1>
@@ -40,29 +40,38 @@ if (isset($order)) {
                 <th scope="col" id="myAccountTotal"><?php echo HEADING_TOTAL; ?></th>
             </tr>
 <?php
-        for ($i=0, $n=sizeof($order->products); $i<$n; $i++) {
+        $currency = $order->info['currency'];
+        $currency_value = $order->info['currency_value'];
+        foreach ($order->products as $current_product) {
 ?>
             <tr>
-                <td class="accountQuantityDisplay"><?php echo  $order->products[$i]['qty'] . QUANTITY_SUFFIX; ?></td>
-                <td class="accountProductDisplay"><?php echo  $order->products[$i]['name'];
+                <td class="accountQuantityDisplay"><?php echo $current_product['qty'] . QUANTITY_SUFFIX; ?></td>
+                <td class="accountProductDisplay"><?php echo $current_product['name'];
 
-            if ( (isset($order->products[$i]['attributes'])) && (sizeof($order->products[$i]['attributes']) > 0) ) {
-                echo '<ul id="orderAttribsList">';
-                for ($j=0, $n2=sizeof($order->products[$i]['attributes']); $j<$n2; $j++) {
-                    echo '<li>' . $order->products[$i]['attributes'][$j]['option'] . TEXT_OPTION_DIVIDER . nl2br($order->products[$i]['attributes'][$j]['value']) . '</li>';
+            if (isset($current_product['attributes']) && is_array($current_product['attributes']) && count($current_product['attributes']) > 0) {
+?>
+                    <ul id="orderAttribsList">
+<?php
+                foreach ($current_product['attributes'] as $current_attribute) {
+?>
+                        <li><?php echo $current_attribute['option'] . TEXT_OPTION_DIVIDER . nl2br($current_attribute['value']); ?></li>
+<?php
                 }
-                echo '</ul>';
+?>
+                    </ul>
+<?php
             }
 ?>
                 </td>
 <?php
+            $product_tax = $current_product['tax'];
             if (count($order->info['tax_groups']) > 1) {
 ?>
-                <td class="accountTaxDisplay"><?php echo zen_display_tax_value($order->products[$i]['tax']) . '%' ?></td>
+                <td class="accountTaxDisplay"><?php echo zen_display_tax_value($product_tax) . '%' ?></td>
 <?php
             }
 ?>
-                <td class="accountTotalDisplay"><?php echo $currencies->format(zen_add_tax($order->products[$i]['final_price'], $order->products[$i]['tax']) * $order->products[$i]['qty'], true, $order->info['currency'], $order->info['currency_value']) . ($order->products[$i]['onetime_charges'] != 0 ? '<br />' . $currencies->format(zen_add_tax($order->products[$i]['onetime_charges'], $order->products[$i]['tax']), true, $order->info['currency'], $order->info['currency_value']) : '') ?></td>
+                <td class="accountTotalDisplay"><?php echo $currencies->format(zen_add_tax($current_product['final_price'], $product_tax) * $current_product['qty'], true, $currency, $currency_value) . ($current_product['onetime_charges'] != 0 ? '<br />' . $currencies->format(zen_add_tax($current_product['onetime_charges'], $product_tax), true, $currency, $currency_value) : ''); ?></td>
             </tr>
 <?php
         }
@@ -71,10 +80,10 @@ if (isset($order)) {
         <hr />
         <div id="orderTotals">
 <?php
-        for ($i=0, $n=count($order->totals); $i<$n; $i++) {
+        foreach ($order->totals as $current_ot) {
 ?>
-            <div class="amount larger forward"><?php echo $order->totals[$i]['text'] ?></div>
-            <div class="lineTitle larger forward"><?php echo $order->totals[$i]['title'] ?></div>
+            <div class="amount larger forward"><?php echo $current_ot['text']; ?></div>
+            <div class="lineTitle larger forward"><?php echo $current_ot['title']; ?></div>
             <br class="clearBoth" />
 <?php
         }
@@ -84,14 +93,18 @@ if (isset($order)) {
     }
 
     // -----
-    // Displays any downloads associated with the order ... disabled for now.
+    // Displays any downloads associated with the order.  The base processing (from the zc156 version) will
+    // search based on an email address, if set into the session.
     //
-    if (false && DOWNLOAD_ENABLED == 'true') {
-        require $template->get_template_dir('tpl_modules_os_downloads.php',DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_os_downloads.php';
+    // We'll set the order's email address into the session for that module's processing and then remove
+    // that value, once finished.
+    //
+    if (DOWNLOAD_ENABLED == 'true') {
+        require $template->get_template_dir('tpl_modules_downloads.php', DIR_WS_TEMPLATE, $current_page_base, 'templates'). '/tpl_modules_downloads.php';
     }
     
     // -----
-    // Display the order-status information.
+    // Display the order's status information.
     //
     if (count($statusArray) > 0) {
 ?>
@@ -165,7 +178,8 @@ echo zen_draw_form('order_status', zen_href_link(FILENAME_ORDER_STATUS, 'action=
         <?php echo zen_draw_input_field('query_email_address', $query_email_address, 'size="35" id="query_email_address"', 'email'); ?> 
         <br />
         
-        <?php echo zen_draw_input_field('should_be_empty', '', ' size="40" id="CUAS" style="visibility:hidden; display:none;" autocomplete="off"'); ?>
+        <?php echo zen_draw_input_field($spam_input_name, '', ' size="40" id="CUAS" style="visibility:hidden; display:none;" autocomplete="off"'); ?>
+        <?php echo $extra_validation_html; ?>
 
         <div class="buttonRow forward"><?php echo zen_image_submit(BUTTON_IMAGE_CONTINUE, BUTTON_CONTINUE_ALT); ?></div>
 

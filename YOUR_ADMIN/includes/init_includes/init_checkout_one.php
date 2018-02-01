@@ -15,8 +15,8 @@ if (!defined('IS_ADMIN_FLAG')) {
 // 500-599 ... Registered-account settings
 // 1000+ ..... Debug settings
 //
-define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha5');
-define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-29');
+define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha7');
+define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-31');
 
 if (isset($_SESSION['admin_id'])) {
     $version_release_date = CHECKOUT_ONE_CURRENT_VERSION . ' (' . CHECKOUT_ONE_CURRENT_UPDATE_DATE . ')';
@@ -120,7 +120,19 @@ if (isset($_SESSION['admin_id'])) {
             "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
                 ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
                 VALUES 
+                ( 'Order Status: Slamming Control', 'CHECKOUT_ONE_ORDER_STATUS_SLAM_COUNT', '3', 'Identify the number of back-to-back errors that your store allows when a customer is checking their order\\'s status via the <code>order_status</code> page (default: <b>3</b>).  When the customer has reached that threshold, they will be redirected to the <code>time_out</code> page.<br /><br />', $cgi, now(), 25, NULL, NULL)"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
                 ( 'Enable Guest Checkout?', 'CHECKOUT_ONE_ENABLE_GUEST', 'false', 'Do you want to enable <em>Guest Checkout</em> for your store?<br /><br />Default: <b>false</b>', $cgi, now(), 30, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+        );
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Guest Checkout: Require Email Confirmation?', 'CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION', 'true', 'Should a guest-customer be required to confirm their email address when placing an order?<br /><br />Default: <b>true</b>', $cgi, now(), 40, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
         );
         $db->Execute(
             "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "

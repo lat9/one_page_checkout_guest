@@ -127,6 +127,18 @@ class checkout_one_observer extends base
                 )
             );
         }
+        
+        // -----
+        // Finally, need to "clean up" any email_address value that was injected into
+        // the session by the order_status page's processing, in support of not-logged-in
+        // customers whose orders included downloads.
+        //
+        // If the customer has navigated off of the order_status/download pages, remove
+        // those variables from the session.
+        //
+        if (isset($_SESSION['email_is_os']) && ($GLOBALS['current_page_base'] != FILENAME_ORDER_STATUS && $GLOBALS['current_page_base'] != FILENAME_DOWNLOAD)) {
+            unset($_SESSION['email_is_os'], $_SESSION['email_address']);
+        }
     }
   
     public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
@@ -342,21 +354,20 @@ class checkout_one_observer extends base
                 }
                 break;
                 
-           // -----
-           // Issued by the ot_coupon handling when determining if the uses_per_user defined in the active
-           // coupon is restricted.  The main OPC controller will check to see if the uses "per email address"
-           // is acceptable.
-           //
-           // On entry,
-           //
-           // $p1 ... (r/o) The result of a SQL query gathering information about the to-be-checked coupon.
-           // $p2 ... (r/w) A reference to the (boolean) processing flag that indicates whether (true) or
-           //               not (false) the coupon's use has been exceeded.
-           //
-           case 'NOTIFY_OT_COUPON_USES_PER_USER_CHECK':
+            // -----
+            // Issued by the ot_coupon handling when determining if the uses_per_user defined in the active
+            // coupon is restricted.  The main OPC controller will check to see if the uses "per email address"
+            // is acceptable.
+            //
+            // On entry,
+            //
+            // $p1 ... (r/o) The result of a SQL query gathering information about the to-be-checked coupon.
+            // $p2 ... (r/w) A reference to the (boolean) processing flag that indicates whether (true) or
+            //               not (false) the coupon's use has been exceeded.
+            //
+            case 'NOTIFY_OT_COUPON_USES_PER_USER_CHECK':
                 $p2 = $_SESSION['opc']->validateUsesPerUserCoupon($p1, $p2);
                 break;
-                
             default:
                 break;
         }
