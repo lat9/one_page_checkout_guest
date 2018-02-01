@@ -5,8 +5,8 @@ This documentation identifies implementation details associated with the guest-c
 ## Overview ##
 ## Customer Considerations ##
 
-[Customer-Address Management](docs/one_page_checkout/developer/address_management.md)
+[Customer-Address Management](address_management.md)
 
 ## Admin Considerations ##
 
-[Identifying Orders Placed by Guests](docs/one_page_checkout/developer/admin_orders_configuration.md)
+[Identifying Orders Placed by Guests](admin_orders_configuration.md)
