@@ -428,15 +428,18 @@ if (isset($_POST['action']) && ($_POST['action'] == 'register')) {
     } //endif !error
 }
 
-/*
-** Set flags for template use:
-*/
-$display_nick_field = false;
-$is_guest_checkout = true;
-$zco_notifier->notify('NOTIFY_NICK_SET_TEMPLATE_FLAG', 0, $display_nick_field);
+// -----
+// If the OPC's registered accounts' processing is enabled, set some flags for the alternate
+// create-account page's processing.
+//
+if (isset($_SESSION['opc']) && $_SESSION['opc']->accountRegistrationEnabled()) {
+    $display_nick_field = false;
+    $is_guest_checkout = true;
+    $zco_notifier->notify('NOTIFY_NICK_SET_TEMPLATE_FLAG', 0, $display_nick_field);
 
-$breadcrumb->add(NAVBAR_TITLE);
-$flag_disable_left = $flag_disable_right = true;
+    $breadcrumb->add(NAVBAR_TITLE_REGISTER);
+    $flag_disable_left = $flag_disable_right = true;
+}
 
 // This should be last line of the script:
-$zco_notifier->notify('NOTIFY_HEADER_END_REGISTER');
+$zco_notifier->notify('NOTIFY_HEADER_END_CREATE_ACCOUNT_REGISTER');

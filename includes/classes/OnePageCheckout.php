@@ -51,6 +51,33 @@ class OnePageCheckout extends base
     }
     
     /* -----
+    ** This function returns whether (true) or not (false) the overall OPC functionality
+    ** is enabled.
+    */
+    public function checkEnabled()
+    {
+        // -----
+        // Determine whether the overall OPC processing should be enabled.  It's enabled if:
+        //
+        // - No previous jQuery error on the checkout_one page has been detected.
+        // - The plugin's database configuration is available and set for either
+        //   - Full enablement
+        //   - Conditional enablement and the current customer is in the conditional-customers list
+        //
+        $this->isEnabled = false;
+        if (defined('CHECKOUT_ONE_ENABLED') && !isset($_SESSION['opc_error'])) {
+            if (CHECKOUT_ONE_ENABLED == 'true') {
+                $this->isEnabled = true;
+            } elseif (CHECKOUT_ONE_ENABLED == 'conditional' && isset($_SESSION['customer_id'])) {
+                if (in_array($_SESSION['customer_id'], explode(',', str_replace(' ', '', CHECKOUT_ONE_ENABLE_CUSTOMERS_LIST)))) {
+                    $this->isEnabled = true;
+                }
+            }
+        }
+        return $this->isEnabled;
+    }
+    
+    /* -----
     ** This function returns a boolean indication as to whether (true) or not (false) OPC's
     ** guest-checkout is currently enabled.
     */
@@ -87,7 +114,7 @@ class OnePageCheckout extends base
     */
     public function accountRegistrationEnabled()
     {
-        return $this->registeredAccounts;
+        return $this->isEnabled && $this->registeredAccounts;
     }
     
     /* -----
@@ -139,8 +166,8 @@ class OnePageCheckout extends base
     //
     protected function initializeGuestCheckout()
     {
+        $this->checkEnabled();
         $this->isGuestCheckoutEnabled = !zen_is_spider_session() && (defined('CHECKOUT_ONE_ENABLE_GUEST') && CHECKOUT_ONE_ENABLE_GUEST == 'true');
-        $this->isEnabled = (isset($GLOBALS['checkout_one']) && $GLOBALS['checkout_one']->isEnabled());
         $this->guestCustomerId = (defined('CHECKOUT_ONE_GUEST_CUSTOMER_ID')) ? (int)CHECKOUT_ONE_GUEST_CUSTOMER_ID : 0;
         $this->tempBilltoAddressBookId = (defined('CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_BILLTO_ADDRESS_BOOK_ID : 0;
         $this->tempSendtoAddressBookId = (defined('CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID')) ? (int)CHECKOUT_ONE_GUEST_SENDTO_ADDRESS_BOOK_ID : 0;
@@ -499,6 +526,11 @@ class OnePageCheckout extends base
         $this->debugMessage("createOrderAddressFromTemporary($which), returning:" . var_export($address, true));
         return $address;
     }
+    
+    // -----
+    // This internal function, called when an address-change is detected, determines the current tax-basis
+    // used during the checkout process.
+    //
     protected function recalculateTaxBasis($order, $use_temp_billing, $use_temp_shipping)
     {
         $this->debugMessage("recalculateTaxBasis(order, $use_temp_billing, $use_temp_shipping): " . var_export($order, true) . var_export($this->tempAddressValues, true));
@@ -567,7 +599,7 @@ class OnePageCheckout extends base
     }
     
     /* -----
-    ** This function validates whether (true) or not (false) the specified order-related
+    ** This function validates (true) or not (false) the specified order-related
     ** address ('bill' or 'ship').
     */
     public function validateBilltoSendto($which)

@@ -51,23 +51,10 @@ class checkout_one_observer extends base
         }
         
         // -----
-        // Determine whether the OPC should be enabled.  It's enabled if:
+        // Determine, via call to the OPC's session-handler, whether the overall OPC processing is to be
+        // enabled.
         //
-        // - No previous jQuery error on the checkout_one page has been detected.
-        // - The plugin's database configuration is available and set for either
-        //   - Full enablement
-        //   - Conditional enablement and the current customer is in the conditional-customers list
-        //
-        $plugin_enabled = false;
-        if (defined('CHECKOUT_ONE_ENABLED') && !isset($_SESSION['opc_error'])) {
-            if (CHECKOUT_ONE_ENABLED == 'true') {
-                $plugin_enabled = true;
-            } elseif (CHECKOUT_ONE_ENABLED == 'conditional' && isset ($_SESSION['customer_id'])) {
-                if (in_array ($_SESSION['customer_id'], explode (',', str_replace (' ', '', CHECKOUT_ONE_ENABLE_CUSTOMERS_LIST)))) {
-                    $plugin_enabled = true;
-                }
-            }
-        }
+        $plugin_enabled = $_SESSION['opc']->checkEnabled();
         
         // -----
         // If the current browser is supported and the plugin's environment is supportable, then the processing for the
@@ -153,6 +140,9 @@ class checkout_one_observer extends base
             case 'NOTIFY_LOGIN_SUCCESS_VIA_CREATE_ACCOUNT':     //-Fall-through from above ...
                 $_SESSION['opc']->cleanupGuestSession();
                 break;
+            // -----
+            // Redirect any accesses to the "3-page" checkout process to the one-page.
+            //
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING':
             case 'NOTIFY_HEADER_START_CHECKOUT_PAYMENT':
             case 'NOTIFY_HEADER_START_CHECKOUT_CONFIRMATION':
@@ -160,6 +150,10 @@ class checkout_one_observer extends base
                 zen_redirect(zen_href_link(FILENAME_CHECKOUT_ONE, zen_get_all_get_params(), 'SSL'));
                 break;
                 
+            // -----
+            // When a customer navigates to the 'checkout_shipping_address' page, reset the
+            // shipping=billing flag to indicate that shipping is no longer the same as billing.
+            //
             case 'NOTIFY_HEADER_START_CHECKOUT_SHIPPING_ADDRESS':
                 $_SESSION['shipping_billing'] = false;
                 

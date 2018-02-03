@@ -4,8 +4,7 @@
 // Copyright (C) 2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
 define('NAVBAR_TITLE_REGISTER', 'Account Registration');
-define('TEXT_INSTRUCTIONS', '<strong class="note">Note:</strong> If you already have an account with us, please login at our <a href="%s">login</a> page.');
-define('ENTRY_GENDER', 'Gender:');
+define('TEXT_INSTRUCTIONS', '<strong class="note">Note:</strong> If you already have an account with us, please login at our <a href="%s">login</a> page.  We\'ll ask for your address details once you are ready to place an order.');
 define('ENTRY_EMAIL_ADDRESS_CONFIRM', 'Confirm Email:');
 define('ENTRY_EMAIL_FORMAT', 'Email Format:');
 define('BUTTON_SUBMIT_REGISTER_ALT', 'Register');
