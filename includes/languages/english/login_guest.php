@@ -1,13 +1,8 @@
 <?php
 // -----
 // Part of the One-Page Checkout plugin, provided under GPL 2.0 license by lat9 (cindy@vinosdefrutastropicales.com).
-// Copyright (C) 2017, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2017-2018, Vinos de Frutas Tropicales.  All rights reserved.
 //
-if (!defined('CHECKOUT_ONE_ENABLED') || CHECKOUT_ONE_ENABLED != 'true' || !defined('CHECKOUT_ONE_ENABLE_GUEST') || CHECKOUT_ONE_ENABLE_GUEST != 'true') {
-    return;  //-Don't pull the definitions in unless they're going to be used!
-}
-
-
 define('HEADING_NEW_CUSTOMER_OPC', 'New Customers');
 define('TEXT_NEW_CUSTOMER_OPC', 'Creating an account is easy.  Simply fill in the form on the next page and enjoy the benefits of having an account.');
 
