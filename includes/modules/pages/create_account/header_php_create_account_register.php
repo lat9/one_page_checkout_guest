@@ -149,8 +149,7 @@ if (isset($_POST['action']) && ($_POST['action'] == 'register')) {
         $messageStack->add('create_account', ENTRY_PASSWORD_ERROR_NOT_MATCHING);
     }
 
-    if ($error == true) {
-        // hook notifier class
+    if ($error) {
         $zco_notifier->notify('NOTIFY_FAILURE_DURING_CREATE_ACCOUNT');
     } elseif ($antiSpam != '') {
         $zco_notifier->notify('NOTIFY_SPAM_DETECTED_DURING_CREATE_ACCOUNT');
@@ -239,7 +238,6 @@ if (isset($_POST['action']) && ($_POST['action'] == 'register')) {
 
         $zco_notifier->notify('NOTIFY_MODULE_CREATE_ACCOUNT_ADDED_CUSTOMER_RECORD', array_merge(array('customer_id' => $_SESSION['customer_id']), $sql_data_array));
         $zco_notifier->notify('NOTIFY_HEADER_REGISTER_ADDED_CUSTOMER_RECORD', array_merge(array('customer_id' => $_SESSION['customer_id']), $sql_data_array));
-
 
         $db->Execute(
             "INSERT INTO " . TABLE_CUSTOMERS_INFO . "

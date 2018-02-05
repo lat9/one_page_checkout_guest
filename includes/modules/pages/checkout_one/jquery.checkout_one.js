@@ -744,17 +744,10 @@ jQuery(document).ready(function(){
     function saveCustomerInfo()
     {
         zcLog2Console('saveCustomerInfo, starts ...');
-        var email = jQuery('input[name="email_address"]').val(),
-            email_conf = jQuery('input[name="email_address_conf"]').val(),
-            telephone = jQuery('input[name="telephone"]').val();
 
         zcJS.ajax({
             url: "ajax.php?act=ajaxOnePageCheckout&method=validateCustomerInfo",
-            data: {
-                email: email,
-                email_conf: email_conf,
-                telephone: telephone
-            },
+            data: jQuery('#checkoutOneGuestInfo input, #checkoutOneGuestInfo select').serialize(),
             timeout: shippingTimeout,
             error: function (jqXHR, textStatus, errorThrown) {
                 zcLog2Console('error: status='+textStatus+', errorThrown = '+errorThrown+', override: '+jqXHR);

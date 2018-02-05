@@ -22,7 +22,7 @@ class OnePageCheckout extends base
     // tempSendtoAddressBookId .. Contains a sanitized/int version of the configured "temporary" ship-to address-book ID.
     // dbStringType ............. Identifies the form of string data "binding" to use on $db requests; 'string' for ZC < 1.5.5b, 'stringIgnoreNull', otherwise.
     //
-    public $isGuestCheckoutEnabled,
+    protected $isGuestCheckoutEnabled,
               $registeredAccounts,
               $guestIsActive,
               $isEnabled,
@@ -282,7 +282,18 @@ class OnePageCheckout extends base
                         'lastname' => '',
                         'email_address' => '',
                         'telephone' => '',
+                        'dob' => ''
                     );
+                    
+                    // -----
+                    // Allow an observer to add fields to the guest-customer's record.
+                    //
+                    $additional_guest_fields = array();
+                    $this->notify('NOTIFY_OPC_GUEST_CUSTOMER_INFO_INIT', '', $additional_guest_fields);
+                    if (is_array($additional_guest_fields) && count($additional_guest_fields) != 0) {
+                        $this->debugMessage('startGuestOnePageCheckout, added fields to customer-info: ' . json_encode($additional_guest_fields));
+                        $this->guestCustomerInfo = array_merge($this->guestCustomerInfo, $additional_guest_fields);
+                    }
                 }
             }
         }
@@ -477,13 +488,7 @@ class OnePageCheckout extends base
         if (!isset($this->guestCustomerInfo)) {
             trigger_error("Guest customer-info not set during guest checkout.", E_USER_ERROR);
         }
-        $customer = array(
-            'firstname' => $this->guestCustomerInfo['firstname'],
-            'lastname' => $this->guestCustomerInfo['lastname'],
-            'email_address' => $this->guestCustomerInfo['email_address'],
-            'telephone' => $this->guestCustomerInfo['telephone']
-        );
-        return $customer;
+        return $this->guestCustomerInfo;
     }
     
     // -----
@@ -921,19 +926,19 @@ class OnePageCheckout extends base
     
     public function validateAndSaveAjaxCustomerInfo()
     {
-        if (!isset($_POST['email'])) {
+        if (!isset($_POST['email_address'])) {
             trigger_error('validateAndSaveAjaxCustomerInfo, invalid POST: ' . var_export($_POST, true), E_USER_ERROR);
         }
         
         $messages = array();
         
-        $email_address = zen_db_prepare_input(zen_sanitize_string($_POST['email']));
+        $email_address = zen_db_prepare_input(zen_sanitize_string($_POST['email_address']));
         if (strlen($email_address) < ENTRY_EMAIL_ADDRESS_MIN_LENGTH) {
             $messages['email_address'] = ENTRY_EMAIL_ADDRESS_ERROR;
         } elseif (!zen_validate_email($email_address) || $this->isEmailBanned($email_address)) {
             $messages['email_address'] = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
         } elseif (CHECKOUT_ONE_GUEST_EMAIL_CONFIRMATION == 'true') {
-            $email_confirm = zen_db_prepare_input(zen_sanitize_string($_POST['email_conf']));
+            $email_confirm = zen_db_prepare_input(zen_sanitize_string($_POST['email_address_conf']));
             if ($email_confirm != $email_address) {
                 $messages['email_address_conf'] = ERROR_EMAIL_MUST_MATCH_CONFIRMATION;
             }
@@ -944,9 +949,42 @@ class OnePageCheckout extends base
             $messages['telephone'] = ENTRY_TELEPHONE_NUMBER_ERROR;
         }
         
+        $dob = '';
+        if (ACCOUNT_DOB == 'true') {
+            if (ENTRY_DOB_MIN_LENGTH > 0 or !empty($_POST['dob'])) {
+                // Support ISO-8601 style date
+                if (preg_match('/^([0-9]{4})(|-|\/)([0-9]{2})\2([0-9]{2})$/', $dob)) {
+                    $_POST['dob'] = $dob = date(DATE_FORMAT, strtotime($dob));
+                }
+                if (substr_count($dob, '/') > 2 || !checkdate((int)substr(zen_date_raw($dob), 4, 2), (int)substr(zen_date_raw($dob), 6, 2), (int)substr(zen_date_raw($dob), 0, 4))) {
+                    $error = true;
+                    $messages['dob'] = ENTRY_DATE_OF_BIRTH_ERROR;
+                }
+            }
+        }
+        
+        // -----
+        // Give an observer the opportunity to validate any additional fields that might be required
+        // for the guest-customer.  If the observer finds issues with any field, the "additional_messages"
+        // array (an associative array) is set to identify the field (the "key") and the message (the "value")
+        // to be displayed.  If no issues are found, the "additional_fields" array (also associative) is
+        // set to contain the element names ("key") and their associated value.
+        //
+        $additional_messages = array();
+        $additional_fields = array();
+        $this->notify('NOTIFY_OPC_VALIDATE_SAVE_GUEST_INFO', '', $additional_messages, $additional_fields);
+        if (is_array($additional_messages) && is_array($additional_fields) && (count($additional_messages) != 0 || count($additional_fields) != 0)) {
+            $this->debugMessage('validateAndSaveAjaxCustomerInfo, additional messages (' . json_encode($additional_messages) . '), additional fields (' . json_encode($additional_fields) . ')');
+            $messages = array_merge($messages, $additional_messages);
+        }
+        
         if (count($messages) == 0) {
             $this->guestCustomerInfo['email_address'] = $email_address;
             $this->guestCustomerInfo['telephone'] = $telephone;
+            $this->guestCustomerInfo['dob'] = $dob;
+            if (is_array($additional_fields)) {
+                $this->guestCustomerInfo = array_merge($this->guestCustomerInfo, $additional_fields);
+            }
         }
         
         return $messages;
@@ -1284,8 +1322,6 @@ class OnePageCheckout extends base
     //
     protected function createCustomerRecordFromGuestInfo($password, $newsletter)
     {
-        $dob = '';
-        
         $sql_data_array = array(
             array('fieldName' => 'customers_firstname', 'value' => $this->guestCustomerInfo['firstname'], 'type' => $this->dbStringType),
             array('fieldName' => 'customers_lastname', 'value' => $this->guestCustomerInfo['lastname'], 'type' => $this->dbStringType),
@@ -1302,6 +1338,7 @@ class OnePageCheckout extends base
             $sql_data_array[] = array('fieldName' => 'customers_gender', 'value' => $gender, 'type' => $this->dbStringType);
         }
         if (ACCOUNT_DOB == 'true') {
+            $dob = $this->guestCustomerInfo['dob'];
             $dob = (empty($dob) || $dob == '0001-01-01 00:00:00') ? zen_db_prepare_input('0001-01-01 00:00:00') : zen_date_raw($dob);
             $sql_data_array[] = array('fieldName' => 'customers_dob', 'value' => $dob, 'type' => 'date');
         }
@@ -1359,7 +1396,7 @@ class OnePageCheckout extends base
         $GLOBALS['db']->perform(TABLE_ADDRESS_BOOK, $sql_data_array);
         $address_book_id = $GLOBALS['db']->Insert_ID();
         
-        $this->notify('OPC_CREATED_ADDRESS_BOOK_DB_ENTRY', $address_book_id, $sql_data_array);
+        $this->notify('NOTIFY_OPC_CREATED_ADDRESS_BOOK_DB_ENTRY', $address_book_id, $sql_data_array);
 
         return $address_book_id;
     }

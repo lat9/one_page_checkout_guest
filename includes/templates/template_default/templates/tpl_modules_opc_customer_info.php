@@ -36,7 +36,16 @@ if ($_SESSION['opc']->isGuestCheckout()) {
             <label class="inputLabel" for="telephone"><?php echo ENTRY_TELEPHONE_NUMBER; ?></label>
             <?php echo zen_draw_input_field('telephone', $telephone_value, $telephone_field_len . ' id="telephone" placeholder="' . ENTRY_TELEPHONE_NUMBER_TEXT . '"' . $telephone_required, 'tel'); ?>
             <br class="clearBoth" />
-            
+<?php
+  if (ACCOUNT_DOB == 'true') {
+      $dob_required = (((int)ENTRY_DOB_MIN_LENGTH) > 0) ? ' required' : '';
+?>
+            <label class="inputLabel" for="dob"><?php echo ENTRY_DATE_OF_BIRTH; ?></label>
+            <?php echo zen_draw_input_field('dob','', 'id="dob" placeholder="' . ENTRY_DATE_OF_BIRTH_TEXT . '"' . $dob_required); ?>
+            <br class="clearBoth" />
+<?php
+  }
+?>            
            <div class="buttonRow opc-buttons opc-right">
                 <span id="opc-guest-cancel"><?php echo zen_image_button(BUTTON_IMAGE_CANCEL, BUTTON_CANCEL_CHANGES_ALT, $cancel_title); ?></span>
                 <span id="opc-guest-save"><?php echo zen_image_button(BUTTON_IMAGE_UPDATE, BUTTON_SAVE_CHANGES_ALT, $save_title); ?></span>
