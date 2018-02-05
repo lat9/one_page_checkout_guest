@@ -2,7 +2,7 @@
 
 *OPC-GC/RA* ***does not*** create `customers` database records for its processing; address- and contact-information for a guest-placed order is recorded *only in that order*.  Instead, its admin-initialization script creates "dummy" records that identify a guest-customer (in the `customers` and `customers_info` tables) as well as "dummy" records that identify a temporary billing- and shipping-address (in the `address_book` table).
 
-Unlike its predecessors, here is no `no_account` page provided for *OPC-GC*.  Instead, an alternate template-display for the store's `login` page begins the guest's checkout and the guest-customer's contact information is gathered as a first step in the *OPC* checkout process. *OPC-GC/RA* modifies the flow of that and other pages within the store when its features are enabled:
+Unlike its predecessors, there is no `no_account` page provided for *OPC-GC*.  Instead, an alternate template-display for the store's `login` page begins the guest's checkout and the guest-customer's contact information is gathered as a first step in the *OPC* checkout process. *OPC-GC/RA* modifies the flow of that and other pages within the store when its features are enabled:
 
 Page Name | Modifications
 -------------  | -------------

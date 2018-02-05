@@ -5,7 +5,7 @@ Enable Account Registration?*** to *true*) or *guest-checkout* (setting ***Confi
 Enable Guest Checkout?*** to *true*) feature, the store's `login` page display is altered.
 
 The page's layout is controlled by the setting ***Configuration->One-Page Checkout Settings->
-Login Page Layout***, which maps the page's five (5) blocks into one to three columns.  That value is entered as an *encoded string*, using semi-colons (;) to separate columns and commas (,) to separate the blocks &mdash; the default value **L;P,G,C;B** was used to create the sample screenshot below.
+Login Page Layout***, which maps the page's five (5) blocks into one of three columns.  That value is entered as an *encoded string*, using semi-colons (;) to separate columns and commas (,) to separate the blocks &mdash; the default value **L;P,G,C;B** was used to create the sample screenshot below.
 
 Those page-level blocks are:
 
