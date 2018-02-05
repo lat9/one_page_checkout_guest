@@ -15,8 +15,8 @@ if (!defined('IS_ADMIN_FLAG')) {
 // 500-599 ... Registered-account settings
 // 1000+ ..... Debug settings
 //
-define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha7');
-define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-01-31');
+define('CHECKOUT_ONE_CURRENT_VERSION', '2.0.0-alpha8');
+define('CHECKOUT_ONE_CURRENT_UPDATE_DATE', '2018-02-05');
 
 if (isset($_SESSION['admin_id'])) {
     $version_release_date = CHECKOUT_ONE_CURRENT_VERSION . ' (' . CHECKOUT_ONE_CURRENT_UPDATE_DATE . ')';
@@ -164,7 +164,13 @@ if (isset($_SESSION['admin_id'])) {
                 VALUES 
                 ( 'Enable Account Registration?', 'CHECKOUT_ONE_ENABLE_REGISTERED_ACCOUNTS', 'false', 'Do you want your store\\'s <code>create_account</code> processing to create a <em>registered</em> rather than a <em>full</em> account?<br /><br />Default: <b>false</b>', $cgi, now(), 500, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
         );
-
+        $db->Execute(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function ) 
+                VALUES 
+                ( 'Login-Page Layout', 'CHECKOUT_ONE_LOGIN_LAYOUT', 'L;P,G,C;B', 'When you enable the plugin's <em>Guest Checkout</em> and/or <em>Account Registration</em>, an alternate formatting of the storefront <code>login</code> page is displayed.  Use this setting to control the 3-column layout of that modified page.<br /><br />The value is an encoded string, identifying which block should be displayed in which column.  Columns are delimited by a semi-colon (;) and the top-to-bottom column layout is in the order specified by the block-elements\\' left-to-right order.<br /><br />The block elements are:<ul><li><b>L</b> ... (required) The email/password login block.</li><li><b>P</b> ... (optional) The PayPal Express Checkout shortcut-button block.</li><li><b>G</b> ... (required) The guest-checkout block.</li><li><b>C</b> ... (required) The create-account block.</li><li><b>B</b> ... (optional) The \"Account Benefits\" block.</li></ul><br /><br />Default: <b>L;P,G,C;B</b>', $cgi, now(), 26, NULL, NULL)"
+        );
+        
         $db->Execute(
             "UPDATE " . TABLE_CONFIGURATION . "
                 SET sort_order = 1000

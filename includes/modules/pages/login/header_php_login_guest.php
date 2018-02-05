@@ -11,7 +11,7 @@ if (isset($_SESSION['opc']) && $_SESSION['opc']->temporaryAddressesEnabled()) {
     $flag_disable_right = $flag_disable_left = true;
     
     // -----
-    // This definition (to be moved to admin configuration) controls the formatting used in the display of the
+    // The CHECKOUT_ONE_LOGIN_LAYOUT setting controls the formatting used in the display of the
     // guest-checkout enabled login screen.  The value is an encoded string, identifying which block should be
     // displayed in which column.  Columns are delimited by a semi-colon (;) and the top-to-bottom column
     // layout is in the order specified by the block-elements' left-to-right order.
@@ -24,10 +24,6 @@ if (isset($_SESSION['opc']) && $_SESSION['opc']->temporaryAddressesEnabled()) {
     // C ... (required) The create-account block.
     // B ... (optional) The "Account Benefits" block.
     //
-    if (!defined('CHECKOUT_ONE_LOGIN_LAYOUT')) {
-        define('CHECKOUT_ONE_LOGIN_LAYOUT', 'L;P,G,C;B');
-    }
-    
     $required_blocks = array(
         'L' => true,
         'G' => true,
