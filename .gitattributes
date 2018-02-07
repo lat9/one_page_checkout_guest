@@ -1,3 +1,4 @@
-/docs/one_page_checkout/developer export-ignore
+/pages            export-ignore
 .gitattributes    export-ignore
 readme.md         export-ignore
+*.yml             export-ignore
