@@ -113,7 +113,7 @@ if (isset($_SESSION['cart']->cartID)) {
         $_SESSION['cartID'] = $_SESSION['cart']->cartID;
     }
 } else {
-    zen_redirect(zen_href_link(FILENAME_TIME_OUT));
+    zen_redirect(zen_href_link(FILENAME_TIME_OUT, '', 'SSL'));
 }
 
 // -----

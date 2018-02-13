@@ -79,7 +79,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'status') {
         if ($_SESSION['os_errors'] > (int)$slamming_threshold) {
             $zco_notifier->notify('NOTIFY_ORDER_STATUS_SLAMMING_LOCKOUT');
             zen_session_destroy();
-            zen_redirect(zen_href_link(FILENAME_TIME_OUT));
+            zen_redirect(zen_href_link(FILENAME_TIME_OUT, '', 'SSL'));
         }
     } else {
         $statuses_query = 
