@@ -179,6 +179,16 @@ if (!$is_virtual_order) {
 //-eof-product_delivery_by_postcode (PDP) integration
   
     $extra_message = (isset($_SESSION['shipping'])) ? var_export($_SESSION['shipping'], true) : ' (not set)';
+    
+    // -----
+    // Detect (and log) the condition where the store's configuration shows "Shipping/Packaging->Order Free Shipping 0 Weight Status"
+    // has been enabled, but the 'freeshipper' shipping method isn't when the order's weight is 0.
+    //
+    if ($total_weight == 0 && ORDER_WEIGHT_ZERO_STATUS == '1' && (!defined('MODULE_SHIPPING_FREESHIPPER_STATUS') || MODULE_SHIPPING_FREESHIPPER_STATUS != 'True')) {
+        $message = "0 weight is configured for Free Shipping and Free Shipping Module is not enabled, product IDs in cart: " . $_SESSION['cart']->get_product_id_list();
+        trigger_error($message, E_USER_WARNING);
+        $extra_message .= (' ' . $message);
+    }
     $checkout_one->debug_message("CHECKOUT_ONE_AFTER_SHIPPING_CALCULATIONS, free_shipping ($free_shipping), $extra_message");
 
     // get all available shipping quotes
