@@ -12,7 +12,7 @@ $zco_notifier->notify('NOTIFY_MAIN_TEMPLATE_VARS_START_CREATE_ACCOUNT_SUCCESS');
 if ($account_registration_enabled) {
     $page_template = 'tpl_create_account_success_register.php';
 } else {
-    $page_template = 'tpl_create_account_success.php';
+    $page_template = 'tpl_create_account_success_default.php';
 }
 
 // -----
