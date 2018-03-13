@@ -95,6 +95,8 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
     <li>Guest checkout, especially the <code class="no-pad">orders_status</code> page's processing, based on the <a href="https://www.zen-cart.com/showthread.php?196995-COWOA-%28for-ZC-v1-5-x%29">COWOA</a> (by @DivaVocals, @countrycharm and others) and <a href="https://www.zen-cart.com/downloads.php?do=file&id=2131">COWAA</a> (by @davewest) plugins.</li>
   </ol>
   <hr />
+  <p>Additional information (especially for features introduced in <em>OPC v2.0.0</em> can be found in the plugin's <a href="https://lat9.github.io/one_page_checkout/" target="_blank">github.io page</a>.</li>
+  <hr />
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread">https://www.zen-cart.com/showthread.php?220781-One-Page-Checkout-Support-Thread</a></p>
   
   <div class="tab-container" id="outer-container">
@@ -427,7 +429,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
               </ol>
               <hr />
               <p>There are <span class="corefile">core-file</span> and <span class="template">template-override</span> changes required by this plugin; you should <strong>always</strong> backup your cart's database and files prior to making any changes.  Unzip the plugin's package file and then:</p>
-              <ol type="A">
+              <ol type="A"> 
                 <li>Rename the YOUR_TEMPLATE folders <b>(5 of them)</b> to match your store's template name:<ol type="a">
                   <li>/includes/languages/english/YOUR_TEMPLATE</li>
                   <li>/includes/languages/english/html_includes/YOUR_TEMPLATE</li>
@@ -444,7 +446,7 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/jscript/jscript_framework.php</span></li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_ajax_checkout_confirmation_default.php</span></li>
                   <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_modules_downloads.php</span></li>
-                  <li>If your store plans to use the <em>guest-checkout</em> functionality of <em>OPC</em> v2.0.0 and later, you'll need to update your current template's <code class="no-pad">common/tpl_header.php</code> module to modify the display of the <code class="no-pad">account</code> and <code class="no-pad">logoff</code> page's display during a guest checkout.  <em>OPC</em> provides two versions of that modification:<ol type="a">
+                  <li>If your store plans to use the <em>guest-checkout</em> functionality of <em>OPC</em> v2.0.0 and later, you'll need to update your current template's <code class="no-pad">common/tpl_header.php</code> module to modify the display of the <code class="no-pad">account</code> and <code class="no-pad">logoff</code> pages' links during a guest checkout.  <em>OPC</em> provides two versions of that modification:<ol type="a">
                     <li>If your template is based on the Zen Cart <code class="no-pad">classic</code> template, merge your template's file with <span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span>.</li>
                     <li>If your template is based on the Zen Cart <code class="no-pad">responsive_classic</code> template, merge your template's file with <span class="template">/includes/templates/YOUR_RC_CLONE/common/tpl_header.php</span>.</li>
                     <li>For all other templates, determine which of the above files most closely matches your template's version of the file for the merge.</li>
@@ -470,9 +472,9 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                     <li><span class="corefile">/includes/classes/payment.php</span></li>
                   </ol></li>
                 </ol></li>
-                <li><em><b>If you store is running a Zen Cart version less than 1.5.6 and you want to quickly identify those orders placed by guests</b></em>, there are additional edits required for <code class="no-pad corefile">/YOUR_ADMIN/orders.php</code>.  See <a href="https://github.com/lat9/one_page_checkout_guest/blob/master/docs/one_page_checkout/developer/admin_orders_configuration.md" target="_blank">these</a> instructions on the <em>OPC</em> GitHub repository.</li>
-                <li>Sign into your Zen Cart's admin panel.</li>
-                <li>Copy the plugin's files &mdash; with the folders renamed as identified in steps <b>A</b> and <b>B</b> and the file-merges performed as identified in steps <b>C</b>, <b>D</b> and <b>E</b> &mdash; to your store's directory structure:<ol>
+                <li><em><b>If you store is running a Zen Cart version less than 1.5.6 and you want to quickly identify those orders placed by guests</b></em>, there are additional edits required for <code class="no-pad corefile">/YOUR_ADMIN/orders.php</code>.  See <a href="https://github.com/lat9/one_page_checkout/blob/master/pages/admin_orders_configuration.md" target="_blank">these</a> instructions on the <em>OPC</em> GitHub repository.</li>
+                <li>Sign into your Zen Cart's admin panel.  Due the the number of files that require uploading, I suggest that you place the site into <em>Maintenance Mode</em> by setting <b><i>Configuration-&gt;Website Maintenance-&gt;Down for Maintenance: ON/OFF</i></b> to <em>true</em>.</li>
+                <li>Copy the plugin's files &mdash; with the folders renamed as identified in steps <b>A</b> and <b>B</b> and the file-merges performed as identified in steps <b>C</b>, <b>D</b> and <b>E</b> &mdash; to your store's directory structure.  You'll use either your webhost's cPanel File Manager or an FTP program (like WinSCP or FileZilla) to perform this copy.<ol>
                   <li>/includes/auto_loaders/config.checkout_one.php</li>
                   <li>/includes/classes/OnePageCheckout.php</li>
                   <li><span class="corefile">/includes/classes/order.php</span></li>
@@ -564,6 +566,8 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                 </ol></li>
                 <li>Click the &quot;Admin Home&quot; link in your Zen Cart's top admin menu.  This action will cause the plugin's installation script to run.</li>
                 <li>Now, check your store's current <code class="no-pad">/includes/modules/pages/checkout_payment</code> directory's contents.  The &quot;base&quot; Zen Cart distribution includes two files in that directory: header_php.php and jscript_main.php.  <b>If your directory contains any other files</b>, be sure to copy them to your store's <code class="no-pad">/includes/modules/pages/checkout_one</code> directory.  Those additional files come from plugins and additional payment methods and will be required for those modifications to operate correctly in the one-page checkout environment.</li>
+                <li>If you placed your store into <em>Maintenance Mode</em>, as suggested at step <b>G</b>, you can now safely take your site out of <em>Maintenance Mode</em>.</li>
+                <li>Note that the plugin, upon initial installation, defaults its enabling settings to <em>false</em>; see the <em>Overview / Configuration</em> tab of this readme for additional information.</li>
                 <li>One last item to &quot;tidy up&quot; ... registering the two new checkout pages into the <b>ROBOTS_PAGES_TO_SKIP</b> value.  I don't think this is a high-priority item since the pages' names don't appear on any menus and include it only for completeness!  If you want to make sure that robots aren't indexing the <code class="no-pad">checkout_one</code> and <code class="no-pad">checkout_one_confirmation</code> pages, you'll need to edit your template's version of <code class="no-pad">/includes/languages/english/meta_tags.php</code> and add those two page-names to the end of that constant's comma-separated-list.</li>
               </ol>
             </div>
@@ -713,8 +717,10 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
             <div id="changes">
               <p>You can view the details of these changes on the plugin's <a href="https://github.com/lat9/one_page_checkout/issues" target="_blank">GitHub repository.</a> <span class="template-changed">Changes to the plugin's default templates are identified in this color</span>; remember to merge those changes with any template-override version you might have created!  Additions are identified by <span class="added">this</span> color.</p>
               <ul>
-                <li>v2.0.0, 2018-01-xx:<ul>
+                <li>v2.0.0, 2018-03-xx:<ul>
                     <li>CHANGE: Add processing to enable <em>guest-checkout</em>.</li>
+                    <li>BUGFIX: &quot;Align&quot; STOCK_CHECK clause in shipping checks with <code class="no-pad">checkout_shipping</code> current handling.</li>
+                    <li>BUGFIX: Redirects to the <code class="no-pad">time_out</code> pages via SSL protocol.</li>
                     <li>The following files were affected:<ol>
                         <li>/includes/auto_loaders/config.checkout_one.php</li>
                         <li><span class="added">/includes/classes/OnePageCheckout.php</span></li>
@@ -752,10 +758,12 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="added">/includes/modules/pages/create_account/main_template_vars.php</span></li>
                         <li><span class="added">/includes/modules/pages/create_account_success/header_php_create_account_success_register.php</span></li>
                         <li><span class="added">/includes/modules/pages/create_account_success/main_template_vars.php</span></li>
+                        <li><span class="corefile">/includes/modules/pages/download/header_php.php</span> <span class="smaller">(Added, zc156 version with timeout pages in SSL)</span></li>
                         <li><span class="corefile">/includes/modules/pages/login/header_php.php</span> <span class="smaller">(Added, one notifier)</span></li>
                         <li><span class="added">/includes/modules/pages/login/header_php_guest.php</li>
                         <li><span class="added">/includes/modules/pages/login/main_template_vars.php</span></li>
                         <li><span class="added">/includes/modules/pages/order_status/header_php.php</span></li>
+                        <li><span class="template">/includes/modules/YOUR_TEMPLATE/downloads.php</span> <span class="smaller">(Added, using the zc156 version)</span></li>
                         <li>/includes/templates/template_default/css/checkout_one.css</li>
                         <li><span class="added">/includes/templates/template_default/css/checkout_success.css</span></li>
                         <li><span class="added">/includes/templates/template_default/css/create_account.css</span></li>
@@ -775,11 +783,13 @@ pre.scroll { border: 1px solid #666; padding: 5px; }
                         <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_shopping_cart.php</span></li>
                         <li><span class="template-changed">/includes/templates/template_default/templates/tpl_modules_opc_submit_block.php</span></li>
                         <li><span class="added">/includes/templates/template_default/templates/tpl_order_status_default.php</span></li>
+                        <li><span class="template">/includes/templates/YOUR_RC_CLONE/common/tpl_header.php</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template">/includes/templates/YOUR_TEMPLATE/common/tpl_header.php</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_one.css</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/checkout_success.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/create_account.css</span> <span class="smaller">(Added)</span></li>
                         <li><span class="template-changed">/includes/templates/YOUR_TEMPLATE/css/login.css</span> <span class="smaller">(Added)</span></li>
+                        <li><span class="template">/includes/templates/YOUR_TEMPLATE/templates/tpl_modules_download.php <span class="smaller">(Added, using the zc156 version)</span></li>
                         <li>/YOUR_ADMIN/includes/auto_loaders/config.checkout_one.php</li>
                         <li><span class="added">/YOUR_ADMIN/includes/classes/observers/OnePageCheckoutAdminObserver.php</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_checkout_one.php</li>
