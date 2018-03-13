@@ -73,11 +73,25 @@ class checkout_one_observer extends base
             $this->debug_logfile = $_SESSION['opc']->getDebugLogFileName();
             $this->current_page_base = $GLOBALS['current_page_base'];
             
+            // -----
+            // If the customer is currently active in a guest-checkout ...
+            //
             if ($_SESSION['opc']->isGuestCheckout()) {
-                $disallowed_pages = explode(',', str_replace(' ', '', CHECKOUT_ONE_GUEST_PAGES_DISALLOWED));
-                if (in_array($this->current_page_base, $disallowed_pages)) {
-                    $GLOBALS['messageStack']->add_session('header', ERROR_GUEST_CHECKOUT_PAGE_DISALLOWED, 'error');
-                    zen_redirect(zen_href_link(FILENAME_DEFAULT));
+                // -----
+                // ... check to see that guest-checkout is **still** enabled.  If so, check to see that
+                // the current page is "allowed" during a guest-checkout; otherwise, reset the
+                // OPC's guest-checkout settings so that the checkout-process will revert to the
+                // built-in 3-page version.
+                //
+                if ($_SESSION['opc']->guestCheckoutEnabled()) {
+                    $disallowed_pages = explode(',', str_replace(' ', '', CHECKOUT_ONE_GUEST_PAGES_DISALLOWED));
+                    if (in_array($this->current_page_base, $disallowed_pages)) {
+                        $GLOBALS['messageStack']->add_session('header', ERROR_GUEST_CHECKOUT_PAGE_DISALLOWED, 'error');
+                        zen_redirect(zen_href_link(FILENAME_DEFAULT));
+                    }
+                } else {
+                    $GLOBALS['messageStack']->add_session('header', WARNING_GUEST_CHECKOUT_NOT_AVAILABLE, 'warning');
+                    $_SESSION['opc']->resetSessionValues();
                 }
             }
                     
