@@ -1,7 +1,5 @@
 # One-Page Checkout v2.0.0 #
 
-This is the ***BETA*** version of the v2.0.0 changes to [One-Page Checkout](https://github.com/lat9/one_page_checkout) for Zen Cart v1.5.4 and later.  After the beta-period is complete, changes present in this repository will be merged back with that master distribution.
-
-Please do not use this code on a live store!
+Changes in this repository have now (2018-03-15) been merged into the [One-Page Checkout](https://github.com/lat9/one_page_checkout) plugin's GitHub repository. Further updates and corrections are being made *in that repository only* and this one is essentially available only for its change-history.
 
 Additional documentation can be found [here](https://lat9.github.io/one_page_checkout).
